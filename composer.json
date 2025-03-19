@@ -2,6 +2,11 @@
   "name": "voral/version-increment",
   "type": "project",
   "description": "A tool for semantic versioning and changelog generation in Composer projects based on Git commits.",
+  "homepage": "https://github.com/Voral/vs-version-incrementor",
+  "support": {
+    "issues": "https://github.com/Voral/vs-version-incrementor/issues",
+    "source": "https://github.com/Voral/vs-version-incrementor"
+  },
   "autoload": {
     "psr-4": {
       "Vasoft\\VersionIncrement\\": "src/"
