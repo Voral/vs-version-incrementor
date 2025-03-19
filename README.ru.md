@@ -1,6 +1,6 @@
 # Семантическое обновление версии
 
-[EN](https://github.com/Voral/BxBackupTools/blob/master/README.md)
+[EN](https://github.com/Voral/vs-version-incrementor/blob/master/README.md)
 
 Этот инструмент автоматизирует процесс обновления версий в Composer-проектах на основе анализа Git-коммитов и генерации
 CHANGELOG. Он помогает соблюдать семантическое версионирование и

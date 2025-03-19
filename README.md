@@ -1,6 +1,6 @@
 # Semantic Version Update
 
-[RU](https://github.com/Voral/BxBackupTools/blob/master/README.ru.md)
+[RU](https://github.com/Voral/vs-version-incrementor/blob/master/README.ru.md)
 
 This tool automates the process of updating versions in Composer projects based on Git commit analysis and CHANGELOG generation. It helps adhere to semantic versioning and the [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/) standard.
 
