@@ -4,5 +4,6 @@
 /phpunit.xml export-ignore
 /.github export-ignore
 /.gitignore export-ignore
-/README.ru.md
-/composer.lock
+/README.ru.md export-ignore
+/composer.lock export-ignore
+/.vs-version-increment.php export-ignore
