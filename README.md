@@ -1,60 +1,68 @@
-# Семантическое обновление версии
+# Semantic Version Update
 
-> ⚠️ **Внимание:**
->
-> В разработке.
+[RU](https://github.com/Voral/BxBackupTools/blob/master/README.ru.md)
 
-Этот инструмент автоматизирует процесс обновления версий в Composer-проектах на основе анализа Git-коммитов и генерации
-CHANGELOG. Он помогает соблюдать семантическое версионирование и
-стандарт [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/).
+This tool automates the process of updating versions in Composer projects based on Git commit analysis and CHANGELOG generation. It helps adhere to semantic versioning and the [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/) standard.
 
-Версия строятся согласно семантическому правилу <Мажорная>.<Минорная>.<Патч>
+The version is built according to the semantic rule `<Major>.<Minor>.<Patch>`:
 
-- *Мажорная* - изменяется при серьезных обновлениях, обновлениях ломающих обратную совместимость и т.п.
-- *Минорное* - добавление новых функций без изменения существующих и без нарушения обратной совместимости
-- *Патч* - Незначительные изменения
+- *Major*: Changes for major updates, breaking backward compatibility, etc.
+- *Minor*: Adding new features without changing existing ones and without breaking backward compatibility.
+- *Patch*: Minor changes or bug fixes.
 
-## Основные функции
+## Key Features
 
-- Анализ текущей версии из composer.json.
-- Определение типа изменения (major, minor, patch) на основе коммитов.
-- Обновление файла composer.json с новой версией.
-- Создание тегов Git для релизов и коммит.
-- Поддержка пользовательских конфигураций для типов коммитов
+- Analyzing the current version from `composer.json`.
+- Determining the type of change (`major`, `minor`, `patch`) based on commits.
+- Updating the `composer.json` file with the new version.
+- Creating Git tags for releases and commits.
+- Supporting custom configurations for commit types.
 
-## Установка
+## Installation
 
 ```bash
 composer require dev voral/version-increment
 ```
 
-### Использование
+### Usage
 
-Для автоматического выбора типа нового релиза
+For automatic selection of the release type:
 
 ```bash
-# Автоматическое определение типа релиза
+# Automatic detection of release type
 ./vendor/bin/vs-version-increment
 
-# Увеличение мажорной версии
+# Incrementing the major version
 ./vendor/bin/vs-version-increment major
 
-# Увеличение минорной версии
+# Incrementing the minor version
 ./vendor/bin/vs-version-increment minor
 
-# Увеличение патч-версии
+# Incrementing the patch version
 ./vendor/bin/vs-version-increment patch
 ```
 
-Пример выходного файла
+To simplify usage, you can add scripts to `composer.json`:
 
-```bash
+```json
+{
+  "scripts": {
+    "vinc:major": "php ./vendor/bin/vs-version-increment major",
+    "vinc:minor": "php ./vendor/bin/vs-version-increment minor",
+    "vinc:patch": "php ./vendor/bin/vs-version-increment patch",
+    "vinc:auto": "php ./vendor/bin/vs-version-increment"
+  }
+}
+```
 
+Example of the output file:
+
+```markdown
 # 1.0.1 (2023-10-01)
 
 ### Features
-- New endpoint for user authentication
-- Added support for dark mode
+- New endpoint user authentication
+- Added support dark mode
 
 ### Fixes
 - Fixed a bug with login form validation
@@ -64,13 +72,11 @@ composer require dev voral/version-increment
 - Updated dependencies
 ```
 
-## Конфигурирование
+## Configuration
 
-Вы можете конфигурировать скрипт. Путем размещения в каталоге проекта файла `.vs-version-increment.php`  и выполнения в
-нем
-следующих настроек
+You can configure the script by placing a `.vs-version-increment.php` file in the project directory and making the following adjustments:
 
-### Установка своего списка типов изменений
+### Setting a Custom List of Change Types
 
 ```php
 return (new \Vasoft\VersionIncrement\Config())
@@ -88,78 +94,69 @@ return (new \Vasoft\VersionIncrement\Config())
     ]);
 ```
 
-Где в качестве ключа код типа, который используется в формировании описания коммита. Каждый тип описывается тремя не
-обязательными параметрами:
+Each type is described by three optional parameters:
 
-- *title* - заголовок группы в файле CHANGELOG
-- *order* - порядок сортировки группы в файле CHANGELOG
-- *hidden* - если `true` группа будет скрыта из файла CHANGELOG
+- *title*: The group title in the CHANGELOG file.
+- *order*: The sorting order of the group in the CHANGELOG file.
+- *hidden*: If `true`, the group will be hidden from the CHANGELOG file.
 
-Так же стоит обратить внимание:
+Also, note the following:
+- If the `other` type is missing, it will be added automatically.
+- If the type corresponding to new functionality (default `feat`) is missing, the minor version will not change during automatic type detection.
 
-- Если отсутствует тип `other` - он будет добавлен автоматически
-- Если отсутствует тип соответствующий новом функционалу (по умолчанию `feat`) - то при автоматическом типе изменений не
-  будет происходить смена минорной версии
+### Configuring Change Types
 
-### Настройка типа изменения
-
-Можно настроить существующий тип и отдельно добавить новый
+You can modify existing types or add new ones:
 
 ```php
 return (new \Vasoft\VersionIncrement\Config())
-    ->setSection('feat','Features') // Изменяем только заголовок
-    ->setSection('fix','Fixes', 1)  // Изменяем заголовок и сортировку
-    ->setSection('ci','CI', hidden: false) // Скрываем из CHANGELOG
-    ->setSection('custom3','My custom type',400,  false) // Добавляем свой, который скрыт из CHANGELOG
-    ;
+    ->setSection('feat', 'Features') // Modify only the title
+    ->setSection('fix', 'Fixes', 1)  // Modify the title and sorting
+    ->setSection('ci', 'CI', hidden: true) // Hide from CHANGELOG
+    ->setSection('custom3', 'My custom type', 400, false); // Add a new type that is hidden from CHANGELOG
 ```
 
-### Настройка типа для релизов
+### Configuring the Release Commit Type
 
-При помощи данной настройки можно изменять (по умолчанию `chore`) тип, который будет использоваться для формирования
-описания релизного коммита.
+By default, the release commit type is `chore`. You can customize this behavior:
 
 ```php
 return (new \Vasoft\VersionIncrement\Config())
-    ->setSection('release','Releases', hidden: false)
+    ->setSection('release', 'Releases', hidden: false)
     ->setReleaseSection('release');
 ```
 
-### Конфигурирование основной ветки репозитория
+### Configuring the Main Repository Branch
 
-По умолчанию основной веткой репозитория считается ветка `master`. Однако можно изменить это поведение при помощи
-настройки
+By default, the main branch is considered to be `master`. However, you can change this behavior:
 
 ```php
 return (new \Vasoft\VersionIncrement\Config())
     ->setMasterBranch('main');
 ```
 
-### Настройка типов для Мажорной версии
+### Configuring Types for Major Version Updates
 
-При автоматическом определении по умолчанию мажорная версия увеличивается только при наличии флага `!`. Однако можно
-настроить типы коммитов при наличии которых в изменениях будет автоматически увеличена мажорная версия
+By default, the major version is incremented only when the `!` flag is present. However, you can configure specific commit types to trigger a major version update:
 
 ```php
 return (new \Vasoft\VersionIncrement\Config())
-    ->setSection('global','Global Changes')
+    ->setSection('global', 'Global Changes')
     ->setMajorTypes(['global']);
 ```
 
-### Настройка типов для Минорной версии
+### Configuring Types for Minor Version Updates
 
-При автоматическом определении по умолчанию минорная версия увеличивается только при наличии флага `feat` среди
-коммитов. Однако можно настроить типы коммитов при наличии которых в изменениях будет автоматически увеличена минорная
-версия
+By default, the minor version is incremented only when the `feat` type is present among commits. You can configure other types to trigger a minor version update:
 
 ```php
 return (new \Vasoft\VersionIncrement\Config())
-    ->setMajorTypes(['feat','fix']);
+    ->setMajorTypes(['feat', 'fix']);
 ```
 
-## Описания коммитов
+## Commit Descriptions
 
-Для правильного функционирования утилиты описания коммитов необходимо формировать по следующему шаблону
+For the tool to function correctly, commit descriptions must follow this format:
 
 ```
 <type>[(scope)][!]: <description>
@@ -167,21 +164,13 @@ return (new \Vasoft\VersionIncrement\Config())
 [body]
 ```
 
-*type* - тип коммита. Рекомендуется использовать типовой для конкретного проекта список. По типу изменения будут
-группироваться в истории изменений. Если указан не зарегистрированный тип - изменение будет отнесено к типу
-по-умолчанию. Так же имеет значение тип настроенный как тип относящийся к новому функционалу (по-умолчанию: feat) - при
-автоопределнии в случае наличия среди изменений с прошлого релиза коммитов с таким типом будет изменена минорная версия
+- *type*: The commit type. It is recommended to use a predefined list for the project. Changes are grouped in the changelog by type. Unregistered types fall under the default category. The type configured as related to new functionality (default: `feat`) affects the minor version during automatic detection.
+- *scope* (optional): The project area to which the commit applies.
+- *!*: Indicates that the commit breaks backward compatibility. During automatic detection, this triggers a major version update.
+- *description*: A short description.
+- *body*: Detailed description (not used by the tool).
 
-*scope* - Не обязательный. Область проекта к которой относится коммит
-
-*!* - Признак того, что коммит нарушает обратную совместимость. При автоопределении типа изменений и при наличии такого
-признака будет увеличена мажорная версия
-
-*description* - Короткое описание.
-
-*body* - Подробное описание коммита в работе утилиты не используется.
-
-Примеры:
+Examples:
 
 ```
 feat(router): New endpoint
@@ -195,40 +184,46 @@ doc: Described all features
 feat!: Removed old API endpoints
 ```
 
-## Типы коммитов по умолчанию
+## Default Commit Types
 
-| Тип        | Назначение                                                           |
-|------------|----------------------------------------------------------------------|
-| `feat`     | Добавление нового функционала                                        |
-| `fix`      | Исправление ошибок                                                   |
-| `chore`    | Рутинные задачи (например, обновление зависимостей)                  |
-| `docs`     | Изменения в документации                                             |
-| `style`    | Форматирование кода (отступы, пробелы и т.д.)                        |
-| `refactor` | Рефакторинг кода без добавления новых функций или исправления ошибок |
-| `test`     | Добавление или изменение тестов                                      |
-| `perf`     | Оптимизация производительности                                       |
-| `ci`       | Настройка непрерывной интеграции (CI)                                |
-| `build`    | Изменения, связанные со сборкой проекта                              |
-| `other`    | Все остальные изменения, не попадающие под стандартные категории     |
+| Type       | Purpose                                                           |
+|------------|-------------------------------------------------------------------|
+| `feat`     | Adding new functionality                                          |
+| `fix`      | Fixing bugs                                                       |
+| `chore`    | Routine tasks (e.g., dependency updates)                          |
+| `docs`     | Documentation changes                                             |
+| `style`    | Code formatting (indentation, spaces, etc.)                       |
+| `refactor` | Refactoring code without adding new features or fixing bugs       |
+| `test`     | Adding or modifying tests                                         |
+| `perf`     | Performance optimization                                          |
+| `ci`       | Continuous integration (CI) configuration                         |
+| `build`    | Changes related to project build                                  |
+| `other`    | All other changes that do not fall under standard categories      |
 
-## Интеграция с CI/CD
+## CI/CD Integration
 
-Скрипт можно интегрировать c CI/CD. При возникновении ошибок он возвращает различные коды
+The script can be integrated into CI/CD pipelines. In case of errors, it returns different exit codes:
 
-| Код | Описание                                |
-|-----|-----------------------------------------|
-| 10  | Ошибка конфигурации composer            |
-| 20  | Ошибка ветки Git не основная            |
-| 30  | Незакоммиченные изменения в репозитории |
-| 40  | В репозитории нет изменений             |
-| 50  | Неверный конфигурационный файл          |
-| 60  | Ошибка выполнения команды git           |
-| 70  | Неверный тип изменения версии           |
-| 500 | Прочие ошибки                           |
+| Code | Description                                |
+|------|--------------------------------------------|
+| 10   | Composer configuration error               |
+| 20   | Git branch is not the main branch          |
+| 30   | Uncommitted changes in the repository      |
+| 40   | No changes in the repository               |
+| 50   | Invalid configuration file                 |
+| 60   | Error executing a Git command              |
+| 70   | Invalid version change type                |
+| 500  | Other errors                               |
 
-Пример для Github Actions
+You can use it in the command line, for example:
 
+```bash
+./vendor/bin/vs-version-increment && echo 'Ok' || echo 'Error'
 ```
+
+Example for GitHub Actions:
+
+```yaml
 jobs:
   version-update:
     runs-on: ubuntu-latest
@@ -240,8 +235,8 @@ jobs:
         run: ./vendor/bin/vs-version-increment
 ```
 
-## Полезные ссылки
+## Useful Links
 
 - [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/)
 - [Semantic Versioning](https://semver.org/)
-- [Репозиторий проекта](https://github.com/Voral/vs-version-incrementor)
+- [Project Repository](https://github.com/Voral/vs-version-incrementor)
