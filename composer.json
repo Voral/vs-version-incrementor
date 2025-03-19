@@ -1,63 +1,63 @@
 {
-  "name": "voral/version-increment",
-  "type": "library",
-  "description": "A tool for semantic versioning and changelog generation in Composer projects based on Git commits.",
-  "homepage": "https://github.com/Voral/vs-version-incrementor",
-  "support": {
-    "issues": "https://github.com/Voral/vs-version-incrementor/issues",
-    "source": "https://github.com/Voral/vs-version-incrementor"
-  },
-  "autoload": {
-    "psr-4": {
-      "Vasoft\\VersionIncrement\\": "src/"
+    "name": "voral/version-increment",
+    "type": "library",
+    "description": "A tool for semantic versioning and changelog generation in Composer projects based on Git commits.",
+    "homepage": "https://github.com/Voral/vs-version-incrementor",
+    "support": {
+        "issues": "https://github.com/Voral/vs-version-incrementor/issues",
+        "source": "https://github.com/Voral/vs-version-incrementor"
+    },
+    "autoload": {
+        "psr-4": {
+            "Vasoft\\VersionIncrement\\": "src/"
+        }
+    },
+    "scripts": {
+        "vi": "php ./bin/vs-version-increment",
+        "test": "php vendor/bin/phpunit --display-warnings",
+        "coverage": "php -dzend_extension=xdebug.so -dxdebug.mode=coverage vendor/bin/phpunit --coverage-text",
+        "stan": "vendor/bin/phpstan analyse src tests",
+        "fixer": "vendor/bin/php-cs-fixer fix --dry-run --diff",
+        "check": [
+            "@fixer",
+            "@stan"
+        ]
+    },
+    "require": {
+        "php": ">=8.1"
+    },
+    "require-dev": {
+        "friendsofphp/php-cs-fixer": "^3.66.0",
+        "phpunit/phpunit": "^10.5",
+        "php-mock/php-mock-phpunit": "^2.10",
+        "phpstan/phpstan": "^2.1",
+        "phpstan/phpstan-phpunit": "^2.0"
+    },
+    "authors": [
+        {
+            "name": "Alexander Vorobyev",
+            "email": "voral.adm@gmail.com"
+        }
+    ],
+    "bin": [
+        "bin/vs-version-increment"
+    ],
+    "version": "1.0.1",
+    "license": "MIT",
+    "keywords": [
+        "semantic versioning",
+        "changelog",
+        "git",
+        "composer",
+        "version increment"
+    ],
+    "prefer-stable": true,
+    "archive": {
+        "exclude": [
+            "/tests",
+            ".phpstan.neon.dist",
+            "phpunit.xml",
+            "/.github"
+        ]
     }
-  },
-  "scripts": {
-    "vi" : "php ./bin/vs-version-increment",
-    "test": "php vendor/bin/phpunit --display-warnings",
-    "coverage": "php -dzend_extension=xdebug.so -dxdebug.mode=coverage vendor/bin/phpunit --coverage-text",
-    "stan": "vendor/bin/phpstan analyse src tests",
-    "fixer": "vendor/bin/php-cs-fixer fix --dry-run --diff",
-    "check": [
-      "@fixer",
-      "@stan"
-    ]
-  },
-  "require": {
-    "php": ">=8.1"
-  },
-  "require-dev": {
-    "friendsofphp/php-cs-fixer": "^3.66.0",
-    "phpunit/phpunit": "^10.5",
-    "php-mock/php-mock-phpunit": "^2.10",
-    "phpstan/phpstan": "^2.1",
-    "phpstan/phpstan-phpunit": "^2.0"
-  },
-  "authors": [
-    {
-      "name": "Alexander Vorobyev",
-      "email": "voral.adm@gmail.com"
-    }
-  ],
-  "bin": [
-    "bin/vs-version-increment"
-  ],
-  "version": "1.0.0",
-  "license": "MIT",
-  "keywords": [
-    "semantic versioning",
-    "changelog",
-    "git",
-    "composer",
-    "version increment"
-  ],
-  "prefer-stable": true,
-  "archive": {
-    "exclude": [
-      "/tests",
-      ".phpstan.neon.dist",
-      "phpunit.xml",
-      "/.github"
-    ]
-  }
 }
