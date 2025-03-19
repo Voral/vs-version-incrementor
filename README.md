@@ -21,7 +21,7 @@ The version is built according to the semantic rule `<Major>.<Minor>.<Patch>`:
 ## Installation
 
 ```bash
-composer require dev voral/version-increment
+composer require --dev voral/version-increment
 ```
 
 ### Usage

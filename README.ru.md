@@ -23,7 +23,7 @@ CHANGELOG. Он помогает соблюдать семантическое �
 ## Установка
 
 ```bash
-composer require dev voral/version-increment
+composer require --dev voral/version-increment
 ```
 
 ### Использование
