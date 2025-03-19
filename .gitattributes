@@ -1,4 +1,8 @@
-/tests    export-ignore
-.phpstan.neon.dist export-ignore
-phpunit.xml export-ignore
-.github export-ignore
+/.phpstan.neon.dist export-ignore
+/.php-sc-fixer.php export-ignore
+/tests export-ignore
+/phpunit.xml export-ignore
+/.github export-ignore
+/.gitignore export-ignore
+/README.ru.md
+/composer.lock
