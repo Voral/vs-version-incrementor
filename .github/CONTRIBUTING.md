@@ -1,67 +1,67 @@
-# Руководство по внесению доработок
+# Contribution Guide
 
-Спасибо за интерес к нашему проекту! Я рад, что вы хотите помочь сделать его лучше. Это руководство поможет вам понять, как можно внести свой вклад.
+Thank you for your interest in our project! I'm glad that you want to help make it better. This guide will help you understand how you can contribute.
 
-## Как начать?
+## How to Get Started?
 
-1. **Fork репозитория**: Создайте свою копию репозитория, нажав кнопку "Fork" в правом верхнем углу страницы.
-2. **Клонируйте репозиторий**:
+1. **Fork the Repository**: Create your own copy of the repository by clicking the "Fork" button in the top right corner of the page.
+2. **Clone the Repository**:
    ```
    git clone https://github.com/your-username/your-repo.git
    cd your-repo
    ```
-3. **Настройте окружение**:
-    - Убедитесь, что у вас установлены необходимые зависимости (например, PHP 8.1+ и Composer).
-    - Выполните команду для установки зависимостей:
-      ```
-      composer install
-      ```
+3. **Set Up the Environment**:
+   - Make sure you have the required dependencies installed (e.g., PHP 8.1+ and Composer).
+   - Run the command to install dependencies:
+     ```
+     composer install
+     ```
 
-## Как внести изменения?
+## How to Make Changes?
 
-1. Создайте новую ветку для ваших изменений:
+1. Create a new branch for your changes:
    ```
    git checkout -b feature/your-feature-name
    ```
-2. Внесите изменения в код.
-3. Проверьте, что ваш код соответствует стандартам проекта (см. раздел "Правила оформления кода").
-4. Запустите тесты, если они есть:
+2. Make your changes to the code.
+3. Ensure your code adheres to the project standards (see the "Code Style Guidelines" section).
+4. Run the tests, if available:
    ```
    ./vendor/bin/phpunit
    ```
 
-## Как отправить pull request?
+## How to Submit a Pull Request?
 
-1. Зафиксируйте свои изменения:
+1. Commit your changes:
    ```
    git add .
-   git commit -m "Описание ваших изменений"
+   git commit -m "feat: Description of your changes"
    ```
-2. Отправьте изменения в ваш fork:
+2. Push your changes to your fork:
    ```
    git push origin feature/your-feature-name
    ```
-3. Перейдите в оригинальный репозиторий и создайте pull request из вашей ветки.
-4. Убедитесь, что ваш pull request содержит:
-    - Четкое описание изменений.
-    - Информацию о том, как эти изменения влияют на проект.
+3. Go to the original repository and create a pull request from your branch.
+4. Ensure your pull request includes:
+   - A clear description of the changes.
+   - Information on how these changes affect the project.
 
-## Правила оформления кода
+## Code Style Guidelines
 
-Проект придерживается следующих стандартов:
-- Используйте [PSR-12](https://www.php-fig.org/psr/psr-12/) для форматирования кода.
-- Добавляйте комментарии к сложным частям кода.
-- Пишите тесты для нового функционала.
+The project adheres to the following standards:
+- Use [PER Code Style 2](https://www.php-fig.org/per/coding-style/) for code formatting.
+- Add comments to complex parts of the code.
+- Write tests for new functionality.
 
-## Процесс ревью
+## Review Process
 
-1. После создания pull request я проверю ваши изменения.
-2. Если потребуются правки, оставлю комментарии. Пожалуйста, будьте готовы обсудить их.
-3. После одобрения изменения будут включены в основную ветку.
+1. After creating a pull request, I will review your changes.
+2. If any changes are needed, I will leave comments. Please be ready to discuss them.
+3. Once approved, the changes will be merged into the main branch.
 
-## Контакты
+## Contacts
 
-Если у вас возникли вопросы или вы не уверены, как внести изменения:
-- Создайте issue с меткой `question`.
+If you have questions or are unsure how to make changes:
+- Create an issue with the label `question`.
 
-Спасибо за ваш вклад!
+Thank you for your contribution!

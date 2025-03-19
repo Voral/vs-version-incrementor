@@ -1,37 +1,43 @@
-# Политика безопасности
+# Security Policy
 
-Мы стремимся обеспечить безопасность нашего проекта и оперативно реагировать на сообщения о потенциальных уязвимостях. Если вы обнаружили проблему, связанную с безопасностью, пожалуйста, следуйте инструкциям ниже.
+We are committed to ensuring the security of our project and responding promptly to reports of potential
+vulnerabilities. If you discover an issue related to security, please follow the instructions below.
 
-## Как сообщить о проблеме безопасности?
+## How to Report a Security Issue?
 
-Если вы нашли уязвимость или подозреваете, что в проекте есть проблема, связанная с безопасностью:
-1. **Не создавайте публичный issue**. Это может привести к нежелательному раскрытию информации.
-2. Свяжитесь с нами через приватные каналы связи:
+If you have found a vulnerability or suspect that there is a security-related issue in the project:
+
+1. **Do not create a public issue**. This may lead to unwanted disclosure of information.
+2. Contact us through private communication channels:
     - **Email**: voral.adm@gmail.com
 
-## Что указывать в сообщении?
+## What to Include in Your Report?
 
-Пожалуйста, предоставьте как можно больше информации, чтобы мы могли быстро понять и исправить проблему:
-- Описание уязвимости.
-- Шаги для воспроизведения проблемы.
-- Версия пакета, в которой вы обнаружили проблему.
-- Скриншоты, логи или другие материалы, которые могут помочь нам разобраться.
+Please provide as much information as possible so we can quickly understand and fix the issue:
 
-## Как мы обрабатываем сообщения?
+- A description of the vulnerability.
+- Steps to reproduce the problem.
+- The version of the package where you discovered the issue.
+- Screenshots, logs, or other materials that may help us investigate.
 
-1. Мы проверяем каждое сообщение в течение **1–2 рабочих дней**.
-2. Если проблема подтверждается, мы начинаем работу над исправлением.
-3. После выпуска исправления мы публикуем информацию о проблеме и её решении (если это не нарушает конфиденциальность).
+## How We Handle Reports?
 
-## Политика ответственного раскрытия
+1. We review each report within **1–2 business days**.
+2. If the issue is confirmed, we begin working on a fix.
+3. After the fix is released, we publish information about the issue and its resolution (unless it compromises
+   confidentiality).
 
-Мы придерживаемся принципов ответственного раскрытия уязвимостей. Пожалуйста:
-- Не публикуйте информацию о проблеме до её исправления.
-- Дайте нам время на анализ и исправление проблемы.
+## Responsible Disclosure Policy
 
-## Вознаграждения
+We adhere to the principles of responsible vulnerability disclosure. Please:
 
-Мы благодарим всех, кто помогает сделать наш проект более безопасным. Если вы сообщите о серьёзной уязвимости, мы можем предложить вам:
-- Публичное упоминание в списке благодарностей.
+- Do not publicly disclose information about the issue until it has been fixed.
+- Allow us time to analyze and resolve the issue.
 
-Спасибо за ваш вклад в безопасность нашего проекта!
+## Rewards
+
+We thank everyone who helps make our project more secure. If you report a significant vulnerability, we may offer you:
+
+- Public acknowledgment in our list of contributors.
+
+Thank you for your contribution to the security of our project!

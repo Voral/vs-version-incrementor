@@ -1,40 +1,40 @@
-# Правила поведения
+# Code of Conduct
 
-## Наше обязательство
+## Our Commitment
 
-Мы стремимся обеспечить дружелюбную, безопасную и инклюзивную среду для всех участников нашего проекта, независимо от возраста, размера тела, видимых или невидимых ограничений, этнической принадлежности, пола, уровня опыта, национальности, личного внешнего вида, расы, религии или идентичности и самовыражения.
+We are committed to providing a friendly, safe, and inclusive environment for all participants in our project, regardless of age, body size, visible or invisible disabilities, ethnicity, gender, level of experience, nationality, personal appearance, race, religion, or identity and self-expression.
 
-## Стандарты поведения
+## Standards of Behavior
 
-Примеры поведения, которое способствует созданию положительной среды:
-- Быть доброжелательным и открытым к общению.
-- Уважать чужое мнение, даже если оно отличается от вашего.
-- Проявлять терпимость к различным точкам зрения.
-- Признавать усилия других участников.
-- Концентрироваться на том, что лучше для сообщества.
+Examples of behavior that contribute to creating a positive environment:
+- Being kind and open to communication.
+- Respecting others' opinions, even if they differ from your own.
+- Demonstrating tolerance for different viewpoints.
+- Acknowledging the efforts of other participants.
+- Focusing on what is best for the community.
 
-Примеры неприемлемого поведения:
-- Использование сексуализированных образов или текстов.
-- Троллинг или оскорбления.
-- Личные нападки или преследования.
-- Публичное или частное преследование.
-- Другие действия, которые могут быть восприняты как агрессивные или уничижительные.
+Examples of unacceptable behavior:
+- The use of sexualized images or text.
+- Trolling or insults.
+- Personal attacks or harassment.
+- Public or private harassment.
+- Other actions that may be perceived as aggressive or derogatory.
 
-## Ответственность
+## Responsibility
 
-Разработчик пакета несет ответственность за обеспечение соблюдения этих стандартов в рамках проекта. Он имеет право удалять, редактировать или отклонять комментарии, commits, код, редакционные изменения, проблемы и другие вклады, которые не соответствуют этим правилам поведения. Разработчик также может временно или постоянно блокировать других участников за другие поведенческие нарушения.
+The package developer is responsible for ensuring compliance with these standards within the project. They have the right to remove, edit, or reject comments, commits, code, editorial changes, issues, and other contributions that do not align with these rules of conduct. The developer may also temporarily or permanently block other participants for other behavioral violations.
 
-## Область применения
+## Scope
 
-Эти правила применяется ко всем пространствам проекта, включая issue, pull requests, обсуждения и другие платформы, связанные с проектом. Он также распространяется на поведение вне проекта, если оно влияет на сообщество внутри проекта.
+These rules apply to all spaces within the project, including issues, pull requests, discussions, and other platforms related to the project. They also extend to behavior outside the project if it affects the community within the project.
 
-## Правила общения
+## Communication Guidelines
 
-Если вы столкнулись с поведением, нарушающим эти правила, или у вас есть опасения по поводу чего-либо, пожалуйста, свяжитесь с нами через приватные каналы связи:
+If you encounter behavior that violates these rules, or if you have concerns about anything, please contact us through private communication channels:
 - **Email**: voral.adm@gmail.com
 
-Обязуемся рассмотреть все жалобы и принять соответствующие меры для восстановления безопасности и комфорта сообщества.
+We commit to reviewing all complaints and taking appropriate action to restore the safety and comfort of the community.
 
-## Атрибуция
+## Attribution
 
-Эти правила поведения основаны на [Contributor Covenant](https://www.contributor-covenant.org), версия 2.1.
+This code of conduct is based on the [Contributor Covenant](https://www.contributor-covenant.org), version 2.1.

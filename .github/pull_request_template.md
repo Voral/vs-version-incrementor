@@ -1,33 +1,33 @@
 ---
-name: Общий шаблон
-about: Используйте этот шаблон для всех pull request
-title: "[TYPE] Краткое описание изменений"
+name: General Template
+about: Use this template for all pull requests
+title: "[TYPE] Brief description of changes"
 labels: enhancement
 assignees: []
 ---
 
-### Описание изменений
-Опишите, какие изменения вы внесли и зачем они нужны.
+### Description of Changes
+Describe the changes you made and why they are necessary.
 
-### Тип изменений
-- [ ] Новая функциональность
-- [ ] Исправление ошибки
-- [ ] Изменение существующего функционала
-- [ ] Документация
-- [ ] Тесты
+### Type of Changes
+- [ ] New feature
+- [ ] Bug fix
+- [ ] Modification of existing functionality
+- [ ] Documentation
+- [ ] Tests
 
-### Связанные задачи
-Укажите ссылки на связанные issue или задачи. Например:
+### Related Issues
+Provide links to related issues or tasks. For example:
 - Closes #123
 - Related to #456
 
-### Как тестировать изменения?
-Опишите, как проверить, что ваши изменения работают корректно. Например:
-1. Выполните команду `composer install`.
-2. Запустите тесты: `./vendor/bin/phpunit`.
+### How to Test the Changes?
+Describe how to verify that your changes work correctly. For example:
+1. Run `composer install`.
+2. Run the tests: `./vendor/bin/phpunit`.
 
-### Дополнительная информация
-Любая другая информация, которая может помочь ревьюерам:
-- Скриншоты (если применимо).
-- Инструкции по настройке окружения.
-- Примеры использования нового функционала.
+### Additional Information
+Any other information that may help reviewers:
+- Screenshots (if applicable).
+- Environment setup instructions.
+- Examples of using the new functionality.

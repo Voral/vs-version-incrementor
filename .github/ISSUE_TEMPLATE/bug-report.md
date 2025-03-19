@@ -1,27 +1,27 @@
 ---
-name: Сообщить об ошибке
-about: Сообщите об ошибке в работе пакета
-title: "[BUG] Краткое описание проблемы"
+name: Report a Bug
+about: Report an issue with the package's functionality
+title: "[BUG] Brief description of the issue"
 labels: bug
 assignees: []
 ---
 
-### Описание проблемы
-Опишите, что именно не работает или работает некорректно. Постарайтесь быть максимально конкретным.
+### Problem Description
+Describe what exactly is not working or is working incorrectly. Try to be as specific as possible.
 
-### Шаги для воспроизведения
-1. Сделайте это...
-2. Затем это...
-3. В результате произошло это...
+### Steps to Reproduce
+1. Do this...
+2. Then do that...
+3. As a result, this happened...
 
-### Ожидаемое поведение
-Опишите, что вы ожидали увидеть.
+### Expected Behavior
+Describe what you expected to see.
 
-### Фактическое поведение
-Опишите, что произошло на самом деле.
+### Actual Behavior
+Describe what actually happened.
 
-### Дополнительная информация
-- Версия пакета:
-- Версия PHP:
-- Операционная система:
-- Конфигурация (если применимо): Не забудьте убрать конфидециальную информацию при добавлении конфигурации
+### Additional Information
+- Package version:
+- PHP version:
+- Operating system:
+- Configuration (if applicable): Make sure to remove any sensitive information when adding configuration details.

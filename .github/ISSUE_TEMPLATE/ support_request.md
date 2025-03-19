@@ -1,22 +1,22 @@
 ---
-name: Запрос поддержки
-about: Задайте вопрос о работе пакета
-title: "[SUPPORT] Краткое описание вопроса"
+name: Support Request
+about: Ask a question about how the package works
+title: "[SUPPORT] Brief description of the issue"
 labels: support
 assignees: []
 ---
 
-### Описание проблемы
-Опишите, с чем у вас возникла сложность. Постарайтесь быть максимально конкретным.
+### Problem Description
+Describe the difficulty you are experiencing. Try to be as specific as possible.
 
-### Шаги, которые вы уже предприняли
-Опишите, что вы уже пробовали сделать для решения проблемы.
+### Steps You Have Already Taken
+Describe what you have already tried to resolve the issue.
 
-### Ожидаемый результат
-Опишите, чего вы ожидаете достичь.
+### Expected Outcome
+Describe what you expect to achieve.
 
-### Дополнительная информация
-- Версия пакета:
-- Версия PHP:
-- Операционная система:
-- Конфигурация (если применимо): Не забудьте убрать конфидециальную информацию при добавлении конфигурации
+### Additional Information
+- Package version:
+- PHP version:
+- Operating system:
+- Configuration (if applicable): Make sure to remove any sensitive information when adding configuration details.

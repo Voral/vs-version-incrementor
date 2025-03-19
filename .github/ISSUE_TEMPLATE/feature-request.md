@@ -1,22 +1,22 @@
 ---
-name: Предложить функционал
-about: Предложите новую функцию для пакета
-title: "[FEATURE] Краткое описание предложения"
+name: Suggest a Feature
+about: Suggest a new feature for the package
+title: "[FEATURE] Brief description of the suggestion"
 labels: enhancement
 assignees: []
 ---
 
-### Описание предложения
-Опишите, какую функциональность вы хотите видеть в пакете. Объясните, почему она может быть полезной.
+### Description of the Suggestion
+Describe the functionality you would like to see in the package. Explain why it might be useful.
 
-### Пример использования
-Покажите, как вы бы использовали эту функцию. Например:
+### Example Usage
+Show how you would use this feature. For example:
 ```php
-// Пример кода
+// Example code
 ```
 
-### Альтернативные решения
-Если есть альтернативные способы решения проблемы, опишите их.
+### Alternative Solutions
+If there are alternative ways to solve the problem, describe them.
 
-### Дополнительная информация
-Любая другая информация, которая может помочь разработчикам.
+### Additional Information
+Any other information that may help the developers.
