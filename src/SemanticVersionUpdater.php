@@ -73,17 +73,7 @@ class SemanticVersionUpdater
         $lastTag = $this->getLastTag();
         $commits = $this->getCommitsSinceLastTag($lastTag);
         $sections = $this->analyzeCommits($commits);
-
-        if ('' === $this->changeType) {
-            if ($this->isBreaking) {
-                $this->changeType = 'major';
-            } else {
-                $this->changeType = 'patch';
-                if (!empty($sections[$this->config->getFeatSection()])) {
-                    $this->changeType = 'minor';
-                }
-            }
-        }
+        $this->detectionTypeChange($sections);
 
         $currentVersion = $composerJson['version'] ?? '1.0.0';
 
@@ -104,6 +94,33 @@ class SemanticVersionUpdater
         $this->runCommand("tag v{$newVersion}");
 
         echo "Release {$newVersion} successfully created!\n";
+    }
+
+    private function detectionTypeChange(array $sections): void
+    {
+        if ('' === $this->changeType) {
+            if ($this->isBreaking) {
+                $this->changeType = 'major';
+            } else {
+                $this->changeType = 'patch';
+                if ($this->hasTypedCommits($sections, $this->config->getMajorTypes())) {
+                    $this->changeType = 'major';
+                } elseif ($this->hasTypedCommits($sections, $this->config->getMinorTypes())) {
+                    $this->changeType = 'minor';
+                }
+            }
+        }
+    }
+
+    private function hasTypedCommits(array $sections, array $keys): bool
+    {
+        foreach ($keys as $key) {
+            if (!empty($sections[$key])) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /**

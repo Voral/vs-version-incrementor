@@ -6,6 +6,12 @@ namespace Vasoft\VersionIncrement;
 
 final class Config
 {
+    private array $minorTypes = [
+        'feat',
+    ];
+    private array $majorTypes = [
+
+    ];
     public const DEFAULT_SECTION = 'other';
 
     private int $defaultOrder = 500;
@@ -170,5 +176,29 @@ final class Config
     public function setFeatSection(string $featSection): void
     {
         $this->featSection = $featSection;
+    }
+
+    public function setMinorTypes(array $minorTypes): self
+    {
+        $this->minorTypes = $minorTypes;
+
+        return $this;
+    }
+
+    public function setMajorTypes(array $majorTypes): self
+    {
+        $this->majorTypes = $majorTypes;
+
+        return $this;
+    }
+
+    public function getMajorTypes(): array
+    {
+        return $this->majorTypes;
+    }
+
+    public function getMinorTypes(): array
+    {
+        return $this->minorTypes;
     }
 }
