@@ -734,6 +734,7 @@ final class SemanticVersionUpdaterTest extends TestCase
             );
         $config = new Config();
         $config->setMajorTypes(['feat', 'doc']);
+        $config->setReleaseScope('');
         $updater = new SemanticVersionUpdater('/test', $config);
         ob_start();
         $updater->updateVersion();
@@ -741,7 +742,7 @@ final class SemanticVersionUpdaterTest extends TestCase
         self::assertSame($versionAfterExpected, $versionAfter);
         self::assertSame($textChangelogExpected, $textChangelog);
         self::assertSame('git add CHANGELOG.md 2>&1', $commands[4]);
-        self::assertSame("git commit -am 'chore(release): v3.0.0' 2>&1", $commands[5]);
+        self::assertSame("git commit -am 'chore: v3.0.0' 2>&1", $commands[5]);
         self::assertSame('git tag v3.0.0 2>&1', $commands[6]);
         self::assertSame("Release 3.0.0 successfully created!\n", $output);
     }
@@ -811,13 +812,14 @@ final class SemanticVersionUpdaterTest extends TestCase
             );
         $config = new Config();
         $config->setMinorTypes(['docs']);
+        $config->setReleaseScope('rel');
         $updater = new SemanticVersionUpdater('/test', $config);
         ob_start();
         $updater->updateVersion();
         $output = ob_get_clean();
         self::assertSame($versionAfterExpected, $versionAfter);
         self::assertSame($textChangelogExpected, $textChangelog);
-        self::assertSame("git commit -am 'chore(release): v2.3.0' 2>&1", $commands[4]);
+        self::assertSame("git commit -am 'chore(rel): v2.3.0' 2>&1", $commands[4]);
         self::assertSame('git tag v2.3.0 2>&1', $commands[5]);
         self::assertSame("Release 2.3.0 successfully created!\n", $output);
     }

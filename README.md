@@ -2,7 +2,9 @@
 
 [RU](https://github.com/Voral/vs-version-incrementor/blob/master/README.ru.md)
 
-This tool automates the process of updating versions in Composer projects based on Git commit analysis and CHANGELOG generation. It helps adhere to semantic versioning and the [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/) standard.
+This tool automates the process of updating versions in Composer projects based on Git commit analysis and CHANGELOG
+generation. It helps adhere to semantic versioning and
+the [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/) standard.
 
 The version is built according to the semantic rule `<Major>.<Minor>.<Patch>`:
 
@@ -61,20 +63,24 @@ Example of the output file:
 # 1.0.1 (2023-10-01)
 
 ### Features
+
 - New endpoint user authentication
 - Added support dark mode
 
 ### Fixes
+
 - Fixed a bug with login form validation
 - Resolved issue with incorrect API response
 
 ### Other
+
 - Updated dependencies
 ```
 
 ## Configuration
 
-You can configure the script by placing a `.vs-version-increment.php` file in the project directory and making the following adjustments:
+You can configure the script by placing a `.vs-version-increment.php` file in the project directory and making the
+following adjustments:
 
 ### Setting a Custom List of Change Types
 
@@ -101,8 +107,10 @@ Each type is described by three optional parameters:
 - *hidden*: If `true`, the group will be hidden from the CHANGELOG file.
 
 Also, note the following:
+
 - If the `other` type is missing, it will be added automatically.
-- If the type corresponding to new functionality (default `feat`) is missing, the minor version will not change during automatic type detection.
+- If the type corresponding to new functionality (default `feat`) is missing, the minor version will not change during
+  automatic type detection.
 
 ### Configuring Change Types
 
@@ -137,7 +145,8 @@ return (new \Vasoft\VersionIncrement\Config())
 
 ### Configuring Types for Major Version Updates
 
-By default, the major version is incremented only when the `!` flag is present. However, you can configure specific commit types to trigger a major version update:
+By default, the major version is incremented only when the `!` flag is present. However, you can configure specific
+commit types to trigger a major version update:
 
 ```php
 return (new \Vasoft\VersionIncrement\Config())
@@ -147,11 +156,42 @@ return (new \Vasoft\VersionIncrement\Config())
 
 ### Configuring Types for Minor Version Updates
 
-By default, the minor version is incremented only when the `feat` type is present among commits. You can configure other types to trigger a minor version update:
+By default, the minor version is incremented only when the `feat` type is present among commits. You can configure other
+types to trigger a minor version update:
 
 ```php
 return (new \Vasoft\VersionIncrement\Config())
     ->setMajorTypes(['feat', 'fix']);
+```
+
+### Release Scope Configuration
+
+When creating a release, a commit is generated, and by default, the scope `release` is displayed in the commit message.
+
+You can customize it as follows:
+
+```php
+return (new \Vasoft\VersionIncrement\Config())
+    ->setReleaseScope('rel');
+```
+
+In this case, the commit message will look like this:
+
+```
+chore(rel): v3.0.0
+```
+
+Alternatively, you can remove the scope entirely:
+
+```php
+return (new \Vasoft\VersionIncrement\Config())
+    ->setReleaseScope('');
+```
+
+In this case, the commit message will look like this:
+
+```
+chore: v3.0.0
 ```
 
 ## Commit Descriptions
@@ -164,9 +204,12 @@ For the tool to function correctly, commit descriptions must follow this format:
 [body]
 ```
 
-- *type*: The commit type. It is recommended to use a predefined list for the project. Changes are grouped in the changelog by type. Unregistered types fall under the default category. The type configured as related to new functionality (default: `feat`) affects the minor version during automatic detection.
+- *type*: The commit type. It is recommended to use a predefined list for the project. Changes are grouped in the
+  changelog by type. Unregistered types fall under the default category. The type configured as related to new
+  functionality (default: `feat`) affects the minor version during automatic detection.
 - *scope* (optional): The project area to which the commit applies.
-- *!*: Indicates that the commit breaks backward compatibility. During automatic detection, this triggers a major version update.
+- *!*: Indicates that the commit breaks backward compatibility. During automatic detection, this triggers a major
+  version update.
 - *description*: A short description.
 - *body*: Detailed description (not used by the tool).
 
@@ -186,34 +229,34 @@ feat!: Removed old API endpoints
 
 ## Default Commit Types
 
-| Type       | Purpose                                                           |
-|------------|-------------------------------------------------------------------|
-| `feat`     | Adding new functionality                                          |
-| `fix`      | Fixing bugs                                                       |
-| `chore`    | Routine tasks (e.g., dependency updates)                          |
-| `docs`     | Documentation changes                                             |
-| `style`    | Code formatting (indentation, spaces, etc.)                       |
-| `refactor` | Refactoring code without adding new features or fixing bugs       |
-| `test`     | Adding or modifying tests                                         |
-| `perf`     | Performance optimization                                          |
-| `ci`       | Continuous integration (CI) configuration                         |
-| `build`    | Changes related to project build                                  |
-| `other`    | All other changes that do not fall under standard categories      |
+| Type       | Purpose                                                      |
+|------------|--------------------------------------------------------------|
+| `feat`     | Adding new functionality                                     |
+| `fix`      | Fixing bugs                                                  |
+| `chore`    | Routine tasks (e.g., dependency updates)                     |
+| `docs`     | Documentation changes                                        |
+| `style`    | Code formatting (indentation, spaces, etc.)                  |
+| `refactor` | Refactoring code without adding new features or fixing bugs  |
+| `test`     | Adding or modifying tests                                    |
+| `perf`     | Performance optimization                                     |
+| `ci`       | Continuous integration (CI) configuration                    |
+| `build`    | Changes related to project build                             |
+| `other`    | All other changes that do not fall under standard categories |
 
 ## CI/CD Integration
 
 The script can be integrated into CI/CD pipelines. In case of errors, it returns different exit codes:
 
-| Code | Description                                |
-|------|--------------------------------------------|
-| 10   | Composer configuration error               |
-| 20   | Git branch is not the main branch          |
-| 30   | Uncommitted changes in the repository      |
-| 40   | No changes in the repository               |
-| 50   | Invalid configuration file                 |
-| 60   | Error executing a Git command              |
-| 70   | Invalid version change type                |
-| 500  | Other errors                               |
+| Code | Description                           |
+|------|---------------------------------------|
+| 10   | Composer configuration error          |
+| 20   | Git branch is not the main branch     |
+| 30   | Uncommitted changes in the repository |
+| 40   | No changes in the repository          |
+| 50   | Invalid configuration file            |
+| 60   | Error executing a Git command         |
+| 70   | Invalid version change type           |
+| 500  | Other errors                          |
 
 You can use it in the command line, for example:
 

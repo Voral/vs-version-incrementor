@@ -98,8 +98,18 @@ class SemanticVersionUpdater
         if ($changeLogAddToGit) {
             $this->runCommand('add CHANGELOG.md');
         }
+        $releaseScope = trim($this->config->getReleaseScope());
+        if ('' !== $releaseScope) {
+            $releaseScope = sprintf('(%s)', $releaseScope);
+        }
+
         $this->runCommand(
-            sprintf("commit -am '%s(release): v%s'", $this->config->getReleaseSection(), $newVersion),
+            sprintf(
+                "commit -am '%s%s: v%s'",
+                $this->config->getReleaseSection(),
+                $releaseScope,
+                $newVersion,
+            ),
         );
         $this->runCommand("tag v{$newVersion}");
 

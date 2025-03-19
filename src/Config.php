@@ -18,6 +18,8 @@ final class Config
     private bool $sored = true;
     private string $masterBranch = 'master';
     private string $releaseSection = 'chore';
+
+    private string $releaseScope = 'release';
     private array $sections = [
         'feat' => [
             'title' => 'New features',
@@ -189,5 +191,17 @@ final class Config
     public function getMinorTypes(): array
     {
         return $this->minorTypes;
+    }
+
+    public function setReleaseScope(string $releaseScope): self
+    {
+        $this->releaseScope = $releaseScope;
+
+        return $this;
+    }
+
+    public function getReleaseScope(): string
+    {
+        return $this->releaseScope;
     }
 }
