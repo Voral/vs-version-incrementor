@@ -1,0 +1,245 @@
+<?php
+
+declare(strict_types=1);
+
+namespace Vasoft\VersionIncrement;
+
+use Vasoft\VersionIncrement\Exceptions\BranchException;
+use Vasoft\VersionIncrement\Exceptions\ChangesNotFoundException;
+use Vasoft\VersionIncrement\Exceptions\ComposerException;
+use Vasoft\VersionIncrement\Exceptions\GitCommandException;
+use Vasoft\VersionIncrement\Exceptions\IncorrectChangeTypeException;
+use Vasoft\VersionIncrement\Exceptions\UncommittedException;
+
+class SemanticVersionUpdater
+{
+    private array $availableTypes = [
+        'major',
+        'minor',
+        'patch',
+    ];
+    private bool $isBreaking = false;
+
+    public function __construct(
+        private readonly string $projectPath,
+        private readonly Config $config,
+        private string $changeType = '',
+    ) {}
+
+    /**
+     * @throws IncorrectChangeTypeException
+     */
+    private function checkChangeType(): void
+    {
+        if ('' !== $this->changeType && !in_array($this->changeType, $this->availableTypes, true)) {
+            throw  new IncorrectChangeTypeException($this->changeType);
+        }
+    }
+
+    /**
+     * @throws ComposerException
+     */
+    public function getComposerJson(): array
+    {
+        $composer = $this->projectPath . '/composer.json';
+        if (!file_exists($composer)) {
+            throw new ComposerException();
+        }
+
+        try {
+            $result = json_decode(file_get_contents($composer), true, 512, JSON_THROW_ON_ERROR);
+        } catch (\JsonException $e) {
+            throw new ComposerException('JSON: ' . $e->getMessage());
+        }
+
+        return $result;
+    }
+
+    /**
+     * @throws BranchException
+     * @throws ChangesNotFoundException
+     * @throws ComposerException
+     * @throws GitCommandException
+     * @throws IncorrectChangeTypeException
+     * @throws UncommittedException
+     */
+    public function updateVersion(): void
+    {
+        $this->checkChangeType();
+        $composerJson = $this->getComposerJson();
+        $this->checkGitBranch();
+        $this->checkUncommittedChanges();
+
+        $lastTag = $this->getLastTag();
+        $commits = $this->getCommitsSinceLastTag($lastTag);
+        $sections = $this->analyzeCommits($commits);
+
+        if ('' === $this->changeType) {
+            if ($this->isBreaking) {
+                $this->changeType = 'major';
+            } else {
+                $this->changeType = 'patch';
+                if (!empty($sections[$this->config->getFeatSection()])) {
+                    $this->changeType = 'minor';
+                }
+            }
+        }
+
+        $currentVersion = $composerJson['version'] ?? '1.0.0';
+
+        $newVersion = $this->updateComposerVersion($currentVersion, $this->changeType);
+
+        $composerJson['version'] = $newVersion;
+        file_put_contents(
+            $this->projectPath . '/composer.json',
+            json_encode($composerJson, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES),
+        );
+        $date = date('Y-m-d');
+        $changelog = $this->generateChangelog($sections, $newVersion, $date);
+        $changeLogContent = file_exists('CHANGELOG.md') ? file_get_contents('CHANGELOG.md') : '';
+        file_put_contents('CHANGELOG.md', $changelog . $changeLogContent);
+        $this->runCommand(
+            sprintf("commit -am '%s(release): v%s'", $this->config->getReleaseSection(), $newVersion),
+        );
+        $this->runCommand("tag v{$newVersion}");
+
+        echo "Release {$newVersion} successfully created!\n";
+    }
+
+    /**
+     * @throws GitCommandException
+     */
+    private function runCommand(string $command): array
+    {
+        exec("git {$command} 2>&1", $output, $returnCode);
+        if (0 !== $returnCode) {
+            throw new GitCommandException($command, $output);
+        }
+
+        return $output;
+    }
+
+    /**
+     * @throws GitCommandException
+     * @throws UncommittedException
+     */
+    private function checkUncommittedChanges(): void
+    {
+        $out = $this->runCommand('status --porcelain');
+        if (!empty($out)) {
+            throw new UncommittedException();
+        }
+    }
+
+    /**
+     * @throws BranchException
+     * @throws GitCommandException
+     */
+    private function checkGitBranch(): void
+    {
+        $branch = $this->runCommand('rev-parse --abbrev-ref HEAD');
+        $currentBranch = trim($branch[0] ?? '');
+        $targetBranch = $this->config->getMasterBranch();
+        if ($currentBranch !== $targetBranch) {
+            throw new BranchException($currentBranch, $targetBranch);
+        }
+    }
+
+    /**
+     * @throws GitCommandException
+     */
+    private function getLastTag(): ?string
+    {
+        $tags = $this->runCommand('tag --sort=-creatordate');
+
+        return $tags[0] ?? null;
+    }
+
+    /**
+     * @throws GitCommandException
+     */
+    private function getCommitsSinceLastTag(?string $lastTag): array
+    {
+        if ($lastTag) {
+            $output = $this->runCommand("log {$lastTag}..HEAD --pretty=format:%s");
+        } else {
+            $output = $this->runCommand('log --pretty=format:%s');
+        }
+
+        return $output;
+    }
+
+    /**
+     * @throws ChangesNotFoundException
+     */
+    private function analyzeCommits(array $commits): array
+    {
+        if (empty($commits)) {
+            throw new ChangesNotFoundException();
+        }
+        $sections = $this->config->getSectionIndex();
+
+        foreach ($commits as $commit) {
+            if (preg_match(
+                '/^(?<key>[a-z]+)(?:\((?<scope>[^\)]+)\))?(?<breaking>!)?:\s+(?<message>.+)/',
+                $commit,
+                $matches,
+            )) {
+                if ('!' === $matches['breaking']) {
+                    $this->isBreaking = true;
+                }
+                $key = $matches['key'];
+                $message = $matches['message'];
+                if (isset($sections[$key])) {
+                    $sections[$key][] = $message;
+                } else {
+                    $sections[Config::DEFAULT_SECTION][] = $commit;
+                }
+            } else {
+                $sections[Config::DEFAULT_SECTION][] = $commit;
+            }
+        }
+
+        return $sections;
+    }
+
+    private function generateChangelog(array $sections, string $version, string $date): string
+    {
+        $changelog = "# {$version} ({$date})\n\n";
+
+        foreach ($sections as $key => $messages) {
+            if (!empty($messages)) {
+                $changelog .= sprintf("### %s\n", $this->config->getSectionTitle($key));
+                foreach ($messages as $message) {
+                    $changelog .= "- {$message}\n";
+                }
+                $changelog .= "\n";
+            }
+        }
+
+        return $changelog;
+    }
+
+    private function updateComposerVersion(string $currentVersion, string $changeType): string
+    {
+        [$major, $minor, $patch] = explode('.', $currentVersion);
+
+        switch ($changeType) {
+            case 'major':
+                $major++;
+                $minor = 0;
+                $patch = 0;
+                break;
+            case 'minor':
+                $minor++;
+                $patch = 0;
+                break;
+            case 'patch':
+            default:
+                $patch++;
+                break;
+        }
+
+        return "{$major}.{$minor}.{$patch}";
+    }
+}

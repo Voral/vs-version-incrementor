@@ -1,0 +1,44 @@
+#!/usr/bin/env php
+<?php
+
+declare(strict_types=1);
+
+use Vasoft\VersionIncrement\Config;
+use Vasoft\VersionIncrement\Exceptions\ApplicationException;
+use Vasoft\VersionIncrement\SemanticVersionUpdater;
+
+$autoloadPaths = [
+    __DIR__ . '/../../autoload.php',
+    __DIR__ . '/../../../autoload.php',
+    getcwd() . '/vendor/autoload.php',
+];
+
+foreach ($autoloadPaths as $path) {
+    if (file_exists($path)) {
+        require $path;
+        break;
+    }
+}
+
+
+$changeType = $argv[1] ?? '';
+
+$composerJsonPath = getenv('COMPOSER') ?: getcwd();
+
+
+try {
+    $configFile = $composerJsonPath . '/.vs-version-increment.php';
+    if (file_exists($configFile)) {
+        $config = include_once $configFile;
+    } else {
+        $config = new Config();
+    }
+    $versionUpdater = new SemanticVersionUpdater($composerJsonPath, $config, $changeType);
+    $versionUpdater->updateVersion();
+} catch (ApplicationException  $e) {
+    fwrite(STDERR, 'Error: ' . $e->getMessage() . PHP_EOL);
+    exit($e->getCode());
+} catch (Exception $e) {
+    fwrite(STDERR, 'Error: ' . $e->getMessage() . PHP_EOL);
+    exit(ApplicationException::CODE);
+}

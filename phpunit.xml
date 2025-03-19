@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" bootstrap="tests/bootstrap.php" colors="true" executionOrder="random" resolveDependencies="true" xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/10.5/phpunit.xsd">
+  <php>
+    <ini name="memory_limit" value="-1"/>
+    <ini name="display_errors" value="true"/>
+    <ini name="xdebug.mode" value="coverage"/>
+  </php>
+  <coverage includeUncoveredFiles="true">
+    <report>
+      <html outputDirectory="reports/coverage"/>
+      <text outputFile="reports/coverage.txt"/>
+      <clover outputFile="reports/logs/clover.xml"/>
+    </report>
+  </coverage>
+  <testsuites>
+    <testsuite name="Main">
+      <directory>tests/</directory>
+    </testsuite>
+  </testsuites>
+  <source>
+    <include>
+      <directory suffix=".php">src</directory>
+    </include>
+    <exclude>
+      <directory>vendor</directory>
+      <directory>tests</directory>
+    </exclude>
+  </source>
+</phpunit>
