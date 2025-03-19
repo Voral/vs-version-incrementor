@@ -30,6 +30,10 @@ try {
     $configFile = $composerJsonPath . '/.vs-version-increment.php';
     if (file_exists($configFile)) {
         $config = include_once $configFile;
+        if (!$config instanceof Config) {
+            fwrite(STDERR, 'Error: Invalid configuration file.' . PHP_EOL);
+            exit(50);
+        }
     } else {
         $config = new Config();
     }
