@@ -86,8 +86,18 @@ class SemanticVersionUpdater
         );
         $date = date('Y-m-d');
         $changelog = $this->generateChangelog($sections, $newVersion, $date);
-        $changeLogContent = file_exists('CHANGELOG.md') ? file_get_contents('CHANGELOG.md') : '';
-        file_put_contents('CHANGELOG.md', $changelog . $changeLogContent);
+        $fileChangelog = $this->projectPath . '/CHANGELOG.md';
+        if (file_exists($fileChangelog)) {
+            $changeLogContent = file_get_contents('CHANGELOG.md');
+            $changeLogAddToGit = false;
+        } else {
+            $changeLogContent = '';
+            $changeLogAddToGit = true;
+        }
+        file_put_contents($fileChangelog, $changelog . $changeLogContent);
+        if ($changeLogAddToGit) {
+            $this->runCommand('add CHANGELOG.md');
+        }
         $this->runCommand(
             sprintf("commit -am '%s(release): v%s'", $this->config->getReleaseSection(), $newVersion),
         );

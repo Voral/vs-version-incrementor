@@ -93,14 +93,14 @@ final class SemanticVersionUpdaterTest extends TestCase
                     if ('/composer.json' === $fileName) {
                         $composerJson = json_decode($contents, true);
                         $versionAfter = $composerJson['version'];
-                    } elseif ('CHANGELOG.md' === $fileName) {
+                    } elseif ('/CHANGELOG.md' === $fileName) {
                         $textChangelog = $contents;
                     }
                 },
             );
         $fileGetContents = $this->getFunctionMock(__NAMESPACE__, 'file_get_contents');
         $fileGetContents
-            ->expects(self::exactly(1))
+            ->expects(self::exactly(2))
             ->willReturnCallback(
                 static function (string $fileName) {
                     return match ($fileName) {
@@ -115,14 +115,7 @@ final class SemanticVersionUpdaterTest extends TestCase
         $fileExists = $this->getFunctionMock(__NAMESPACE__, 'file_exists');
         $fileExists
             ->expects(self::exactly(2))
-            ->willReturnCallback(
-                static function (string $fileName) {
-                    return match ($fileName) {
-                        'CHANGELOG.md' => false,
-                        default => true,
-                    };
-                },
-            );
+            ->willReturn(true);
 
         $exec = $this->getFunctionMock(__NAMESPACE__, 'exec');
         $commands = [];
@@ -185,14 +178,14 @@ final class SemanticVersionUpdaterTest extends TestCase
                     if ('/test/composer.json' === $fileName) {
                         $composerJson = json_decode($contents, true);
                         $versionAfter = $composerJson['version'];
-                    } elseif ('CHANGELOG.md' === $fileName) {
+                    } elseif ('/test/CHANGELOG.md' === $fileName) {
                         $textChangelog = $contents;
                     }
                 },
             );
         $fileGetContents = $this->getFunctionMock(__NAMESPACE__, 'file_get_contents');
         $fileGetContents
-            ->expects(self::exactly(1))
+            ->expects(self::exactly(2))
             ->willReturnCallback(
                 static function (string $fileName) {
                     return match ($fileName) {
@@ -207,14 +200,7 @@ final class SemanticVersionUpdaterTest extends TestCase
         $fileExists = $this->getFunctionMock(__NAMESPACE__, 'file_exists');
         $fileExists
             ->expects(self::exactly(2))
-            ->willReturnCallback(
-                static function (string $fileName) {
-                    return match ($fileName) {
-                        'CHANGELOG.md' => false,
-                        default => true,
-                    };
-                },
-            );
+            ->willReturn(true);
 
         $exec = $this->getFunctionMock(__NAMESPACE__, 'exec');
         $commands = [
@@ -272,7 +258,7 @@ final class SemanticVersionUpdaterTest extends TestCase
             ->willReturnCallback(
                 static function (string $fileName) {
                     return match ($fileName) {
-                        'CHANGELOG.md' => false,
+                        '/CHANGELOG.md' => false,
                         default => true,
                     };
                 },
@@ -329,14 +315,14 @@ final class SemanticVersionUpdaterTest extends TestCase
                     if ('/composer.json' === $fileName) {
                         $composerJson = json_decode($contents, true);
                         $versionAfter = $composerJson['version'];
-                    } elseif ('CHANGELOG.md' === $fileName) {
+                    } elseif ('/CHANGELOG.md' === $fileName) {
                         $textChangelog = $contents;
                     }
                 },
             );
         $fileGetContents = $this->getFunctionMock(__NAMESPACE__, 'file_get_contents');
         $fileGetContents
-            ->expects(self::exactly(1))
+            ->expects(self::exactly(2))
             ->willReturnCallback(
                 static function (string $fileName) {
                     return match ($fileName) {
@@ -351,14 +337,7 @@ final class SemanticVersionUpdaterTest extends TestCase
         $fileExists = $this->getFunctionMock(__NAMESPACE__, 'file_exists');
         $fileExists
             ->expects(self::exactly(2))
-            ->willReturnCallback(
-                static function (string $fileName) {
-                    return match ($fileName) {
-                        'CHANGELOG.md' => false,
-                        default => true,
-                    };
-                },
-            );
+            ->willReturn(true);
 
         $exec = $this->getFunctionMock(__NAMESPACE__, 'exec');
         $commands = [];
@@ -414,14 +393,14 @@ final class SemanticVersionUpdaterTest extends TestCase
                     if ('/composer.json' === $fileName) {
                         $composerJson = json_decode($contents, true);
                         $versionAfter = $composerJson['version'];
-                    } elseif ('CHANGELOG.md' === $fileName) {
+                    } elseif ('/CHANGELOG.md' === $fileName) {
                         $textChangelog = $contents;
                     }
                 },
             );
         $fileGetContents = $this->getFunctionMock(__NAMESPACE__, 'file_get_contents');
         $fileGetContents
-            ->expects(self::exactly(1))
+            ->expects(self::exactly(2))
             ->willReturnCallback(
                 static function (string $fileName) {
                     return match ($fileName) {
@@ -436,19 +415,10 @@ final class SemanticVersionUpdaterTest extends TestCase
         $fileExists = $this->getFunctionMock(__NAMESPACE__, 'file_exists');
         $fileExists
             ->expects(self::exactly(2))
-            ->willReturnCallback(
-                static function (string $fileName) {
-                    return match ($fileName) {
-                        'CHANGELOG.md' => false,
-                        default => true,
-                    };
-                },
-            );
+            ->willReturn(true);
 
         $exec = $this->getFunctionMock(__NAMESPACE__, 'exec');
-        $commands = [
-
-        ];
+        $commands = [];
         $exec
             ->expects(self::exactly(6))
             ->willReturnCallback(
@@ -543,14 +513,14 @@ final class SemanticVersionUpdaterTest extends TestCase
                     if ('/composer.json' === $fileName) {
                         $composerJson = json_decode($contents, true);
                         $versionAfter = $composerJson['version'];
-                    } elseif ('CHANGELOG.md' === $fileName) {
+                    } elseif ('/CHANGELOG.md' === $fileName) {
                         $textChangelog = $contents;
                     }
                 },
             );
         $fileGetContents = $this->getFunctionMock(__NAMESPACE__, 'file_get_contents');
         $fileGetContents
-            ->expects(self::exactly(1))
+            ->expects(self::exactly(2))
             ->willReturnCallback(
                 static function (string $fileName) {
                     return match ($fileName) {
@@ -565,14 +535,7 @@ final class SemanticVersionUpdaterTest extends TestCase
         $fileExists = $this->getFunctionMock(__NAMESPACE__, 'file_exists');
         $fileExists
             ->expects(self::exactly(2))
-            ->willReturnCallback(
-                static function (string $fileName) {
-                    return match ($fileName) {
-                        'CHANGELOG.md' => false,
-                        default => true,
-                    };
-                },
-            );
+            ->willReturn(true);
 
         $exec = $this->getFunctionMock(__NAMESPACE__, 'exec');
         $commands = [
@@ -718,7 +681,7 @@ final class SemanticVersionUpdaterTest extends TestCase
                     if ('/test/composer.json' === $fileName) {
                         $composerJson = json_decode($contents, true);
                         $versionAfter = $composerJson['version'];
-                    } elseif ('CHANGELOG.md' === $fileName) {
+                    } elseif ('/test/CHANGELOG.md' === $fileName) {
                         $textChangelog = $contents;
                     }
                 },
@@ -743,7 +706,7 @@ final class SemanticVersionUpdaterTest extends TestCase
             ->willReturnCallback(
                 static function (string $fileName) {
                     return match ($fileName) {
-                        'CHANGELOG.md' => false,
+                        '/test/CHANGELOG.md' => false,
                         default => true,
                     };
                 },
@@ -752,7 +715,7 @@ final class SemanticVersionUpdaterTest extends TestCase
         $exec = $this->getFunctionMock(__NAMESPACE__, 'exec');
         $commands = [];
         $exec
-            ->expects(self::exactly(6))
+            ->expects(self::exactly(7))
             ->willReturnCallback(
                 static function (string $command, &$output = null, ?int &$returnCode = null) use (&$commands): void {
                     $commands[] = $command;
@@ -777,10 +740,12 @@ final class SemanticVersionUpdaterTest extends TestCase
         $output = ob_get_clean();
         self::assertSame($versionAfterExpected, $versionAfter);
         self::assertSame($textChangelogExpected, $textChangelog);
-        self::assertSame("git commit -am 'chore(release): v3.0.0' 2>&1", $commands[4]);
-        self::assertSame('git tag v3.0.0 2>&1', $commands[5]);
+        self::assertSame('git add CHANGELOG.md 2>&1', $commands[4]);
+        self::assertSame("git commit -am 'chore(release): v3.0.0' 2>&1", $commands[5]);
+        self::assertSame('git tag v3.0.0 2>&1', $commands[6]);
         self::assertSame("Release 3.0.0 successfully created!\n", $output);
     }
+
     public function testUpdateVersionAutoMinor(): void
     {
         $versionAfter = '';
@@ -802,14 +767,14 @@ final class SemanticVersionUpdaterTest extends TestCase
                     if ('/test/composer.json' === $fileName) {
                         $composerJson = json_decode($contents, true);
                         $versionAfter = $composerJson['version'];
-                    } elseif ('CHANGELOG.md' === $fileName) {
+                    } elseif ('/test/CHANGELOG.md' === $fileName) {
                         $textChangelog = $contents;
                     }
                 },
             );
         $fileGetContents = $this->getFunctionMock(__NAMESPACE__, 'file_get_contents');
         $fileGetContents
-            ->expects(self::exactly(1))
+            ->expects(self::exactly(2))
             ->willReturnCallback(
                 static function (string $fileName) {
                     return match ($fileName) {
@@ -824,14 +789,7 @@ final class SemanticVersionUpdaterTest extends TestCase
         $fileExists = $this->getFunctionMock(__NAMESPACE__, 'file_exists');
         $fileExists
             ->expects(self::exactly(2))
-            ->willReturnCallback(
-                static function (string $fileName) {
-                    return match ($fileName) {
-                        'CHANGELOG.md' => false,
-                        default => true,
-                    };
-                },
-            );
+            ->willReturn(true);
 
         $exec = $this->getFunctionMock(__NAMESPACE__, 'exec');
         $commands = [];
