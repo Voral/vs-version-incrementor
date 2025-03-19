@@ -18,7 +18,6 @@ final class Config
     private bool $sored = true;
     private string $masterBranch = 'master';
     private string $releaseSection = 'chore';
-    private string $featSection = 'feat';
     private array $sections = [
         'feat' => [
             'title' => 'New features',
@@ -166,16 +165,6 @@ final class Config
         $this->masterBranch = $masterBranch;
 
         return $this;
-    }
-
-    public function getFeatSection(): string
-    {
-        return $this->featSection;
-    }
-
-    public function setFeatSection(string $featSection): void
-    {
-        $this->featSection = $featSection;
     }
 
     public function setMinorTypes(array $minorTypes): self
