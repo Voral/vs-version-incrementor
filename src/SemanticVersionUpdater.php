@@ -163,6 +163,10 @@ class SemanticVersionUpdater
     private function checkUncommittedChanges(): void
     {
         $out = $this->runCommand('status --porcelain');
+        if ($this->config->mastIgnoreUntrackedFiles()) {
+            $out = array_filter($out, static fn(string $item): bool => !str_starts_with($item, '??'));
+        }
+
         if (!empty($out)) {
             throw new UncommittedException();
         }

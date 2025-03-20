@@ -194,6 +194,16 @@ In this case, the commit message will look like this:
 chore: v3.0.0
 ```
 
+### Ignoring Untracked Files
+
+When running the utility, all changes must be committed, and by default, there should be no untracked files. To ignore
+the presence of untracked files, you need to apply the following configuration:
+
+```php
+return (new \Vasoft\VersionIncrement\Config())
+    ->setIgnoreUntrackedFiles(true);
+```
+
 ## Commit Descriptions
 
 For the tool to function correctly, commit descriptions must follow this format:

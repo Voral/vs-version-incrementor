@@ -20,6 +20,8 @@ final class Config
     private string $releaseSection = 'chore';
 
     private string $releaseScope = 'release';
+
+    private bool $ignoreUntrackedFiles = false;
     private array $sections = [
         'feat' => [
             'title' => 'New features',
@@ -203,5 +205,17 @@ final class Config
     public function getReleaseScope(): string
     {
         return $this->releaseScope;
+    }
+
+    public function setIgnoreUntrackedFiles(bool $ignoreUntrackedFiles): self
+    {
+        $this->ignoreUntrackedFiles = $ignoreUntrackedFiles;
+
+        return $this;
+    }
+
+    public function mastIgnoreUntrackedFiles(): bool
+    {
+        return $this->ignoreUntrackedFiles;
     }
 }
