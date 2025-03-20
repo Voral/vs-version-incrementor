@@ -2,6 +2,9 @@
 
 [RU](https://github.com/Voral/vs-version-incrementor/blob/master/README.ru.md)
 
+[![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/Voral/vs-version-incrementor/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/Voral/vs-version-incrementor/?branch=master) [![Code Coverage](https://scrutinizer-ci.com/g/Voral/vs-version-incrementor/badges/coverage.png?b=master)](https://scrutinizer-ci.com/g/Voral/vs-version-incrementor/?branch=master) [![Code Intelligence Status](https://scrutinizer-ci.com/g/Voral/vs-version-incrementor/badges/code-intelligence.svg?b=master)](https://scrutinizer-ci.com/code-intelligence)
+
+
 This tool automates the process of updating versions in Composer projects based on Git commit analysis and CHANGELOG
 generation. It helps adhere to semantic versioning and
 the [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/) standard.
