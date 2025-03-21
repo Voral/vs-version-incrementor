@@ -200,6 +200,30 @@ return (new \Vasoft\VersionIncrement\Config())
 ```
 chore: v3.0.0
 ```
+### Настройка собственных правил распределения по типам
+
+Иногда есть необходимость настроить собственные правила распределения коммитов по типам, для этого реализована система правил. Для этого создавайте свои правила имплементирующие интерфейс [Vasoft\VersionIncrement\SectionRules\SectionRuleInterface](https://github.com/Voral/vs-version-incrementor/blob/master/src/SectionRules/SectionRuleInterface.php). И устанавливайте их для соответствующих типов коммитов
+```php
+class ExampleRule1 implements SectionRuleInterface
+{
+    public function __invoke(string $type, string $scope, array $flags, string $comment): bool
+    {
+        return 'add' === $type;
+    }
+}
+
+class ExampleRule2 implements SectionRuleInterface
+{
+    public function __invoke(string $type, string $scope, array $flags, string $comment): bool
+    {
+        return str_starts_with(strtolower($comment), 'added');
+    }
+}
+
+return (new \Vasoft\VersionIncrement\Config())
+    ->addSectionRule('feat', new ExampleRule1())
+    ->addSectionRule('feat', new ExampleRule2());
+```
 
 ### Игнорирование не отслеживаемых файлов
 

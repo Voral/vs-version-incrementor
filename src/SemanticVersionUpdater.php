@@ -226,22 +226,51 @@ class SemanticVersionUpdater
                 $commit,
                 $matches,
             )) {
-                if ('!' === $matches['breaking']) {
-                    $this->isBreaking = true;
-                }
-                $key = $matches['key'];
-                $message = $matches['message'];
-                if (isset($sections[$key])) {
-                    $sections[$key][] = $message;
-                } else {
-                    $sections[Config::DEFAULT_SECTION][] = $commit;
-                }
+                $this->analyzeFlags($matches['breaking']);
+                $rawMessage = false;
+                $key = $this->detectionSection(
+                    $sections,
+                    $matches['key'],
+                    $matches['scope'],
+                    [$matches['breaking']],
+                    $matches['message'],
+                    $rawMessage,
+                );
+                $sections[$key][] = $rawMessage ? $commit : $matches['message'];
             } else {
                 $sections[Config::DEFAULT_SECTION][] = $commit;
             }
         }
 
         return $sections;
+    }
+
+    private function detectionSection(
+        array $sections,
+        string $key,
+        string $scope,
+        array $flags,
+        string $message,
+        bool &$rawMessage,
+    ): string {
+        foreach ($sections as $index => $values) {
+            $rules = $this->config->getSectionRules($index);
+            foreach ($rules as $rule) {
+                if ($rule($key, $scope, $flags, $message)) {
+                    return $index;
+                }
+            }
+        }
+        $rawMessage = true;
+
+        return Config::DEFAULT_SECTION;
+    }
+
+    private function analyzeFlags(string $flags): void
+    {
+        if ('!' === $flags) {
+            $this->isBreaking = true;
+        }
     }
 
     private function generateChangelog(array $sections, string $version, string $date): string

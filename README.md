@@ -198,6 +198,32 @@ In this case, the commit message will look like this:
 ```
 chore: v3.0.0
 ```
+### Custom Type Distribution Rules Setup
+
+Sometimes, there is a need to configure custom rules for distributing commits by type. For this purpose, a rule system has been implemented. To achieve this, create your own rules by implementing the [Vasoft\VersionIncrement\SectionRules\SectionRuleInterface](https://github.com/Voral/vs-version-incrementor/blob/master/src/SectionRules/SectionRuleInterface.php) interface and assign them to the corresponding commit types.
+
+```php
+class ExampleRule1 implements SectionRuleInterface
+{
+    public function __invoke(string $type, string $scope, array $flags, string $comment): bool
+    {
+        return 'add' === $type;
+    }
+}
+
+class ExampleRule2 implements SectionRuleInterface
+{
+    public function __invoke(string $type, string $scope, array $flags, string $comment): bool
+    {
+        return str_starts_with(strtolower($comment), 'added');
+    }
+}
+
+return (new \Vasoft\VersionIncrement\Config())
+    ->addSectionRule('feat', new ExampleRule1())
+    ->addSectionRule('feat', new ExampleRule2());
+```
+
 
 ### Ignoring Untracked Files
 

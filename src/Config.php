@@ -4,14 +4,16 @@ declare(strict_types=1);
 
 namespace Vasoft\VersionIncrement;
 
+use Vasoft\VersionIncrement\SectionRules\SectionRuleInterface;
+use Vasoft\VersionIncrement\SectionRules\DefaultRule;
+
 final class Config
 {
     private array $minorTypes = [
         'feat',
     ];
-    private array $majorTypes = [
-
-    ];
+    private array $majorTypes = [];
+    private array $sectionRules = [];
     public const DEFAULT_SECTION = 'other';
 
     private int $defaultOrder = 500;
@@ -217,5 +219,19 @@ final class Config
     public function mastIgnoreUntrackedFiles(): bool
     {
         return $this->ignoreUntrackedFiles;
+    }
+
+    public function addSectionRule(string $key, SectionRuleInterface $rule): self
+    {
+        $this->sectionRules[$key][] = $rule;
+
+        return $this;
+    }
+
+    public function getSectionRules(string $key): array
+    {
+        $this->sectionRules[$key]['default'] = new DefaultRule($key);
+
+        return $this->sectionRules[$key];
     }
 }

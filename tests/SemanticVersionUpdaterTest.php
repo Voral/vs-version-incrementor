@@ -12,6 +12,7 @@ use Vasoft\VersionIncrement\Exceptions\ComposerException;
 use Vasoft\VersionIncrement\Exceptions\GitCommandException;
 use Vasoft\VersionIncrement\Exceptions\IncorrectChangeTypeException;
 use Vasoft\VersionIncrement\Exceptions\UncommittedException;
+use Vasoft\VersionIncrement\SectionRules\SectionRuleInterface;
 
 /**
  * @coversDefaultClass \Vasoft\VersionIncrement\SemanticVersionUpdater
@@ -955,5 +956,101 @@ final class SemanticVersionUpdaterTest extends TestCase
         self::assertSame("git commit -am 'chore(rel): v2.3.0' 2>&1", $commands[4]);
         self::assertSame('git tag v2.3.0 2>&1', $commands[5]);
         self::assertSame("Release 2.3.0 successfully created!\n", $output);
+    }
+
+    public function testSectionRulesPriority(): void
+    {
+        $textChangelog = '';
+        $textChangelogExpected = '# 2.3.0 (' . date('Y-m-d') . ')
+
+### New features
+- Added Example
+- Added Feature
+- Some Example
+
+### Documentation
+- Some Example
+
+';
+
+        $filePutContents = $this->getFunctionMock(__NAMESPACE__, 'file_put_contents');
+        $filePutContents
+            ->expects(self::exactly(2))
+            ->willReturnCallback(
+                static function (string $fileName, string $contents) use (&$versionAfter, &$textChangelog): void {
+                    if ('/test/composer.json' === $fileName) {
+                        $composerJson = json_decode($contents, true);
+                        $versionAfter = $composerJson['version'];
+                    } elseif ('/test/CHANGELOG.md' === $fileName) {
+                        $textChangelog = $contents;
+                    }
+                },
+            );
+        $fileGetContents = $this->getFunctionMock(__NAMESPACE__, 'file_get_contents');
+        $fileGetContents
+            ->expects(self::exactly(2))
+            ->willReturnCallback(
+                static function (string $fileName) {
+                    return match ($fileName) {
+                        '/test/composer.json' => json_encode(
+                            ['version' => '2.2.0', 'name' => 'test'],
+                            JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES,
+                        ),
+                        default => '',
+                    };
+                },
+            );
+        $fileExists = $this->getFunctionMock(__NAMESPACE__, 'file_exists');
+        $fileExists
+            ->expects(self::exactly(2))
+            ->willReturn(true);
+
+        $exec = $this->getFunctionMock(__NAMESPACE__, 'exec');
+        $commands = [
+
+        ];
+        $exec
+            ->expects(self::exactly(6))
+            ->willReturnCallback(
+                static function (string $command, &$output = null, ?int &$returnCode = null) use (&$commands): void {
+                    $commands[] = $command;
+                    $returnCode = 0;
+                    $output = match ($command) {
+                        'git rev-parse --abbrev-ref HEAD 2>&1' => ['master'],
+                        'git tag --sort=-creatordate 2>&1' => ['v2.2.0', 'v2.1.1', 'v2.1.0', 'v2.0.0', 'v1.0.1'],
+                        'git log v2.2.0..HEAD --pretty=format:%s 2>&1' => [
+                            'docs(extremal): Some Example',
+                            'docs(extremal): Added Example',
+                            'add: Added Feature',
+                            'feat: Some Example',
+                        ],
+                        default => [],
+                    };
+                },
+            );
+        $config = new Config();
+        $config->addSectionRule('feat', new ExampleRule1());
+        $config->addSectionRule('feat', new ExampleRule2());
+        $updater = new SemanticVersionUpdater('/test', $config);
+        ob_start();
+        $updater->updateVersion();
+        ob_get_clean();
+        self::assertSame($textChangelogExpected, $textChangelog);
+    }
+}
+
+class ExampleRule1 implements SectionRuleInterface
+{
+    public function __invoke(string $type, string $scope, array $flags, string $comment): bool
+    {
+        return 'add' === $type;
+    }
+}
+
+class ExampleRule2 implements SectionRuleInterface
+{
+    public function __invoke(string $type, string $scope, array $flags, string $comment): bool
+    {
+        return str_starts_with(strtolower($comment), 'added');
     }
 }
