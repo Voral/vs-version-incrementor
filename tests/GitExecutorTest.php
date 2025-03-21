@@ -6,11 +6,12 @@ namespace Vasoft\VersionIncrement;
 
 use phpmock\phpunit\PHPMock;
 use PHPUnit\Framework\TestCase;
+use Vasoft\VersionIncrement\Exceptions\GitCommandException;
 
 /**
  * @internal
  *
- * @coversNothing
+ * @coversDefaultClass \Vasoft\VersionIncrement\GitExecutor
  */
 final class GitExecutorTest extends TestCase
 {
@@ -231,5 +232,29 @@ final class GitExecutorTest extends TestCase
         $executor = new GitExecutor();
         self::assertSame($commandOutput[0], $executor->getCurrentBranch());
         self::assertSame($expectedCommand, $lastCommand);
+    }
+
+    public function testErrorCommand(): void
+    {
+        $commandOutput = [
+            'feature',
+        ];
+
+        $lastCommand = '';
+        $expectedCommand = 'git rev-parse --abbrev-ref HEAD 2>&1';
+        $exec = $this->getFunctionMock(__NAMESPACE__, 'exec');
+        $exec
+            ->expects(self::exactly(1))
+            ->willReturnCallback(
+                static function (string $command, &$output = null, ?int &$returnCode = null): void {
+                    $returnCode = 1;
+                    $output = ['Error message'];
+                },
+            );
+        $executor = new GitExecutor();
+        $this->expectException(GitCommandException::class);
+        $this->expectExceptionMessage("Error executing Git command: git rev-parse --abbrev-ref HEAD\nError message");
+        $this->expectExceptionCode(60);
+        $executor->getCurrentBranch();
     }
 }

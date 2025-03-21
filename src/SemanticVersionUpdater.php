@@ -28,7 +28,7 @@ class SemanticVersionUpdater
         private string $changeType = '',
         ?GetExecutorInterface $gitExecutor = null,
     ) {
-        $this->gitExecutor = $gitExecutor ?? new GitExecutor($projectPath);
+        $this->gitExecutor = $gitExecutor ?? new GitExecutor();
     }
 
     /**
