@@ -48,6 +48,12 @@ composer require --dev voral/version-increment
 ./vendor/bin/vs-version-increment patch
 ```
 
+Получение списка зарегистрированных типов коммита
+
+```bash
+./vendor/bin/vs-version-increment --list
+```
+
 Для упрощения можно добавить скрипты в composer.json
 
 ```json
@@ -56,7 +62,8 @@ composer require --dev voral/version-increment
     "vinc:major": "php ./vendor/bin/vs-version-increment major",
     "vinc:minor": "php ./vendor/bin/vs-version-increment minor",
     "vinc:patch": "php ./vendor/bin/vs-version-increment patch",
-    "vinc:auto": "php ./vendor/bin/vs-version-increment"
+    "vinc:auto": "php ./vendor/bin/vs-version-increment",
+    "vinc:list": "php ./vendor/bin/vs-version-increment --list"
   }
 }
 ```

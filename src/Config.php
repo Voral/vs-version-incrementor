@@ -113,13 +113,29 @@ final class Config
 
     public function getSectionIndex(): array
     {
+        $this->sortSections();
+
+        return array_fill_keys(array_keys($this->sections), []);
+    }
+
+    private function sortSections(): void
+    {
         if (!$this->sored) {
             $this->checkDefaultSection();
             uasort($this->sections, static fn($a, $b) => $a['order'] <=> $b['order']);
             $this->sored = true;
         }
+    }
 
-        return array_fill_keys(array_keys($this->sections), []);
+    public function getSectionDescriptions(): array
+    {
+        $this->sortSections();
+        $result = [];
+        foreach ($this->sections as $key => $section) {
+            $result[] = sprintf('%s - %s', $key, $section['title']);
+        }
+
+        return $result;
     }
 
     public function getSectionTitle(string $key): string

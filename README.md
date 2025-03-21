@@ -49,6 +49,12 @@ For automatic selection of the release type:
 ./vendor/bin/vs-version-increment patch
 ```
 
+Retrieving the list of registered commit types
+
+```bash
+./vendor/bin/vs-version-increment --list
+```
+
 To simplify usage, you can add scripts to `composer.json`:
 
 ```json
@@ -57,7 +63,8 @@ To simplify usage, you can add scripts to `composer.json`:
     "vinc:major": "php ./vendor/bin/vs-version-increment major",
     "vinc:minor": "php ./vendor/bin/vs-version-increment minor",
     "vinc:patch": "php ./vendor/bin/vs-version-increment patch",
-    "vinc:auto": "php ./vendor/bin/vs-version-increment"
+    "vinc:auto": "php ./vendor/bin/vs-version-increment",
+    "vinc:list": "php ./vendor/bin/vs-version-increment --list"
   }
 }
 ```
