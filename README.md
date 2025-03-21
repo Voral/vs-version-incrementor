@@ -2,10 +2,9 @@
 
 [RU](https://github.com/Voral/vs-version-incrementor/blob/master/README.ru.md)
 
-[![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/Voral/vs-version-incrementor/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/Voral/vs-version-incrementor/?branch=master) 
-[![Code Coverage](https://scrutinizer-ci.com/g/Voral/vs-version-incrementor/badges/coverage.png?b=master)](https://scrutinizer-ci.com/g/Voral/vs-version-incrementor/?branch=master) 
+[![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/Voral/vs-version-incrementor/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/Voral/vs-version-incrementor/?branch=master)
+[![Code Coverage](https://scrutinizer-ci.com/g/Voral/vs-version-incrementor/badges/coverage.png?b=master)](https://scrutinizer-ci.com/g/Voral/vs-version-incrementor/?branch=master)
 [![Code Intelligence Status](https://scrutinizer-ci.com/g/Voral/vs-version-incrementor/badges/code-intelligence.svg?b=master)](https://scrutinizer-ci.com/code-intelligence)
-
 
 This tool automates the process of updating versions in Composer projects based on Git commit analysis and CHANGELOG
 generation. It helps adhere to semantic versioning and
@@ -318,6 +317,19 @@ jobs:
       - name: Run version increment script
         run: ./vendor/bin/vs-version-increment
 ```
+
+## Configuration Examples
+
+To help you get started with the library more quickly, I provide ready-to-use configuration examples for various use
+cases.
+
+### 1. Configuration for Keep a Changelog
+
+This configuration example is designed for projects that follow the [Keep a Changelog](https://keepachangelog.com/)
+standard. It organizes changes into categories (`Added`, `Changed`, `Deprecated`, `Removed`, `Fixed`, `Security`),
+making the changelog easy to read.
+
+- **File:** [`examples/keepachangelog.php`](https://github.com/Voral/vs-version-incrementor/blob/master/examples/keepachangelog.php)
 
 ## Useful Links
 

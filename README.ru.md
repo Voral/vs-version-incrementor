@@ -324,6 +324,16 @@ jobs:
         run: ./vendor/bin/vs-version-increment
 ```
 
+## Примеры конфигураций
+
+Чтобы помочь вам быстрее начать работу с библиотекой, предлагаю готовые примеры конфигураций для различных сценариев использования.
+
+### 1. Конфигурация для Keep a Changelog
+
+Этот пример конфигурации предназначен для проектов, которые следуют стандарту [Keep a Changelog](https://keepachangelog.com/). Он отображает изменения в виде категорий (`Added`, `Changed`, `Deprecated`, `Removed`, `Fixed`, `Security`), что делает changelog удобным для чтения.
+
+- **Файл:** [`examples/keepachangelog.php`](https://github.com/Voral/vs-version-incrementor/blob/master/examples/keepachangelog.php)
+
 ## Полезные ссылки
 
 - [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/)

@@ -7,3 +7,4 @@
 /README.ru.md export-ignore
 /composer.lock export-ignore
 /.vs-version-increment.php export-ignore
+/examples
