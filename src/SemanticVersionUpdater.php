@@ -10,9 +10,11 @@ use Vasoft\VersionIncrement\Exceptions\ComposerException;
 use Vasoft\VersionIncrement\Exceptions\GitCommandException;
 use Vasoft\VersionIncrement\Exceptions\IncorrectChangeTypeException;
 use Vasoft\VersionIncrement\Exceptions\UncommittedException;
+use Vasoft\VersionIncrement\Contract\GetExecutorInterface;
 
 class SemanticVersionUpdater
 {
+    private GetExecutorInterface $gitExecutor;
     private array $availableTypes = [
         'major',
         'minor',
@@ -24,7 +26,10 @@ class SemanticVersionUpdater
         private readonly string $projectPath,
         private readonly Config $config,
         private string $changeType = '',
-    ) {}
+        ?GetExecutorInterface $gitExecutor = null,
+    ) {
+        $this->gitExecutor = $gitExecutor ?? new GitExecutor($projectPath);
+    }
 
     /**
      * @throws IncorrectChangeTypeException
@@ -70,8 +75,8 @@ class SemanticVersionUpdater
         $this->checkGitBranch();
         $this->checkUncommittedChanges();
 
-        $lastTag = $this->getLastTag();
-        $commits = $this->getCommitsSinceLastTag($lastTag);
+        $lastTag = $this->gitExecutor->getLastTag();
+        $commits = $this->gitExecutor->getCommitsSinceLastTag($lastTag);
         $sections = $this->analyzeCommits($commits);
         $this->detectionTypeChange($sections);
 
@@ -96,23 +101,21 @@ class SemanticVersionUpdater
         }
         file_put_contents($fileChangelog, $changelog . $changeLogContent);
         if ($changeLogAddToGit) {
-            $this->runCommand('add CHANGELOG.md');
+            $this->gitExecutor->addFile('CHANGELOG.md');
         }
         $releaseScope = trim($this->config->getReleaseScope());
         if ('' !== $releaseScope) {
             $releaseScope = sprintf('(%s)', $releaseScope);
         }
-
-        $this->runCommand(
+        $this->gitExecutor->commit(
             sprintf(
-                "commit -am '%s%s: v%s'",
+                '%s%s: v%s',
                 $this->config->getReleaseSection(),
                 $releaseScope,
                 $newVersion,
             ),
         );
-        $this->runCommand("tag v{$newVersion}");
-
+        $this->gitExecutor->setVersionTag($newVersion);
         echo "Release {$newVersion} successfully created!\n";
     }
 
@@ -145,24 +148,11 @@ class SemanticVersionUpdater
 
     /**
      * @throws GitCommandException
-     */
-    private function runCommand(string $command): array
-    {
-        exec("git {$command} 2>&1", $output, $returnCode);
-        if (0 !== $returnCode) {
-            throw new GitCommandException($command, $output);
-        }
-
-        return $output;
-    }
-
-    /**
-     * @throws GitCommandException
      * @throws UncommittedException
      */
     private function checkUncommittedChanges(): void
     {
-        $out = $this->runCommand('status --porcelain');
+        $out = $this->gitExecutor->status();
         if ($this->config->mastIgnoreUntrackedFiles()) {
             $out = array_filter($out, static fn(string $item): bool => !str_starts_with($item, '??'));
         }
@@ -178,36 +168,11 @@ class SemanticVersionUpdater
      */
     private function checkGitBranch(): void
     {
-        $branch = $this->runCommand('rev-parse --abbrev-ref HEAD');
-        $currentBranch = trim($branch[0] ?? '');
+        $currentBranch = $this->gitExecutor->getCurrentBranch();
         $targetBranch = $this->config->getMasterBranch();
         if ($currentBranch !== $targetBranch) {
             throw new BranchException($currentBranch, $targetBranch);
         }
-    }
-
-    /**
-     * @throws GitCommandException
-     */
-    private function getLastTag(): ?string
-    {
-        $tags = $this->runCommand('tag --sort=-creatordate');
-
-        return $tags[0] ?? null;
-    }
-
-    /**
-     * @throws GitCommandException
-     */
-    private function getCommitsSinceLastTag(?string $lastTag): array
-    {
-        if ($lastTag) {
-            $output = $this->runCommand("log {$lastTag}..HEAD --pretty=format:%s");
-        } else {
-            $output = $this->runCommand('log --pretty=format:%s');
-        }
-
-        return $output;
     }
 
     /**
