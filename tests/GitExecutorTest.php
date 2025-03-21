@@ -131,7 +131,7 @@ final class GitExecutorTest extends TestCase
             'build: Configure version increment',
         ];
         $lastCommand = '';
-        $expectedCommand = 'git log --pretty=format:%s 2>&1';
+        $expectedCommand = 'git log --pretty=format:"%H %s" 2>&1';
         $exec = $this->getFunctionMock(__NAMESPACE__, 'exec');
         $exec
             ->expects(self::exactly(1))
@@ -158,7 +158,7 @@ final class GitExecutorTest extends TestCase
             'fix: Change type in composer.json',
         ];
         $lastCommand = '';
-        $expectedCommand = 'git log v2.0.0..HEAD --pretty=format:%s 2>&1';
+        $expectedCommand = 'git log v2.0.0..HEAD --pretty=format:"%H %s" 2>&1';
         $exec = $this->getFunctionMock(__NAMESPACE__, 'exec');
         $exec
             ->expects(self::exactly(1))
@@ -236,12 +236,6 @@ final class GitExecutorTest extends TestCase
 
     public function testErrorCommand(): void
     {
-        $commandOutput = [
-            'feature',
-        ];
-
-        $lastCommand = '';
-        $expectedCommand = 'git rev-parse --abbrev-ref HEAD 2>&1';
         $exec = $this->getFunctionMock(__NAMESPACE__, 'exec');
         $exec
             ->expects(self::exactly(1))
@@ -256,5 +250,31 @@ final class GitExecutorTest extends TestCase
         $this->expectExceptionMessage("Error executing Git command: git rev-parse --abbrev-ref HEAD\nError message");
         $this->expectExceptionCode(60);
         $executor->getCurrentBranch();
+    }
+    public function testGetCommitDescription(): void
+    {
+        $commandOutput = [
+            'chore: Quality badges added',
+            'fix: Change type in composer.json',
+        ];
+        $lastCommand = '';
+        $expectedCommand = 'git log -1 --pretty=format:%b 12ab21123da3dd 2>&1';
+        $exec = $this->getFunctionMock(__NAMESPACE__, 'exec');
+        $exec
+            ->expects(self::exactly(1))
+            ->willReturnCallback(
+                static function (string $command, &$output = null, ?int &$returnCode = null) use (
+                    &$lastCommand,
+                    $commandOutput
+                ): void {
+                    $lastCommand = $command;
+                    $returnCode = 0;
+                    $output = $commandOutput;
+                },
+            );
+        $executor = new GitExecutor();
+        $description = $executor->getCommitDescription('12ab21123da3dd');
+        self::assertSame($commandOutput, $description);
+        self::assertSame($expectedCommand, $lastCommand);
     }
 }

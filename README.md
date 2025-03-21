@@ -241,6 +241,91 @@ return (new \Vasoft\VersionIncrement\Config())
     ->setIgnoreUntrackedFiles(true);
 ```
 
+### Configuring Squashed Commits
+
+In some projects, there may be a need to work with squashed commits, such as those created by
+the `git merge --squash some-branch` command. The following options are available for handling such commits:
+
+#### Default Squashed Commit
+
+If the description of the squashed commit is not modified, it will have the following format:
+
+```text
+Squashed commit of the following:
+
+commit 2bf0dc5a010f17abc35d15c0f816c636d81cbfd2
+Author: Author: Name Lastname <devemail@email.com>
+Date:   Sun Mar 23 15:20:02 2023 +0300
+
+   docs: update README with configuration examples 5
+   
+commit cbae8944207f28a6676a493cf2d9f591ce3c1756
+Author: Author: Name Lastname <devemail@email.com>
+Date:   Sun Mar 23 15:19:55 2023 +0300
+
+   docs: update README with configuration examples 4
+
+```
+
+To process such commits, enable the corresponding setting (disabled by default):
+
+```php
+return (new Config())
+    ->setProcessDefaultSquashedCommit(true);
+```
+
+If the first line of the commit differs from the default (`Squashed commit of the following:`), it can be customized:
+
+```php
+return (new Config())
+    ->setSquashedCommitMessage('Squashed commit:')
+    ->setProcessDefaultSquashedCommit(true);
+```
+
+### Defining Squashed Commits via a Group
+
+A squashed commit can also be associated with a specific group. In this case, commits belonging to that group will be
+recognized as squashed. This is configured as follows:
+
+```php
+return (new Config())
+    ->setAggregateSection('aggregate');
+```
+
+### General Rules for Full Commit Descriptions
+
+In both cases, the detailed description of the commits must include a list of changes in the Conventional Commits
+format. Specifically:
+
+- Only lines matching this format are considered.
+- Leading spaces, tab characters, `-`, and `*` are allowed at the beginning of such lines.
+- Breaking change indicators can be applied.
+
+For example:
+
+```text
+commit 2bf0dc5a010f17abc35d15c0f816c636d81cbfd2
+Author: Author: Name Lastname <devemail@email.com>
+Date:   Sun Mar 23 15:20:02 2025 +0300
+
+   docs: update README with configuration examples 1
+   
+ -  docs: update README with configuration examples 2
+ *  docs: update README with configuration examples 3
+ -  docs!: update README with configuration examples 4
+```
+
+As a result, the major version will be incremented, and the following entries will be added to the Documentation section
+of the CHANGELOG:
+
+```text
+### Documentation
+ - update README with configuration examples 1
+ - update README with configuration examples 2
+ - update README with configuration examples 3
+ - update README with configuration examples 4
+```
+
 ## Commit Descriptions
 
 For the tool to function correctly, commit descriptions must follow this format:

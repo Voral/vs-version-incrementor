@@ -242,6 +242,96 @@ return (new \Vasoft\VersionIncrement\Config())
     ->setIgnoreUntrackedFiles(true);
 ```
 
+### Настройка сквошенных коммитов
+
+В некоторых проектах возникает необходимость работы со сквошенными коммитами, например, созданными командой `git merge --squash some-branch`. Для обработки таких коммитов предусмотрены следующие возможности:
+
+#### Объединяющий коммит по умолчанию
+
+Если описание сквошенного коммита не изменяется, то оно имеет следующую форму:
+
+```text
+Squashed commit of the following:
+
+commit 2bf0dc5a010f17abc35d15c0f816c636d81cbfd2
+Author: Author: Name Lastname <devemail@email.com>
+Date:   Sun Mar 23 15:20:02 2023 +0300
+
+   docs: update README with configuration examples 5
+   
+commit cbae8944207f28a6676a493cf2d9f591ce3c1756
+Author: Author: Name Lastname <devemail@email.com>
+Date:   Sun Mar 23 15:19:55 2023 +0300
+
+   docs: update README with configuration examples 4
+
+```
+
+Для обработки таких коммитов включите соответствующую настройку (по умолчанию выключено):
+
+```php
+return (new Config())
+    ->setProcessDefaultSquashedCommit(true);
+```
+
+Если первая строка коммита отличается от стандартной (`Squashed commit of the following:`), её можно настроить:
+
+```php
+return (new Config())
+    ->setSquashedCommitMessage('Squashed commit:')
+    ->setProcessDefaultSquashedCommit(true);
+```
+
+### Определение сквошенного коммита через группу
+
+Сквошенный коммит также может быть связан с определенной группой. В этом случае коммиты, относящиеся к этой группе, будут распознаваться как сквошенные. Настройка выполняется следующим образом:
+
+```php
+return (new Config())
+    ->setAggregateSection('aggregate');
+```
+### Комбинированое определение сквошенного коммита
+
+Вы можете кобинировать оба варианта
+```php
+return (new Config())
+    ->setAggregateSection('aggregate')
+    ->setSquashedCommitMessage('Squashed commit:')
+    ->setProcessDefaultSquashedCommit(true);
+```
+
+### Общие правила полного описания коммита
+
+В обоих случаях подробное описание коммитов должно содержать список изменений в формате Conventional Commits. При этом:
+
+- рассматриваются только строки имеющий такой формат.
+- в начале таких строк допускаются пробелы, символы табуляции, `-` и `*`.
+- возможно применение признака изменения нарушающего обратную совместимость
+
+Например
+
+```text
+commit 2bf0dc5a010f17abc35d15c0f816c636d81cbfd2
+Author: Author: Name Lastname <devemail@email.com>
+Date:   Sun Mar 23 15:20:02 2025 +0300
+
+   docs: update README with configuration examples 1
+   
+ -  docs: update README with configuration examples 2
+ *  docs: update README with configuration examples 3
+ -  docs!: update README with configuration examples 4
+```
+
+В результате будет увеличена мажорная версия и в CHANGELOG будут добавлены в раздел Документация следующий записи
+
+```text
+### Documentation
+ - update README with configuration examples 1
+ - update README with configuration examples 2
+ - update README with configuration examples 3
+ - update README with configuration examples 4
+```
+
 ## Описания коммитов
 
 Для правильного функционирования утилиты описания коммитов необходимо формировать по следующему шаблону

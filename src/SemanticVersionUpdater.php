@@ -184,11 +184,56 @@ class SemanticVersionUpdater
             throw new ChangesNotFoundException();
         }
         $sections = $this->config->getSectionIndex();
-
+        $aggregateKey = $this->config->getAggregateSection();
+        $shouldProcessDefaultSquashedCommit = $this->config->shouldProcessDefaultSquashedCommit();
+        $squashedCommitMessage = $this->config->getSquashedCommitMessage();
         foreach ($commits as $commit) {
+            if (
+                $shouldProcessDefaultSquashedCommit
+                && str_ends_with($commit, $squashedCommitMessage)
+                && preg_match('/^(?<hash>[^ ]+).+/', $commit, $matches)
+            ) {
+                $this->processAggregated($matches['hash'], $sections);
+
+                continue;
+            }
             if (preg_match(
-                '/^(?<key>[a-z]+)(?:\((?<scope>[^\)]+)\))?(?<breaking>!)?:\s+(?<message>.+)/',
+                '/^(?<hash>[^ ]+) (?<key>[a-z]+)(?:\((?<scope>[^\)]+)\))?(?<breaking>!)?:\s+(?<message>.+)/',
                 $commit,
+                $matches,
+            )) {
+                $this->analyzeFlags($matches['breaking']);
+                $key = trim($matches['key']);
+                if ($aggregateKey === $key) {
+                    $this->processAggregated($matches['hash'], $sections);
+                } else {
+                    $rawMessage = false;
+                    $key = $this->detectionSection(
+                        $sections,
+                        $matches['key'],
+                        $matches['scope'],
+                        [$matches['breaking']],
+                        $matches['message'],
+                        $rawMessage,
+                    );
+                    $sections[$key][] = $rawMessage ? trim(preg_replace('/^[^ ]+ /', '', $commit)) : $matches['message'];
+                }
+            } else {
+                $sections[Config::DEFAULT_SECTION][] = trim(preg_replace('/^[^ ]+ /', '', $commit));
+            }
+        }
+
+        return $sections;
+    }
+
+    private function processAggregated(string $hash, array &$sections): void
+    {
+        $description = $this->gitExecutor->getCommitDescription($hash);
+        foreach ($description as $line) {
+            $matches = [];
+            if (preg_match(
+                "/^[\t *-]*((?<key>[a-z]+)(?:\\((?<scope>[^\\)]+)\\))?(?<breaking>!)?:\\s+(?<message>.+))/",
+                $line,
                 $matches,
             )) {
                 $this->analyzeFlags($matches['breaking']);
@@ -201,13 +246,9 @@ class SemanticVersionUpdater
                     $matches['message'],
                     $rawMessage,
                 );
-                $sections[$key][] = $rawMessage ? $commit : $matches['message'];
-            } else {
-                $sections[Config::DEFAULT_SECTION][] = $commit;
+                $sections[$key][] = $rawMessage ? trim($line) : $matches['message'];
             }
         }
-
-        return $sections;
     }
 
     private function detectionSection(

@@ -86,9 +86,9 @@ final class SemanticVersionUpdaterTest extends TestCase
         $gitExecutor->expects(self::once())->method('status')->willReturn([]);
         $gitExecutor->expects(self::once())->method('getLastTag')->willReturn('v2.2.0');
         $gitExecutor->expects(self::once())->method('getCommitsSinceLastTag')->willReturn([
-            'doc(extremal): Some Example',
-            'feat(extremal): Some Example',
-            'feat!: Some Example',
+            'c3d4e5f6g11 doc(extremal): Some Example',
+            'c3d4e5f6g12 feat(extremal): Some Example',
+            'c3d4e5f6g13 feat!: Some Example',
         ]);
         $gitExecutor->expects(self::once())->method('setVersionTag');
         $gitExecutor->expects(self::once())->method('commit');
@@ -157,9 +157,9 @@ final class SemanticVersionUpdaterTest extends TestCase
         $gitExecutor->expects(self::once())->method('status')->willReturn([]);
         $gitExecutor->expects(self::once())->method('getLastTag')->willReturn(null);
         $gitExecutor->expects(self::once())->method('getCommitsSinceLastTag')->willReturn([
-            'doc(extremal): Some Example',
-            'feat(extremal): Some Example',
-            'feat: Some Example',
+            'c3d4e5f6g1 doc(extremal): Some Example',
+            'c3d4e5f6g2 feat(extremal): Some Example',
+            'c3d4e5f6g3 feat: Some Example',
         ]);
         $gitExecutor->expects(self::once())->method('setVersionTag');
         $gitExecutor->expects(self::once())->method('commit');
@@ -272,9 +272,9 @@ final class SemanticVersionUpdaterTest extends TestCase
         $gitExecutor->expects(self::once())->method('status')->willReturn([]);
         $gitExecutor->expects(self::once())->method('getLastTag')->willReturn(null);
         $gitExecutor->expects(self::once())->method('getCommitsSinceLastTag')->willReturn([
-            'doc(extremal): Some Example',
-            'feat(extremal): Some Example',
-            'feat: Some Example',
+            'c3d4e5f6g1 doc(extremal): Some Example',
+            'c3d4e5f6g2 feat(extremal): Some Example',
+            'c3d4e5f6g3 feat: Some Example',
         ]);
         $gitExecutor->expects(self::once())->method('setVersionTag');
         $gitExecutor->expects(self::once())->method('commit');
@@ -284,8 +284,8 @@ final class SemanticVersionUpdaterTest extends TestCase
         ob_start();
         $updater->updateVersion();
         $output = ob_get_clean();
-        self::assertSame($versionAfterExpected, $versionAfter);
         self::assertSame($textChangelogExpected, $textChangelog);
+        self::assertSame($versionAfterExpected, $versionAfter);
         self::assertSame("Release 1.1.0 successfully created!\n", $output);
     }
 
@@ -339,7 +339,7 @@ final class SemanticVersionUpdaterTest extends TestCase
         $gitExecutor->expects(self::once())->method('status')->willReturn([]);
         $gitExecutor->expects(self::once())->method('getLastTag')->willReturn('v2.2.0');
         $gitExecutor->expects(self::once())->method('getCommitsSinceLastTag')->willReturn([
-            'Some Example',
+            'c3d4e5f6g1 Some Example',
         ]);
         $gitExecutor->expects(self::once())->method('setVersionTag');
         $gitExecutor->expects(self::once())->method('commit');
@@ -449,9 +449,9 @@ final class SemanticVersionUpdaterTest extends TestCase
         $gitExecutor->expects(self::once())->method('status')->willReturn([]);
         $gitExecutor->expects(self::once())->method('getLastTag')->willReturn('v2.2.0');
         $gitExecutor->expects(self::once())->method('getCommitsSinceLastTag')->willReturn([
-            'doc(extremal): Some Example',
-            'feat(extremal): Some Example',
-            'feat: Some Example',
+            'c3d4e5f6g1 doc(extremal): Some Example',
+            'c3d4e5f6g2 feat(extremal): Some Example',
+            'c3d4e5f6g3 feat: Some Example',
         ]);
         $gitExecutor->expects(self::once())->method('setVersionTag');
         $gitExecutor->expects(self::once())->method('commit');
@@ -606,9 +606,9 @@ final class SemanticVersionUpdaterTest extends TestCase
         $gitExecutor->expects(self::once())->method('getCurrentBranch')->willReturn('master');
         $gitExecutor->expects(self::once())->method('getLastTag')->willReturn('v2.2.0');
         $gitExecutor->expects(self::once())->method('getCommitsSinceLastTag')->willReturn([
-            'doc(extremal): Some Example',
-            'feat(extremal): Some Example',
-            'feat: Some Example',
+            'c3d4e5f6g11 doc(extremal): Some Example',
+            'c3d4e5f6g12 feat(extremal): Some Example',
+            'c3d4e5f6g13 feat: Some Example',
         ]);
         $gitExecutor->expects(self::once())->method('status')->willReturn(['?? untracked file']);
         $gitExecutor->expects(self::once())->method('setVersionTag');
@@ -718,9 +718,9 @@ final class SemanticVersionUpdaterTest extends TestCase
         $gitExecutor->expects(self::once())->method('getCurrentBranch')->willReturn('master');
         $gitExecutor->expects(self::once())->method('getLastTag')->willReturn('v2.2.0');
         $gitExecutor->expects(self::once())->method('getCommitsSinceLastTag')->willReturn([
-            'doc(extremal): Some Example',
-            'feat(extremal): Some Example',
-            'feat: Some Example',
+            'c3d4e5f6g11 doc(extremal): Some Example',
+            'c3d4e5f6g12 feat(extremal): Some Example',
+            'c3d4e5f6g13 feat: Some Example',
         ]);
         $gitExecutor->expects(self::once())->method('status')->willReturn([]);
         $gitExecutor->expects(self::once())->method('addFile');
@@ -788,7 +788,7 @@ final class SemanticVersionUpdaterTest extends TestCase
         $gitExecutor->expects(self::once())->method('getCurrentBranch')->willReturn('master');
         $gitExecutor->expects(self::once())->method('getLastTag')->willReturn('v2.2.0');
         $gitExecutor->expects(self::once())->method('getCommitsSinceLastTag')->willReturn(
-            ['docs(extremal): Some Example'],
+            ['c3d4e5f6g1 docs(extremal): Some Example'],
         );
         $gitExecutor->expects(self::once())->method('status')->willReturn([]);
         $gitExecutor->expects(self::never())->method('addFile');
@@ -814,7 +814,7 @@ final class SemanticVersionUpdaterTest extends TestCase
 
 ### New features
 - Added Example
-- Added Feature
+- Some Feature
 - Some Example
 
 ### Documentation
@@ -854,33 +854,400 @@ final class SemanticVersionUpdaterTest extends TestCase
             ->expects(self::exactly(2))
             ->willReturn(true);
 
-        $exec = $this->getFunctionMock(__NAMESPACE__, 'exec');
-        $commands = [
+        $gitExecutor = self::createMock(GetExecutorInterface::class);
+        $gitExecutor->expects(self::once())->method('getCurrentBranch')->willReturn('master');
+        $gitExecutor->expects(self::once())->method('status')->willReturn([]);
+        $gitExecutor->expects(self::once())->method('getLastTag')->willReturn('v2.2.0');
+        $gitExecutor->expects(self::once())->method('getCommitsSinceLastTag')->willReturn([
+            'c3d4e5f6g11 docs(extremal): Some Example',
+            'c3d4e5f6g12 docs(extremal): Added Example',
+            'c3d4e5f6g14 add: Some Feature',
+            'c3d4e5f6g13 feat: Some Example',
+        ]);
+        $gitExecutor->expects(self::once())->method('setVersionTag');
+        $gitExecutor->expects(self::once())->method('commit');
+        $gitExecutor->expects(self::never())->method('addFile');
 
-        ];
-        $exec
-            ->expects(self::exactly(6))
-            ->willReturnCallback(
-                static function (string $command, &$output = null, ?int &$returnCode = null) use (&$commands): void {
-                    $commands[] = $command;
-                    $returnCode = 0;
-                    $output = match ($command) {
-                        'git rev-parse --abbrev-ref HEAD 2>&1' => ['master'],
-                        'git tag --sort=-creatordate 2>&1' => ['v2.2.0', 'v2.1.1', 'v2.1.0', 'v2.0.0', 'v1.0.1'],
-                        'git log v2.2.0..HEAD --pretty=format:%s 2>&1' => [
-                            'docs(extremal): Some Example',
-                            'docs(extremal): Added Example',
-                            'add: Added Feature',
-                            'feat: Some Example',
-                        ],
-                        default => [],
-                    };
-                },
-            );
         $config = new Config();
         $config->addSectionRule('feat', new ExampleRule1());
         $config->addSectionRule('feat', new ExampleRule2());
-        $updater = new SemanticVersionUpdater('/test', $config);
+        $updater = new SemanticVersionUpdater('/test', $config, gitExecutor: $gitExecutor);
+        ob_start();
+        $updater->updateVersion();
+        ob_get_clean();
+        self::assertSame($textChangelogExpected, $textChangelog);
+    }
+
+    public function testAggregateNotSetType(): void
+    {
+        $versionAfter = '';
+        $versionAfterExpected = '2.3.0';
+
+        $textChangelog = '';
+        $textChangelogExpected = '# 2.3.0 (' . date('Y-m-d') . ')
+
+### New features
+- Some Example feat1
+- Some Example feat2
+
+### Other
+- doc(extremal): Some Example documents
+- aggregate: Some Example 1
+- aggregate: Some Example 2
+
+';
+
+        $filePutContents = $this->getFunctionMock(__NAMESPACE__, 'file_put_contents');
+        $filePutContents
+            ->expects(self::exactly(2))
+            ->willReturnCallback(
+                static function (string $fileName, string $contents) use (&$versionAfter, &$textChangelog): void {
+                    if ('/test/composer.json' === $fileName) {
+                        $composerJson = json_decode($contents, true);
+                        $versionAfter = $composerJson['version'];
+                    } elseif ('/test/CHANGELOG.md' === $fileName) {
+                        $textChangelog = $contents;
+                    }
+                },
+            );
+        $fileGetContents = $this->getFunctionMock(__NAMESPACE__, 'file_get_contents');
+        $fileGetContents
+            ->expects(self::exactly(2))
+            ->willReturnCallback(
+                static function (string $fileName) {
+                    return match ($fileName) {
+                        '/test/composer.json' => json_encode(
+                            ['version' => '2.2.0', 'name' => 'test'],
+                            JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES,
+                        ),
+                        default => '',
+                    };
+                },
+            );
+        $fileExists = $this->getFunctionMock(__NAMESPACE__, 'file_exists');
+        $fileExists
+            ->expects(self::exactly(2))
+            ->willReturn(true);
+
+        $gitExecutor = self::createMock(GetExecutorInterface::class);
+        $gitExecutor->expects(self::once())->method('getCurrentBranch')->willReturn('master');
+        $gitExecutor->expects(self::once())->method('status')->willReturn([]);
+        $gitExecutor->expects(self::once())->method('getLastTag')->willReturn(null);
+        $gitExecutor->expects(self::once())->method('getCommitsSinceLastTag')->willReturn([
+            'c3d4e5f6g1 doc(extremal): Some Example documents',
+            'c3d4e5f6g4 aggregate: Some Example 1',
+            'c3d4e5f6g2 feat(extremal): Some Example feat1',
+            'c3d4e5f6g5 aggregate: Some Example 2',
+            'c3d4e5f6g3 feat: Some Example feat2',
+        ]);
+        $gitExecutor->expects(self::never())->method('getCommitDescription');
+        $gitExecutor->expects(self::once())->method('setVersionTag');
+        $gitExecutor->expects(self::once())->method('commit');
+        $gitExecutor->expects(self::never())->method('addFile');
+
+        $updater = new SemanticVersionUpdater('/test', new Config(), gitExecutor: $gitExecutor);
+        ob_start();
+        $updater->updateVersion();
+        $output = ob_get_clean();
+        self::assertSame($versionAfterExpected, $versionAfter);
+        self::assertSame($textChangelogExpected, $textChangelog);
+        self::assertSame("Release 2.3.0 successfully created!\n", $output);
+    }
+
+    public function testAggregateCustom(): void
+    {
+        $hashes = [];
+        $versionAfter = '';
+        $versionAfterExpected = '3.0.0';
+
+        $textChangelog = '';
+        $textChangelogExpected = '# 3.0.0 (' . date('Y-m-d') . ')
+
+### New features
+- Some Example aggregated
+- Some Example feat1
+- Some Example aggregated 2
+- Added feature
+- Some Example feat2
+
+### Documentation
+- Some docs changes aggregated
+- Some docs changes aggregated 2
+
+### Other
+- doc(extremal): Some Example documents
+- unknown: Unknown type in agregate
+
+';
+
+        $filePutContents = $this->getFunctionMock(__NAMESPACE__, 'file_put_contents');
+        $filePutContents
+            ->expects(self::exactly(2))
+            ->willReturnCallback(
+                static function (string $fileName, string $contents) use (&$versionAfter, &$textChangelog): void {
+                    if ('/test/composer.json' === $fileName) {
+                        $composerJson = json_decode($contents, true);
+                        $versionAfter = $composerJson['version'];
+                    } elseif ('/test/CHANGELOG.md' === $fileName) {
+                        $textChangelog = $contents;
+                    }
+                },
+            );
+        $fileGetContents = $this->getFunctionMock(__NAMESPACE__, 'file_get_contents');
+        $fileGetContents
+            ->expects(self::exactly(2))
+            ->willReturnCallback(
+                static function (string $fileName) {
+                    return match ($fileName) {
+                        '/test/composer.json' => json_encode(
+                            ['version' => '2.2.0', 'name' => 'test'],
+                            JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES,
+                        ),
+                        default => '',
+                    };
+                },
+            );
+        $fileExists = $this->getFunctionMock(__NAMESPACE__, 'file_exists');
+        $fileExists
+            ->expects(self::exactly(2))
+            ->willReturn(true);
+
+        $gitExecutor = self::createMock(GetExecutorInterface::class);
+        $gitExecutor->expects(self::once())->method('getCurrentBranch')->willReturn('master');
+        $gitExecutor->expects(self::once())->method('status')->willReturn([]);
+        $gitExecutor->expects(self::once())->method('getLastTag')->willReturn(null);
+        $gitExecutor->expects(self::once())->method('getCommitsSinceLastTag')->willReturn([
+            'c3d4e5f6g1 doc(extremal): Some Example documents',
+            'c3d4e5f6g4 custom: Some Example',
+            'c3d4e5f6g2 feat(extremal): Some Example feat1',
+            'c3d4e5f6g5 custom: Some Example',
+            'c3d4e5f6g3 feat: Some Example feat2',
+        ]);
+        $gitExecutor->expects(self::exactly(2))->method('getCommitDescription')->willReturnCallback(
+            static function (string $hash) use (&$hashes): array {
+                $hashes[] = $hash;
+
+                return match ($hash) {
+                    'c3d4e5f6g4' => [
+                        'Any not formatted text',
+                        '',
+                        '-feat(extremal): Some Example aggregated',
+                        'docs!: Some docs changes aggregated',
+                        '',
+                    ],
+                    'c3d4e5f6g5' => [
+                        '',
+                        'feat: Some Example aggregated 2',
+                        '',
+                        'docs: Some docs changes aggregated 2',
+                        '',
+                        'unknown: Unknown type in agregate',
+                        '',
+                        'add: Added feature',
+                    ],
+                };
+            },
+        );
+        $gitExecutor->expects(self::once())->method('setVersionTag');
+        $gitExecutor->expects(self::once())->method('commit');
+        $gitExecutor->expects(self::never())->method('addFile');
+        $config = (new Config())
+            ->addSectionRule('feat', new ExampleRule1())
+            ->setAggregateSection('custom');
+        $updater = new SemanticVersionUpdater('/test', $config, gitExecutor: $gitExecutor);
+        ob_start();
+        $updater->updateVersion();
+        ob_get_clean();
+
+        self::assertSame($versionAfterExpected, $versionAfter, 'Major flag in aggregate');
+        self::assertSame($textChangelogExpected, $textChangelog);
+    }
+
+    public function testSquashedDefault(): void
+    {
+        $hashes = [];
+
+        $textChangelog = '';
+        $textChangelogExpected = '# 2.3.0 (' . date('Y-m-d') . ')
+
+### New features
+- Some Example feat1
+- Some Example feat2
+
+### Documentation
+- update README with configuration examples 5
+- update README with configuration examples 4
+
+### Other
+- doc(extremal): Some Example documents
+
+';
+
+        $filePutContents = $this->getFunctionMock(__NAMESPACE__, 'file_put_contents');
+        $filePutContents
+            ->expects(self::exactly(2))
+            ->willReturnCallback(
+                static function (string $fileName, string $contents) use (&$versionAfter, &$textChangelog): void {
+                    if ('/test/composer.json' === $fileName) {
+                        $composerJson = json_decode($contents, true);
+                        $versionAfter = $composerJson['version'];
+                    } elseif ('/test/CHANGELOG.md' === $fileName) {
+                        $textChangelog = $contents;
+                    }
+                },
+            );
+        $fileGetContents = $this->getFunctionMock(__NAMESPACE__, 'file_get_contents');
+        $fileGetContents
+            ->expects(self::exactly(2))
+            ->willReturnCallback(
+                static function (string $fileName) {
+                    return match ($fileName) {
+                        '/test/composer.json' => json_encode(
+                            ['version' => '2.2.0', 'name' => 'test'],
+                            JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES,
+                        ),
+                        default => '',
+                    };
+                },
+            );
+        $fileExists = $this->getFunctionMock(__NAMESPACE__, 'file_exists');
+        $fileExists
+            ->expects(self::exactly(2))
+            ->willReturn(true);
+
+        $gitExecutor = self::createMock(GetExecutorInterface::class);
+        $gitExecutor->expects(self::once())->method('getCurrentBranch')->willReturn('master');
+        $gitExecutor->expects(self::once())->method('status')->willReturn([]);
+        $gitExecutor->expects(self::once())->method('getLastTag')->willReturn(null);
+        $gitExecutor->expects(self::once())->method('getCommitsSinceLastTag')->willReturn([
+            'c3d4e5f6g1 doc(extremal): Some Example documents',
+            'c3d4e5f6g4 Squashed commit of the following:',
+            'c3d4e5f6g2 feat(extremal): Some Example feat1',
+            'c3d4e5f6g3 feat: Some Example feat2',
+        ]);
+        $gitExecutor->expects(self::once())->method('getCommitDescription')->willReturnCallback(
+            static function (string $hash) use (&$hashes): array {
+                $hashes[] = $hash;
+
+                return match ($hash) {
+                    'c3d4e5f6g4' => [
+                        'commit 2bf0dc5a380f17abc35d15c0f816c636d81cbfd2',
+                        'Author: Name Lastname <devemail@email.com>',
+                        'Date:   Sun Mar 23 15:20:02 2025 +0300',
+                        '',
+                        '   docs: update README with configuration examples 5',
+                        '',
+                        'commit cbae8944201f38a6676a493cf2d9f591ce3c1756',
+                        'Author: Name Lastname <devemail@email.com>',
+                        'Date:   Sun Mar 23 15:19:55 2025 +0300',
+                        '',
+                        '   docs: update README with configuration examples 4',
+                    ],
+                };
+            },
+        );
+        $gitExecutor->expects(self::once())->method('setVersionTag');
+        $gitExecutor->expects(self::once())->method('commit');
+        $gitExecutor->expects(self::never())->method('addFile');
+        $config = (new Config())
+            ->setProcessDefaultSquashedCommit(true);
+        $updater = new SemanticVersionUpdater('/test', $config, gitExecutor: $gitExecutor);
+        ob_start();
+        $updater->updateVersion();
+        ob_get_clean();
+        self::assertSame($textChangelogExpected, $textChangelog);
+    }
+
+    public function testSquashedCustom(): void
+    {
+        $hashes = [];
+
+        $textChangelog = '';
+        $textChangelogExpected = '# 2.3.0 (' . date('Y-m-d') . ')
+
+### New features
+- Some Example feat1
+- Some Example feat2
+
+### Documentation
+- update README with configuration examples 5
+- update README with configuration examples 4
+
+### Other
+- doc(extremal): Some Example documents
+
+';
+
+        $filePutContents = $this->getFunctionMock(__NAMESPACE__, 'file_put_contents');
+        $filePutContents
+            ->expects(self::exactly(2))
+            ->willReturnCallback(
+                static function (string $fileName, string $contents) use (&$versionAfter, &$textChangelog): void {
+                    if ('/test/composer.json' === $fileName) {
+                        $composerJson = json_decode($contents, true);
+                        $versionAfter = $composerJson['version'];
+                    } elseif ('/test/CHANGELOG.md' === $fileName) {
+                        $textChangelog = $contents;
+                    }
+                },
+            );
+        $fileGetContents = $this->getFunctionMock(__NAMESPACE__, 'file_get_contents');
+        $fileGetContents
+            ->expects(self::exactly(2))
+            ->willReturnCallback(
+                static function (string $fileName) {
+                    return match ($fileName) {
+                        '/test/composer.json' => json_encode(
+                            ['version' => '2.2.0', 'name' => 'test'],
+                            JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES,
+                        ),
+                        default => '',
+                    };
+                },
+            );
+        $fileExists = $this->getFunctionMock(__NAMESPACE__, 'file_exists');
+        $fileExists
+            ->expects(self::exactly(2))
+            ->willReturn(true);
+
+        $gitExecutor = self::createMock(GetExecutorInterface::class);
+        $gitExecutor->expects(self::once())->method('getCurrentBranch')->willReturn('master');
+        $gitExecutor->expects(self::once())->method('status')->willReturn([]);
+        $gitExecutor->expects(self::once())->method('getLastTag')->willReturn(null);
+        $gitExecutor->expects(self::once())->method('getCommitsSinceLastTag')->willReturn([
+            'c3d4e5f6g1 doc(extremal): Some Example documents',
+            'c3d4e5f6g4 Squashed commit:',
+            'c3d4e5f6g2 feat(extremal): Some Example feat1',
+            'c3d4e5f6g3 feat: Some Example feat2',
+        ]);
+        $gitExecutor->expects(self::once())->method('getCommitDescription')->willReturnCallback(
+            static function (string $hash) use (&$hashes): array {
+                $hashes[] = $hash;
+
+                return match ($hash) {
+                    'c3d4e5f6g4' => [
+                        'commit 2bf0dc5a380f17abc35d15c0f816c636d81cbfd2',
+                        'Author: Name Lastname <devemail@email.com>',
+                        'Date:   Sun Mar 23 15:20:02 2025 +0300',
+                        '',
+                        '   docs: update README with configuration examples 5',
+                        '',
+                        'commit cbae8944201f38a6676a493cf2d9f591ce3c1756',
+                        'Author: Name Lastname <devemail@email.com>',
+                        'Date:   Sun Mar 23 15:19:55 2025 +0300',
+                        '',
+                        '   docs: update README with configuration examples 4',
+                    ],
+                };
+            },
+        );
+        $gitExecutor->expects(self::once())->method('setVersionTag');
+        $gitExecutor->expects(self::once())->method('commit');
+        $gitExecutor->expects(self::never())->method('addFile');
+        $config = (new Config())
+            ->setSquashedCommitMessage('Squashed commit:')
+            ->setProcessDefaultSquashedCommit(true);
+        $updater = new SemanticVersionUpdater('/test', $config, gitExecutor: $gitExecutor);
         ob_start();
         $updater->updateVersion();
         ob_get_clean();

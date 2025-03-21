@@ -42,4 +42,9 @@ interface GetExecutorInterface
      * @throws GitCommandException
      */
     public function getCommitsSinceLastTag(?string $lastTag): array;
+
+    /**
+     * @throws GitCommandException
+     */
+    public function getCommitDescription(string $commitId): array;
 }

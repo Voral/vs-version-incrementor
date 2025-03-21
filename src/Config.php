@@ -9,6 +9,8 @@ use Vasoft\VersionIncrement\SectionRules\DefaultRule;
 
 final class Config
 {
+    private string $squashedCommitMessage = 'Squashed commit of the following:';
+    private bool $processDefaultSquashedCommit = false;
     private array $minorTypes = [
         'feat',
     ];
@@ -22,6 +24,8 @@ final class Config
     private string $releaseSection = 'chore';
 
     private string $releaseScope = 'release';
+
+    private string $aggregateSection = '';
 
     private bool $ignoreUntrackedFiles = false;
     private array $sections = [
@@ -249,5 +253,41 @@ final class Config
         $this->sectionRules[$key]['default'] = new DefaultRule($key);
 
         return $this->sectionRules[$key];
+    }
+
+    public function setAggregateSection(string $aggregateSection): self
+    {
+        $this->aggregateSection = $aggregateSection;
+
+        return $this;
+    }
+
+    public function getAggregateSection(): string
+    {
+        return $this->aggregateSection;
+    }
+
+    public function setSquashedCommitMessage(string $squashedCommitMessage): self
+    {
+        $this->squashedCommitMessage = $squashedCommitMessage;
+
+        return $this;
+    }
+
+    public function getSquashedCommitMessage(): string
+    {
+        return $this->squashedCommitMessage;
+    }
+
+    public function setProcessDefaultSquashedCommit(bool $processDefaultSquashedCommit): self
+    {
+        $this->processDefaultSquashedCommit = $processDefaultSquashedCommit;
+
+        return $this;
+    }
+
+    public function shouldProcessDefaultSquashedCommit(): bool
+    {
+        return $this->processDefaultSquashedCommit;
     }
 }

@@ -14,6 +14,11 @@ class GitExecutor implements GetExecutorInterface
         return $this->runCommand('status --porcelain');
     }
 
+    public function getCommitDescription(string $commitId): array
+    {
+        return $this->runCommand('log -1 --pretty=format:%b ' . $commitId);
+    }
+
     public function addFile(string $file): void
     {
         $this->runCommand('add ' . $file);
@@ -45,7 +50,7 @@ class GitExecutor implements GetExecutorInterface
 
     public function getCommitsSinceLastTag(?string $lastTag): array
     {
-        $command = $lastTag ? "log {$lastTag}..HEAD --pretty=format:%s" : 'log --pretty=format:%s';
+        $command = $lastTag ? "log {$lastTag}..HEAD --pretty=format:\"%H %s\"" : 'log --pretty=format:"%H %s"';
 
         return $this->runCommand($command);
     }
