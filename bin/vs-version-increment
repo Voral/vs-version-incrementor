@@ -19,9 +19,13 @@ foreach ($autoloadPaths as $path) {
         break;
     }
 }
-
-
-$changeType = $argv[1] ?? '';
+unset($argv[0]);
+$showList = false;
+if (in_array('--list', $argv, true)) {
+    $showList = true;
+    $argv = [];
+}
+$changeType = $argv[0] ?? '';
 
 $composerJsonPath = getenv('COMPOSER') ?: getcwd();
 
@@ -36,6 +40,10 @@ try {
         }
     } else {
         $config = new Config();
+    }
+    if ($showList) {
+        fwrite(STDOUT, implode(PHP_EOL, $config->getSectionDescriptions()) . PHP_EOL);
+        exit(0);
     }
     $versionUpdater = new SemanticVersionUpdater($composerJsonPath, $config, $changeType);
     $versionUpdater->updateVersion();
