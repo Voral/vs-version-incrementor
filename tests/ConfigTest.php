@@ -104,4 +104,45 @@ final class ConfigTest extends TestCase
         self::assertSame('Other', $config->getSectionTitle('other'));
         self::assertFalse($config->isSectionHidden('other'));
     }
+
+    public function testGetDefaultSectionDescriptions(): void
+    {
+        $config = new Config();
+        $expected = [
+            'feat - New features',
+            'fix - Fixes',
+            'chore - Other changes',
+            'docs - Documentation',
+            'style - Styling',
+            'refactor - Refactoring',
+            'test - Tests',
+            'perf - Performance',
+            'ci - Configure CI',
+            'build - Change build system',
+            'other - Other',
+        ];
+        $actual = $config->getSectionDescriptions();
+        self::assertSame($expected, $actual);
+    }
+
+    public function testGetDefaultSectionDescriptionsCustom(): void
+    {
+        $config = new Config();
+        $config->setSection('fix', 'Bug fixes');
+        $expected = [
+            'feat - New features',
+            'fix - Bug fixes',
+            'chore - Other changes',
+            'docs - Documentation',
+            'style - Styling',
+            'refactor - Refactoring',
+            'test - Tests',
+            'perf - Performance',
+            'ci - Configure CI',
+            'build - Change build system',
+            'other - Other',
+        ];
+        $actual = $config->getSectionDescriptions();
+        self::assertSame($expected, $actual);
+    }
 }

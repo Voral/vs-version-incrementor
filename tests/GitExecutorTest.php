@@ -251,6 +251,7 @@ final class GitExecutorTest extends TestCase
         $this->expectExceptionCode(60);
         $executor->getCurrentBranch();
     }
+
     public function testGetCommitDescription(): void
     {
         $commandOutput = [
