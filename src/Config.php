@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Vasoft\VersionIncrement;
 
-use Vasoft\VersionIncrement\SectionRules\SectionRuleInterface;
 use Vasoft\VersionIncrement\SectionRules\DefaultRule;
+use Vasoft\VersionIncrement\SectionRules\SectionRuleInterface;
 
 final class Config
 {
@@ -105,13 +105,14 @@ final class Config
         string $key,
         string $title,
         int $order = -1,
-        bool $hidden = false,
+        ?bool $hidden = null,
     ): self {
         $this->sored = false;
+        $exists = $this->sections[$key] ?? null;
         $this->sections[$key] = [
             'title' => $title,
-            'order' => -1 === $order ? ++$this->defaultOrder : $order,
-            'hidden' => $hidden,
+            'order' => -1 === $order ? ($exists ? $exists['order'] : ++$this->defaultOrder) : $order,
+            'hidden' => null !== $hidden ? $hidden : ($exists ? $exists['hidden'] : false),
         ];
 
         return $this;
