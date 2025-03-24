@@ -187,6 +187,7 @@ class SemanticVersionUpdater
         $aggregateKey = $this->config->getAggregateSection();
         $shouldProcessDefaultSquashedCommit = $this->config->shouldProcessDefaultSquashedCommit();
         $squashedCommitMessage = $this->config->getSquashedCommitMessage();
+        $defaultSectionNotHidden = !$this->config->isSectionHidden(Config::DEFAULT_SECTION);
         foreach ($commits as $commit) {
             if (
                 $shouldProcessDefaultSquashedCommit
@@ -216,9 +217,13 @@ class SemanticVersionUpdater
                         $matches['message'],
                         $rawMessage,
                     );
-                    $sections[$key][] = $rawMessage ? trim(preg_replace('/^[^ ]+ /', '', $commit)) : $matches['message'];
+                    if (!$this->config->isSectionHidden($key)) {
+                        $sections[$key][] = $rawMessage
+                            ? trim(preg_replace('/^[^ ]+ /', '', $commit))
+                            : $matches['message'];
+                    }
                 }
-            } else {
+            } elseif ($defaultSectionNotHidden) {
                 $sections[Config::DEFAULT_SECTION][] = trim(preg_replace('/^[^ ]+ /', '', $commit));
             }
         }
@@ -246,7 +251,9 @@ class SemanticVersionUpdater
                     $matches['message'],
                     $rawMessage,
                 );
-                $sections[$key][] = $rawMessage ? trim($line) : $matches['message'];
+                if (!$this->config->isSectionHidden($key)) {
+                    $sections[$key][] = $rawMessage ? trim($line) : $matches['message'];
+                }
             }
         }
     }

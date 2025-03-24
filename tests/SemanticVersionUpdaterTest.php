@@ -1253,6 +1253,83 @@ final class SemanticVersionUpdaterTest extends TestCase
         ob_get_clean();
         self::assertSame($textChangelogExpected, $textChangelog);
     }
+
+    public function testHiddenSection(): void
+    {
+        $versionAfter = '';
+        $versionAfterExpected = '2.3.0';
+
+        $textChangelog = '';
+        $textChangelogExpected = '# 2.3.0 (' . date('Y-m-d') . ')
+
+### New features
+- Some Example
+- Some Example
+
+### Other
+- doc(extremal): Some Example
+
+';
+
+        $filePutContents = $this->getFunctionMock(__NAMESPACE__, 'file_put_contents');
+        $filePutContents
+            ->expects(self::exactly(2))
+            ->willReturnCallback(
+                static function (string $fileName, string $contents) use (&$versionAfter, &$textChangelog): void {
+                    if ('/test/composer.json' === $fileName) {
+                        $composerJson = json_decode($contents, true);
+                        $versionAfter = $composerJson['version'];
+                    } elseif ('/test/CHANGELOG.md' === $fileName) {
+                        $textChangelog = $contents;
+                    }
+                },
+            );
+        $fileGetContents = $this->getFunctionMock(__NAMESPACE__, 'file_get_contents');
+        $fileGetContents
+            ->expects(self::exactly(2))
+            ->willReturnCallback(
+                static function (string $fileName) {
+                    return match ($fileName) {
+                        '/test/composer.json' => json_encode(
+                            ['version' => '2.2.0', 'name' => 'test'],
+                            JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES,
+                        ),
+                        default => '',
+                    };
+                },
+            );
+        $fileExists = $this->getFunctionMock(__NAMESPACE__, 'file_exists');
+        $fileExists
+            ->expects(self::exactly(2))
+            ->willReturn(true);
+
+        $gitExecutor = self::createMock(GetExecutorInterface::class);
+        $gitExecutor->expects(self::once())->method('getCurrentBranch')->willReturn('master');
+        $gitExecutor->expects(self::once())->method('status')->willReturn([]);
+        $gitExecutor->expects(self::once())->method('getLastTag')->willReturn(null);
+        $gitExecutor->expects(self::once())->method('getCommitsSinceLastTag')->willReturn([
+            'c3d4e5f6g1 doc(extremal): Some Example',
+            'c3d4e5f6g2 feat(extremal): Some Example',
+            'c3d4e5f6g3 feat: Some Example',
+            'c3d4e5f6g4 chore: Some Example on chore',
+            'c3d4e5f6g4 build: Some Example on build',
+        ]);
+        $gitExecutor->expects(self::once())->method('setVersionTag');
+        $gitExecutor->expects(self::once())->method('commit');
+        $gitExecutor->expects(self::never())->method('addFile');
+
+        $config = (new Config())
+            ->setSection('chore', 'Hidden section', hidden: true)
+            ->setSection('build', 'Hidden section', hidden: true);
+
+        $updater = new SemanticVersionUpdater('/test', $config, gitExecutor: $gitExecutor);
+        ob_start();
+        $updater->updateVersion();
+        $output = ob_get_clean();
+        self::assertSame($versionAfterExpected, $versionAfter);
+        self::assertSame($textChangelogExpected, $textChangelog);
+        self::assertSame("Release 2.3.0 successfully created!\n", $output);
+    }
 }
 
 class ExampleRule1 implements SectionRuleInterface
