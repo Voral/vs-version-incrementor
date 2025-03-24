@@ -1,3 +1,21 @@
+# 1.2.0 (2025-03-24)
+
+### New features
+- Squashed and aggregate commit
+- add command to list registered commit types
+- add custom commit type distribution rules
+
+### Fixes
+- Hide hidden sections
+- preserve existing section settings when calling setSection with partial parameters
+
+### Documentation
+- move configuration settings to a separate file
+- add example configuration for Keep a Changelog
+
+### Tests
+- Test for type descriptions list
+
 # 1.1.0 (2025-03-20)
 
 ### New features
