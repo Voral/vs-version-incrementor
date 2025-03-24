@@ -32,8 +32,6 @@ composer require --dev voral/version-increment
 
 ### Usage
 
-For automatic selection of the release type:
-
 ```bash
 # Automatic detection of release type
 ./vendor/bin/vs-version-increment
@@ -48,10 +46,31 @@ For automatic selection of the release type:
 ./vendor/bin/vs-version-increment patch
 ```
 
+Utility help command
+
+```bash
+./vendor/bin/vs-version-increment --help
+```
+
 Retrieving the list of registered commit types
 
 ```bash
 ./vendor/bin/vs-version-increment --list
+```
+The `--debug` flag allows you to preview the changes that will be made to the CHANGELOG and version without actually applying them
+
+```bash
+# Automatic detection of release type
+./vendor/bin/vs-version-increment --debug
+
+# Incrementing the major version
+./vendor/bin/vs-version-increment --debug major
+
+# Incrementing the minor version
+./vendor/bin/vs-version-increment --debug minor
+
+# Incrementing the patch version
+./vendor/bin/vs-version-increment --debug patch
 ```
 
 To simplify usage, you can add scripts to `composer.json`:
@@ -63,7 +82,8 @@ To simplify usage, you can add scripts to `composer.json`:
     "vinc:minor": "php ./vendor/bin/vs-version-increment minor",
     "vinc:patch": "php ./vendor/bin/vs-version-increment patch",
     "vinc:auto": "php ./vendor/bin/vs-version-increment",
-    "vinc:list": "php ./vendor/bin/vs-version-increment --list"
+    "vinc:list": "php ./vendor/bin/vs-version-increment --list",
+    "vinc:debug:auto": "php ./vendor/bin/vs-version-increment --debug"
   }
 }
 ```

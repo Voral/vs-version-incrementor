@@ -4,16 +4,17 @@ declare(strict_types=1);
 
 namespace Vasoft\VersionIncrement;
 
+use Vasoft\VersionIncrement\Contract\GetExecutorInterface;
 use Vasoft\VersionIncrement\Exceptions\BranchException;
 use Vasoft\VersionIncrement\Exceptions\ChangesNotFoundException;
 use Vasoft\VersionIncrement\Exceptions\ComposerException;
 use Vasoft\VersionIncrement\Exceptions\GitCommandException;
 use Vasoft\VersionIncrement\Exceptions\IncorrectChangeTypeException;
 use Vasoft\VersionIncrement\Exceptions\UncommittedException;
-use Vasoft\VersionIncrement\Contract\GetExecutorInterface;
 
 class SemanticVersionUpdater
 {
+    private bool $debug = false;
     private GetExecutorInterface $gitExecutor;
     private array $availableTypes = [
         'major',
@@ -85,38 +86,61 @@ class SemanticVersionUpdater
         $newVersion = $this->updateComposerVersion($currentVersion, $this->changeType);
 
         $composerJson['version'] = $newVersion;
-        file_put_contents(
-            $this->projectPath . '/composer.json',
-            json_encode($composerJson, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES),
-        );
+        $this->updateComposerJson($composerJson);
         $date = date('Y-m-d');
         $changelog = $this->generateChangelog($sections, $newVersion, $date);
-        $fileChangelog = $this->projectPath . '/CHANGELOG.md';
-        if (file_exists($fileChangelog)) {
-            $changeLogContent = file_get_contents('CHANGELOG.md');
-            $changeLogAddToGit = false;
+        $this->updateChangeLog($changelog);
+        $this->commitRelease($newVersion);
+    }
+
+    private function commitRelease(string $newVersion): void
+    {
+        if (!$this->debug) {
+            $releaseScope = trim($this->config->getReleaseScope());
+            if ('' !== $releaseScope) {
+                $releaseScope = sprintf('(%s)', $releaseScope);
+            }
+            $this->gitExecutor->commit(
+                sprintf(
+                    '%s%s: v%s',
+                    $this->config->getReleaseSection(),
+                    $releaseScope,
+                    $newVersion,
+                ),
+            );
+            $this->gitExecutor->setVersionTag($newVersion);
+            echo "Release {$newVersion} successfully created!\n";
+        }
+    }
+
+    private function updateChangeLog(string $changelog): void
+    {
+        if ($this->debug) {
+            echo $changelog;
         } else {
-            $changeLogContent = '';
-            $changeLogAddToGit = true;
+            $fileChangelog = $this->projectPath . '/CHANGELOG.md';
+            if (file_exists($fileChangelog)) {
+                $changeLogContent = file_get_contents($fileChangelog);
+                $changeLogAddToGit = false;
+            } else {
+                $changeLogContent = '';
+                $changeLogAddToGit = true;
+            }
+            file_put_contents($fileChangelog, $changelog . $changeLogContent);
+            if ($changeLogAddToGit) {
+                $this->gitExecutor->addFile('CHANGELOG.md');
+            }
         }
-        file_put_contents($fileChangelog, $changelog . $changeLogContent);
-        if ($changeLogAddToGit) {
-            $this->gitExecutor->addFile('CHANGELOG.md');
+    }
+
+    private function updateComposerJson(array $composerJson): void
+    {
+        if (!$this->debug) {
+            file_put_contents(
+                $this->projectPath . '/composer.json',
+                json_encode($composerJson, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES),
+            );
         }
-        $releaseScope = trim($this->config->getReleaseScope());
-        if ('' !== $releaseScope) {
-            $releaseScope = sprintf('(%s)', $releaseScope);
-        }
-        $this->gitExecutor->commit(
-            sprintf(
-                '%s%s: v%s',
-                $this->config->getReleaseSection(),
-                $releaseScope,
-                $newVersion,
-            ),
-        );
-        $this->gitExecutor->setVersionTag($newVersion);
-        echo "Release {$newVersion} successfully created!\n";
     }
 
     private function detectionTypeChange(array $sections): void
@@ -324,5 +348,12 @@ class SemanticVersionUpdater
         }
 
         return "{$major}.{$minor}.{$patch}";
+    }
+
+    public function setDebug(bool $debug): self
+    {
+        $this->debug = $debug;
+
+        return $this;
     }
 }

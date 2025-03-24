@@ -32,7 +32,7 @@ composer require --dev voral/version-increment
 
 ### Использование
 
-Для автоматического выбора типа нового релиза
+Примеры использования утилиты
 
 ```bash
 # Автоматическое определение типа релиза
@@ -47,11 +47,32 @@ composer require --dev voral/version-increment
 # Увеличение патч-версии
 ./vendor/bin/vs-version-increment patch
 ```
+Вызов справки по использованию утилиты
+
+```bash
+./vendor/bin/vs-version-increment --help
+```
 
 Получение списка зарегистрированных типов коммита
 
 ```bash
 ./vendor/bin/vs-version-increment --list
+```
+
+Флаг `--debug` позволяет предварительно просмотреть изменения, которые будут внесены в CHANGELOG и версию, без их реального применения.
+
+```bash
+# Автоматическое определение типа релиза
+./vendor/bin/vs-version-increment --debug
+
+# Увеличение мажорной версии
+./vendor/bin/vs-version-increment --debug major
+
+# Увеличение минорной версии
+./vendor/bin/vs-version-increment --debug minor
+
+# Увеличение патч-версии
+./vendor/bin/vs-version-increment --debug patch
 ```
 
 Для упрощения можно добавить скрипты в composer.json
@@ -63,7 +84,8 @@ composer require --dev voral/version-increment
     "vinc:minor": "php ./vendor/bin/vs-version-increment minor",
     "vinc:patch": "php ./vendor/bin/vs-version-increment patch",
     "vinc:auto": "php ./vendor/bin/vs-version-increment",
-    "vinc:list": "php ./vendor/bin/vs-version-increment --list"
+    "vinc:list": "php ./vendor/bin/vs-version-increment --list",
+    "vinc:debug:auto": "php ./vendor/bin/vs-version-increment --debug"
   }
 }
 ```

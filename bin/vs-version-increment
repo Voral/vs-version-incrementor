@@ -20,17 +20,42 @@ foreach ($autoloadPaths as $path) {
     }
 }
 unset($argv[0]);
+
 $showList = false;
-if (in_array('--list', $argv, true)) {
-    $showList = true;
-    $argv = [];
+$debug = false;
+$changeType = '';
+foreach ($argv as $key => $arg) {
+    switch ($arg) {
+        case '--help':
+            echo <<<HELP
+Vasoft Semantic Version Increment
+run vs-version-increment [--debug] [--list] [--help] [major|minor|patch]
+Usage:
+    --debug   Enable debug mode
+    --help    Display this help message
+    --list    Show list of sections
+    major|minor|patch    Increment type
+
+HELP;
+            exit(0);
+        case '--list':
+            $showList = true;
+            break;
+
+        case '--debug':
+            $debug = true;
+            break;
+
+        default:
+            if (empty($changeType)) {
+                $changeType = $arg;
+            }
+            break;
+    }
 }
-$changeType = $argv[0] ?? '';
-
-$composerJsonPath = getenv('COMPOSER') ?: getcwd();
-
 
 try {
+    $composerJsonPath = getenv('COMPOSER') ?: getcwd();
     $configFile = $composerJsonPath . '/.vs-version-increment.php';
     if (file_exists($configFile)) {
         $config = include_once $configFile;
@@ -46,7 +71,9 @@ try {
         exit(0);
     }
     $versionUpdater = new SemanticVersionUpdater($composerJsonPath, $config, $changeType);
-    $versionUpdater->updateVersion();
+    $versionUpdater
+        ->setDebug($debug)
+        ->updateVersion();
 } catch (ApplicationException  $e) {
     fwrite(STDERR, 'Error: ' . $e->getMessage() . PHP_EOL);
     exit($e->getCode());
