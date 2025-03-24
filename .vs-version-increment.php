@@ -9,4 +9,5 @@ return (new Config())
     ->setSection('style', 'Code style', hidden: true)
     ->setSection('refactor', 'Refactor', hidden: true)
     ->setSection('ci', 'CI', hidden: true)
-    ->setSection('build', 'Build', hidden: true);
+    ->setSection('build', 'Build', hidden: true)
+    ->setSection(Config::DEFAULT_SECTION, 'Default section', hidden: true);
