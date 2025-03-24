@@ -1,5 +1,5 @@
 /.phpstan.neon.dist export-ignore
-/.php-sc-fixer.php export-ignore
+/.php-cs-fixer.php export-ignore
 /tests export-ignore
 /phpunit.xml export-ignore
 /.github export-ignore
