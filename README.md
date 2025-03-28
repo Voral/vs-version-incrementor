@@ -57,7 +57,9 @@ Retrieving the list of registered commit types
 ```bash
 ./vendor/bin/vs-version-increment --list
 ```
-The `--debug` flag allows you to preview the changes that will be made to the CHANGELOG and version without actually applying them
+
+The `--debug` flag allows you to preview the changes that will be made to the CHANGELOG and version without actually
+applying them
 
 ```bash
 # Automatic detection of release type
@@ -122,6 +124,9 @@ following adjustments:
 - [Release Scope Configuration](docs/config.md#release-scope-configuration)
 - [Custom Type Distribution Rules Setup](docs/config.md#custom-type-distribution-rules-setup)
 - [Ignoring Untracked Files](docs/config.md#ignoring-untracked-files)
+- [Configuring CHANGELOG Formatting](docs/config.md#configuring-changelog-formatting)
+    - [Using a Scope-Preserving Formatter](docs/config.md#using-a-scope-preserving-formatter)
+    - [Creating a Custom Formatter](docs/config.md#creating-a-custom-formatter)
 - [Configuring Squashed Commits](docs/config.md#configuring-squashed-commits)
     - [Default Squashed Commit](docs/config.md#default-squashed-commit)
     - [Defining Squashed Commits via a Group](docs/config.md#defining-squashed-commits-via-a-group)
@@ -223,8 +228,7 @@ This configuration example is designed for projects that follow the [Keep a Chan
 standard. It organizes changes into categories (`Added`, `Changed`, `Deprecated`, `Removed`, `Fixed`, `Security`),
 making the changelog easy to read.
 
-- **File:
-  ** [`examples/keepachangelog.php`](https://github.com/Voral/vs-version-incrementor/blob/master/examples/keepachangelog.php)
+- *File:* [`examples/keepachangelog.php`](https://github.com/Voral/vs-version-incrementor/blob/master/examples/keepachangelog.php)
 
 ## Useful Links
 

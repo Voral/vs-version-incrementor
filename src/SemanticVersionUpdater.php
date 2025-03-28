@@ -274,24 +274,8 @@ class SemanticVersionUpdater
                         [$matches['breaking']],
                     ),
                 );
-                //                }
             }
         }
-    }
-
-    private function generateChangelog(CommitCollection $commitCollection, string $version, string $date): string
-    {
-        $changelog = "# {$version} ({$date})\n\n";
-        $sections = $commitCollection->getVisibleSections();
-        foreach ($sections as $section) {
-            $changelog .= sprintf("### %s\n", $section->title);
-            foreach ($section->getCommits() as $commit) {
-                $changelog .= "- {$commit->comment}\n";
-            }
-            $changelog .= "\n";
-        }
-
-        return $changelog;
     }
 
     private function updateComposerVersion(string $currentVersion, string $changeType): string

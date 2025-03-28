@@ -119,9 +119,14 @@ return (new \Vasoft\VersionIncrement\Config())
 ```
 chore: v3.0.0
 ```
+
 ## Настройка собственных правил распределения по типам
 
-Иногда есть необходимость настроить собственные правила распределения коммитов по типам, для этого реализована система правил. Для этого создавайте свои правила имплементирующие интерфейс [Vasoft\VersionIncrement\SectionRules\SectionRuleInterface](https://github.com/Voral/vs-version-incrementor/blob/master/src/SectionRules/SectionRuleInterface.php). И устанавливайте их для соответствующих типов коммитов
+Иногда есть необходимость настроить собственные правила распределения коммитов по типам, для этого реализована система
+правил. Для этого создавайте свои правила имплементирующие
+интерфейс [Vasoft\VersionIncrement\SectionRules\SectionRuleInterface](https://github.com/Voral/vs-version-incrementor/blob/master/src/SectionRules/SectionRuleInterface.php).
+И устанавливайте их для соответствующих типов коммитов
+
 ```php
 class ExampleRule1 implements SectionRuleInterface
 {
@@ -154,9 +159,77 @@ return (new \Vasoft\VersionIncrement\Config())
     ->setIgnoreUntrackedFiles(true);
 ```
 
+## Настройка форматирования CHANGELOG
+
+По умолчанию в `CHANGELOG.md` *не сохраняются скоупы* из коммитов. Однако, если вам нужно изменить это поведение, вы
+можете использовать один из следующих подходов:
+
+### Использование форматера, сохраняющего скоупы
+
+Если вы хотите сохранить определённые скоупы в `CHANGELOG.md`, используйте класс `ScopePreservingFormatter` из
+пространства имён `Vasoft\VersionIncrement\Changelog`.
+
+#### Особенности работы `ScopePreservingFormatter`:
+
+- Форматер принимает массив скоупов в конструкторе.
+- Если массив скоупов пустой, то сохраняются *все скоупы*.
+- В противном случае сохраняются только те скоупы, которые указаны в массиве.
+
+Пример конфигурации:
+
+```php
+use Vasoft\VersionIncrement\Changelog\ScopePreservingFormatter;
+
+return (new \Vasoft\VersionIncrement\Config())
+    ->setChangelogFormatter(new ScopePreservingFormatter(['dev', 'deprecated']));
+```
+
+В этом примере в `CHANGELOG.md` будут сохранены только комментарии с скоупами `dev` и `deprecated`. Остальные скоупы
+будут игнорироваться.
+
+### Создание собственного форматера
+
+Если стандартные форматеры не удовлетворяют вашим требованиям, вы можете создать собственный форматер. Для этого
+необходимо реализовать интерфейс `Vasoft\VersionIncrement\Contract\ChangelogFormatterInterface`.
+
+#### Требования к собственному форматеру:
+
+- Класс должен реализовать метод `__invoke`, который принимает два параметра:
+    - `CommitCollection $commitCollection`: коллекция коммитов, сгруппированных по секциям.
+    - `string $version`: номер версии, для которой генерируется changelog.
+- Метод должен возвращать строку с отформатированным содержимым `CHANGELOG.md`.
+
+Пример реализации собственного форматера:
+
+```php
+namespace MyApp\Custom;
+
+use Vasoft\VersionIncrement\Commits\CommitCollection;
+use Vasoft\VersionIncrement\Contract\ChangelogFormatterInterface;
+
+class CustomFormatter implements ChangelogFormatterInterface
+{
+    public function __invoke(CommitCollection $commitCollection, string $version): string
+    {
+        // Ваша логика форматирования
+        return "Custom changelog for version {$version}:\n";
+    }
+}
+```
+
+#### Пример подключения собственного форматера:
+
+```php
+use MyApp\Custom\CustomFormatter;
+
+return (new \Vasoft\VersionIncrement\Config())
+    ->setChangelogFormatter(new CustomFormatter());
+```
+
 ## Настройка сквошенных коммитов
 
-В некоторых проектах возникает необходимость работы со сквошенными коммитами, например, созданными командой `git merge --squash some-branch`. Для обработки таких коммитов предусмотрены следующие возможности:
+В некоторых проектах возникает необходимость работы со сквошенными коммитами, например, созданными
+командой `git merge --squash some-branch`. Для обработки таких коммитов предусмотрены следующие возможности:
 
 ### Объединяющий коммит по умолчанию
 
@@ -196,15 +269,18 @@ return (new Config())
 
 ### Определение сквошенного коммита через группу
 
-Сквошенный коммит также может быть связан с определенной группой. В этом случае коммиты, относящиеся к этой группе, будут распознаваться как сквошенные. Настройка выполняется следующим образом:
+Сквошенный коммит также может быть связан с определенной группой. В этом случае коммиты, относящиеся к этой группе,
+будут распознаваться как сквошенные. Настройка выполняется следующим образом:
 
 ```php
 return (new Config())
     ->setAggregateSection('aggregate');
 ```
+
 ### Комбинированное определение сквошенного коммита
 
 Вы можете кобинировать оба варианта
+
 ```php
 return (new Config())
     ->setAggregateSection('aggregate')

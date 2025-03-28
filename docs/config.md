@@ -114,9 +114,13 @@ In this case, the commit message will look like this:
 ```
 chore: v3.0.0
 ```
+
 ## Custom Type Distribution Rules Setup
 
-Sometimes, there is a need to configure custom rules for distributing commits by type. For this purpose, a rule system has been implemented. To achieve this, create your own rules by implementing the [Vasoft\VersionIncrement\SectionRules\SectionRuleInterface](https://github.com/Voral/vs-version-incrementor/blob/master/src/SectionRules/SectionRuleInterface.php) interface and assign them to the corresponding commit types.
+Sometimes, there is a need to configure custom rules for distributing commits by type. For this purpose, a rule system
+has been implemented. To achieve this, create your own rules by implementing
+the [Vasoft\VersionIncrement\SectionRules\SectionRuleInterface](https://github.com/Voral/vs-version-incrementor/blob/master/src/SectionRules/SectionRuleInterface.php)
+interface and assign them to the corresponding commit types.
 
 ```php
 class ExampleRule1 implements SectionRuleInterface
@@ -140,7 +144,6 @@ return (new \Vasoft\VersionIncrement\Config())
     ->addSectionRule('feat', new ExampleRule2());
 ```
 
-
 ## Ignoring Untracked Files
 
 When running the utility, all changes must be committed, and by default, there should be no untracked files. To ignore
@@ -149,6 +152,75 @@ the presence of untracked files, you need to apply the following configuration:
 ```php
 return (new \Vasoft\VersionIncrement\Config())
     ->setIgnoreUntrackedFiles(true);
+```
+
+## Configuring CHANGELOG Formatting
+
+By default, *scopes from commits are not preserved* in `CHANGELOG.md`. However, if you need to change this behavior, you
+can use one of the following approaches:
+
+### Using a Scope-Preserving Formatter
+
+If you want to preserve specific scopes in `CHANGELOG.md`, use the `ScopePreservingFormatter` class from
+the `Vasoft\VersionIncrement\Changelog` namespace.
+
+#### How `ScopePreservingFormatter` Works:
+
+- The formatter accepts an array of scopes in its constructor.
+- If the array of scopes is empty, *all scopes* will be preserved.
+- Otherwise, only the scopes specified in the array will be included.
+
+Example Configuration:
+
+```php
+use Vasoft\VersionIncrement\Changelog\ScopePreservingFormatter;
+
+return (new \Vasoft\VersionIncrement\Config())
+    ->setChangelogFormatter(new ScopePreservingFormatter(['dev', 'deprecated']));
+```
+
+In this example, only comments with the `dev` and `deprecated` scopes will be preserved in `CHANGELOG.md`. All other
+scopes will be ignored.
+
+---
+
+### Creating a Custom Formatter
+
+If the standard formatters do not meet your requirements, you can create your own custom formatter. To do so, implement
+the `Vasoft\VersionIncrement\Contract\ChangelogFormatterInterface`.
+
+#### Requirements for a Custom Formatter:
+
+- The class must implement the `__invoke` method, which takes two parameters:
+    - `CommitCollection $commitCollection`: A collection of commits grouped into sections.
+    - `string $version`: The version number for which the changelog is generated.
+- The method must return a string containing the formatted content of `CHANGELOG.md`.
+
+Example of a Custom Formatter Implementation:
+
+```php
+namespace MyApp\Custom;
+
+use Vasoft\VersionIncrement\Commits\CommitCollection;
+use Vasoft\VersionIncrement\Contract\ChangelogFormatterInterface;
+
+class CustomFormatter implements ChangelogFormatterInterface
+{
+    public function __invoke(CommitCollection $commitCollection, string $version): string
+    {
+        // Your custom formatting logic
+        return "Custom changelog for version {$version}:\n";
+    }
+}
+```
+
+Example of Connecting a Custom Formatter:
+
+```php
+use MyApp\Custom\CustomFormatter;
+
+return (new \Vasoft\VersionIncrement\Config())
+    ->setChangelogFormatter(new CustomFormatter());
 ```
 
 ## Configuring Squashed Commits
@@ -201,6 +273,7 @@ recognized as squashed. This is configured as follows:
 return (new Config())
     ->setAggregateSection('aggregate');
 ```
+
 ### Combined Definition of a Squashed Commit
 
 You can combine both options.

@@ -6,6 +6,7 @@ namespace Vasoft\VersionIncrement;
 
 use phpmock\phpunit\PHPMock;
 use PHPUnit\Framework\TestCase;
+use Vasoft\VersionIncrement\Changelog\ScopePreservingFormatter;
 use Vasoft\VersionIncrement\Contract\GetExecutorInterface;
 use Vasoft\VersionIncrement\Exceptions\BranchException;
 use Vasoft\VersionIncrement\Exceptions\ChangesNotFoundException;
@@ -669,6 +670,10 @@ final class SemanticVersionUpdaterTest extends TestCase
 ### New features
 - Some Example
 - Some Example
+- dev: Some Example for development
+
+### Other changes
+- deprecated: Deprecated notice
 
 ### Other
 - doc(extremal): Some Example
@@ -721,6 +726,8 @@ final class SemanticVersionUpdaterTest extends TestCase
             'c3d4e5f6g11 doc(extremal): Some Example',
             'c3d4e5f6g12 feat(extremal): Some Example',
             'c3d4e5f6g13 feat: Some Example',
+            'c3d4e5f6g14 feat(dev): Some Example for development',
+            'c3d4e5f6g14 chore(deprecated): Deprecated notice',
         ]);
         $gitExecutor->expects(self::once())->method('status')->willReturn([]);
         $gitExecutor->expects(self::once())->method('addFile');
@@ -729,6 +736,7 @@ final class SemanticVersionUpdaterTest extends TestCase
 
         $config = new Config();
         $config->setMajorTypes(['feat', 'doc']);
+        $config->setChangelogFormatter(new ScopePreservingFormatter(['dev', 'deprecated']));
         $config->setReleaseScope('');
         $updater = new SemanticVersionUpdater('/test', $config, gitExecutor: $gitExecutor);
         ob_start();
