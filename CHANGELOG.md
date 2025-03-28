@@ -1,3 +1,13 @@
+# 1.3.0 (2025-03-28)
+
+### New features
+- add ScopePreservingFormatter to preserve specific scopes in changelog
+- added support for custom changelog formatters
+- add --debug flag for previewing changes
+
+### Refactoring
+- deprecate SectionRuleInterface in favor of new interface in Contract namespace
+
 # 1.2.0 (2025-03-24)
 
 ### New features
