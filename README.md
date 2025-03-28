@@ -23,6 +23,7 @@ The version is built according to the semantic rule `<Major>.<Minor>.<Patch>`:
 - Updating the `composer.json` file with the new version.
 - Creating Git tags for releases and commits.
 - Supporting custom configurations for commit types.
+- Supporting custom CHANGELOG format.
 
 ## Installation
 
