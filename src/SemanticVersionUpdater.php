@@ -88,8 +88,8 @@ class SemanticVersionUpdater
 
         $composerJson['version'] = $newVersion;
         $this->updateComposerJson($composerJson);
-        $date = date('Y-m-d');
-        $changelog = $this->generateChangelog($commitCollection, $newVersion, $date);
+        $changelog = $this->config->getChangelogFormatter()($commitCollection, $newVersion);
+
         $this->updateChangeLog($changelog);
         $this->commitRelease($newVersion);
     }

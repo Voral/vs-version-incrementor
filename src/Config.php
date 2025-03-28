@@ -6,6 +6,7 @@ namespace Vasoft\VersionIncrement;
 
 use Vasoft\VersionIncrement\Commits\CommitCollection;
 use Vasoft\VersionIncrement\Commits\Section;
+use Vasoft\VersionIncrement\Contract\ChangelogFormatterInterface;
 use Vasoft\VersionIncrement\SectionRules\DefaultRule;
 use Vasoft\VersionIncrement\SectionRules\SectionRuleInterface;
 
@@ -28,6 +29,8 @@ final class Config
     private string $releaseScope = 'release';
 
     private string $aggregateSection = '';
+
+    private ?ChangelogFormatterInterface $changelogFormatter = null;
 
     private bool $ignoreUntrackedFiles = false;
     private array $sections = [
@@ -308,5 +311,19 @@ final class Config
     public function shouldProcessDefaultSquashedCommit(): bool
     {
         return $this->processDefaultSquashedCommit;
+    }
+
+    public function getChangelogFormatter(): ChangelogFormatterInterface
+    {
+        if (!$this->changelogFormatter) {
+            $this->changelogFormatter = new Changelog\DefaultFormatter();
+        }
+
+        return $this->changelogFormatter;
+    }
+
+    public function setChangelogFormatter(ChangelogFormatterInterface $changelogFormatter): void
+    {
+        $this->changelogFormatter = $changelogFormatter;
     }
 }
