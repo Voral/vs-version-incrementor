@@ -222,7 +222,7 @@ class SemanticVersionUpdater
                     continue;
                 }
                 if (preg_match(
-                    '/^(?<key>[a-z]+)(?:\((?<scope>[^\)]+)\))?(?<breaking>!)?:\s+(?<message>.+)/',
+                    '/^(?<key>[a-z]+)(?:\((?<scope>[^)]+)\))?(?<breaking>!)?:\s+(?<message>.+)/',
                     $commit,
                     $matches,
                 )) {
@@ -260,7 +260,7 @@ class SemanticVersionUpdater
         foreach ($description as $line) {
             $matches = [];
             if (preg_match(
-                "/^[\t *-]*((?<key>[a-z]+)(?:\\((?<scope>[^\\)]+)\\))?(?<breaking>!)?:\\s+(?<message>.+))/",
+                "/^[\t *-]*((?<key>[a-z]+)(?:\\((?<scope>[^)]+)\\))?(?<breaking>!)?:\\s+(?<message>.+))/",
                 $line,
                 $matches,
             )) {
