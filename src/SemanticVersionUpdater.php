@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Vasoft\VersionIncrement;
 
+use Vasoft\VersionIncrement\Commits\Commit;
+use Vasoft\VersionIncrement\Commits\CommitCollection;
 use Vasoft\VersionIncrement\Contract\GetExecutorInterface;
 use Vasoft\VersionIncrement\Exceptions\BranchException;
 use Vasoft\VersionIncrement\Exceptions\ChangesNotFoundException;
@@ -21,7 +23,6 @@ class SemanticVersionUpdater
         'minor',
         'patch',
     ];
-    private bool $isBreaking = false;
 
     public function __construct(
         private readonly string $projectPath,
@@ -78,8 +79,8 @@ class SemanticVersionUpdater
 
         $lastTag = $this->gitExecutor->getLastTag();
         $commits = $this->gitExecutor->getCommitsSinceLastTag($lastTag);
-        $sections = $this->analyzeCommits($commits);
-        $this->detectionTypeChange($sections);
+        $commitCollection = $this->analyzeCommits($commits);
+        $this->detectionTypeChange($commitCollection);
 
         $currentVersion = $composerJson['version'] ?? '1.0.0';
 
@@ -88,11 +89,14 @@ class SemanticVersionUpdater
         $composerJson['version'] = $newVersion;
         $this->updateComposerJson($composerJson);
         $date = date('Y-m-d');
-        $changelog = $this->generateChangelog($sections, $newVersion, $date);
+        $changelog = $this->generateChangelog($commitCollection, $newVersion, $date);
         $this->updateChangeLog($changelog);
         $this->commitRelease($newVersion);
     }
 
+    /**
+     * @throws GitCommandException
+     */
     private function commitRelease(string $newVersion): void
     {
         if (!$this->debug) {
@@ -113,6 +117,9 @@ class SemanticVersionUpdater
         }
     }
 
+    /**
+     * @throws GitCommandException
+     */
     private function updateChangeLog(string $changelog): void
     {
         if ($this->debug) {
@@ -143,31 +150,17 @@ class SemanticVersionUpdater
         }
     }
 
-    private function detectionTypeChange(array $sections): void
+    private function detectionTypeChange(CommitCollection $commitCollection): void
     {
         if ('' === $this->changeType) {
-            if ($this->isBreaking) {
+            if ($commitCollection->hasMajorMarker()) {
                 $this->changeType = 'major';
+            } elseif ($commitCollection->hasMinorMarker()) {
+                $this->changeType = 'minor';
             } else {
                 $this->changeType = 'patch';
-                if ($this->hasTypedCommits($sections, $this->config->getMajorTypes())) {
-                    $this->changeType = 'major';
-                } elseif ($this->hasTypedCommits($sections, $this->config->getMinorTypes())) {
-                    $this->changeType = 'minor';
-                }
             }
         }
-    }
-
-    private function hasTypedCommits(array $sections, array $keys): bool
-    {
-        foreach ($keys as $key) {
-            if (!empty($sections[$key])) {
-                return true;
-            }
-        }
-
-        return false;
     }
 
     /**
@@ -201,61 +194,68 @@ class SemanticVersionUpdater
 
     /**
      * @throws ChangesNotFoundException
+     * @throws GitCommandException
      */
-    private function analyzeCommits(array $commits): array
+    private function analyzeCommits(array $commits): CommitCollection
     {
         if (empty($commits)) {
             throw new ChangesNotFoundException();
         }
-        $sections = $this->config->getSectionIndex();
+        $commitCollection = $this->config->getCommitCollection();
         $aggregateKey = $this->config->getAggregateSection();
         $shouldProcessDefaultSquashedCommit = $this->config->shouldProcessDefaultSquashedCommit();
         $squashedCommitMessage = $this->config->getSquashedCommitMessage();
-        $defaultSectionNotHidden = !$this->config->isSectionHidden(Config::DEFAULT_SECTION);
         foreach ($commits as $commit) {
-            if (
-                $shouldProcessDefaultSquashedCommit
-                && str_ends_with($commit, $squashedCommitMessage)
-                && preg_match('/^(?<hash>[^ ]+).+/', $commit, $matches)
-            ) {
-                $this->processAggregated($matches['hash'], $sections);
-
-                continue;
-            }
             if (preg_match(
-                '/^(?<hash>[^ ]+) (?<key>[a-z]+)(?:\((?<scope>[^\)]+)\))?(?<breaking>!)?:\s+(?<message>.+)/',
+                '/^(?<hash>[^ ]+) (?<commit>.+)/',
                 $commit,
                 $matches,
             )) {
-                $this->analyzeFlags($matches['breaking']);
-                $key = trim($matches['key']);
-                if ($aggregateKey === $key) {
-                    $this->processAggregated($matches['hash'], $sections);
-                } else {
-                    $rawMessage = false;
-                    $key = $this->detectionSection(
-                        $sections,
-                        $matches['key'],
-                        $matches['scope'],
-                        [$matches['breaking']],
-                        $matches['message'],
-                        $rawMessage,
-                    );
-                    if (!$this->config->isSectionHidden($key)) {
-                        $sections[$key][] = $rawMessage
-                            ? trim(preg_replace('/^[^ ]+ /', '', $commit))
-                            : $matches['message'];
-                    }
+                $hash = $matches['hash'];
+                $commit = $matches['commit'];
+                // @todo перенести так чтобы обрабатывался флаг !
+                if (
+                    $shouldProcessDefaultSquashedCommit
+                    && str_ends_with($commit, $squashedCommitMessage)
+                ) {
+                    $this->processAggregated($hash, $commitCollection);
+
+                    continue;
                 }
-            } elseif ($defaultSectionNotHidden) {
-                $sections[Config::DEFAULT_SECTION][] = trim(preg_replace('/^[^ ]+ /', '', $commit));
+                if (preg_match(
+                    '/^(?<key>[a-z]+)(?:\((?<scope>[^\)]+)\))?(?<breaking>!)?:\s+(?<message>.+)/',
+                    $commit,
+                    $matches,
+                )) {
+                    $key = trim($matches['key']);
+                    if ($aggregateKey === $key) {
+                        $commitCollection->setMajorMarker('!' === $matches['breaking']);
+                        $this->processAggregated($hash, $commitCollection);
+                    } else {
+                        $commitCollection->add(
+                            new Commit(
+                                $commit,
+                                $key,
+                                $matches['message'],
+                                '!' === $matches['breaking'],
+                                $matches['scope'],
+                                [$matches['breaking']],
+                            ),
+                        );
+                    }
+                } else {
+                    $commitCollection->addRawMessage($commit);
+                }
             }
         }
 
-        return $sections;
+        return $commitCollection;
     }
 
-    private function processAggregated(string $hash, array &$sections): void
+    /**
+     * @throws GitCommandException
+     */
+    private function processAggregated(string $hash, CommitCollection $commitCollection): void
     {
         $description = $this->gitExecutor->getCommitDescription($hash);
         foreach ($description as $line) {
@@ -265,63 +265,31 @@ class SemanticVersionUpdater
                 $line,
                 $matches,
             )) {
-                $this->analyzeFlags($matches['breaking']);
-                $rawMessage = false;
-                $key = $this->detectionSection(
-                    $sections,
-                    $matches['key'],
-                    $matches['scope'],
-                    [$matches['breaking']],
-                    $matches['message'],
-                    $rawMessage,
+                $commitCollection->add(
+                    new Commit(
+                        $line,
+                        $matches['key'],
+                        $matches['message'],
+                        '!' === $matches['breaking'],
+                        $matches['scope'],
+                        [$matches['breaking']],
+                    ),
                 );
-                if (!$this->config->isSectionHidden($key)) {
-                    $sections[$key][] = $rawMessage ? trim($line) : $matches['message'];
-                }
+                //                }
             }
         }
     }
 
-    private function detectionSection(
-        array $sections,
-        string $key,
-        string $scope,
-        array $flags,
-        string $message,
-        bool &$rawMessage,
-    ): string {
-        foreach ($sections as $index => $values) {
-            $rules = $this->config->getSectionRules($index);
-            foreach ($rules as $rule) {
-                if ($rule($key, $scope, $flags, $message)) {
-                    return $index;
-                }
-            }
-        }
-        $rawMessage = true;
-
-        return Config::DEFAULT_SECTION;
-    }
-
-    private function analyzeFlags(string $flags): void
-    {
-        if ('!' === $flags) {
-            $this->isBreaking = true;
-        }
-    }
-
-    private function generateChangelog(array $sections, string $version, string $date): string
+    private function generateChangelog(CommitCollection $commitCollection, string $version, string $date): string
     {
         $changelog = "# {$version} ({$date})\n\n";
-
-        foreach ($sections as $key => $messages) {
-            if (!empty($messages)) {
-                $changelog .= sprintf("### %s\n", $this->config->getSectionTitle($key));
-                foreach ($messages as $message) {
-                    $changelog .= "- {$message}\n";
-                }
-                $changelog .= "\n";
+        $sections = $commitCollection->getVisibleSections();
+        foreach ($sections as $section) {
+            $changelog .= sprintf("### %s\n", $section->title);
+            foreach ($section->getCommits() as $commit) {
+                $changelog .= "- {$commit->comment}\n";
             }
+            $changelog .= "\n";
         }
 
         return $changelog;
@@ -330,7 +298,6 @@ class SemanticVersionUpdater
     private function updateComposerVersion(string $currentVersion, string $changeType): string
     {
         [$major, $minor, $patch] = explode('.', $currentVersion);
-
         switch ($changeType) {
             case 'major':
                 $major++;

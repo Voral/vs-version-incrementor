@@ -1058,7 +1058,6 @@ final class SemanticVersionUpdaterTest extends TestCase
         ob_start();
         $updater->updateVersion();
         ob_get_clean();
-
         self::assertSame($versionAfterExpected, $versionAfter, 'Major flag in aggregate');
         self::assertSame($textChangelogExpected, $textChangelog);
     }

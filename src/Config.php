@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Vasoft\VersionIncrement;
 
+use Vasoft\VersionIncrement\Commits\CommitCollection;
+use Vasoft\VersionIncrement\Commits\Section;
 use Vasoft\VersionIncrement\SectionRules\DefaultRule;
 use Vasoft\VersionIncrement\SectionRules\SectionRuleInterface;
 
@@ -125,6 +127,29 @@ final class Config
         return array_fill_keys(array_keys($this->sections), []);
     }
 
+    public function getCommitCollection(): CommitCollection
+    {
+        $this->sortSections();
+        $sections = [];
+        $default = null;
+        foreach ($this->sections as $key => $section) {
+            $section = new Section(
+                $key,
+                $section['title'],
+                $section['hidden'],
+                $this->getSectionRules($key),
+                in_array($key, $this->majorTypes, true),
+                in_array($key, $this->minorTypes, true),
+            );
+            if (self::DEFAULT_SECTION === $key) {
+                $default = $section;
+            }
+            $sections[$key] = $section;
+        }
+
+        return new CommitCollection($sections, $default);
+    }
+
     private function sortSections(): void
     {
         if (!$this->sored) {
@@ -208,16 +233,6 @@ final class Config
         return $this;
     }
 
-    public function getMajorTypes(): array
-    {
-        return $this->majorTypes;
-    }
-
-    public function getMinorTypes(): array
-    {
-        return $this->minorTypes;
-    }
-
     public function setReleaseScope(string $releaseScope): self
     {
         $this->releaseScope = $releaseScope;
@@ -249,6 +264,9 @@ final class Config
         return $this;
     }
 
+    /**
+     * @return SectionRuleInterface[]
+     */
     public function getSectionRules(string $key): array
     {
         $this->sectionRules[$key]['default'] = new DefaultRule($key);
