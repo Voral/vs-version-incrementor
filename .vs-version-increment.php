@@ -10,5 +10,5 @@ return (new Config())
     ->setSection('refactor', 'Refactor', hidden: true)
     ->setSection('ci', 'CI', hidden: true)
     ->setSection('build', 'Build', hidden: true)
-    ->setSection('ref-public', 'Refactoring', hidden: false)
+    ->setSection('pubref', 'Refactoring', hidden: false)
     ->setSection(Config::DEFAULT_SECTION, 'Default section', hidden: true);
