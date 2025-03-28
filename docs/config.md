@@ -119,7 +119,7 @@ chore: v3.0.0
 
 Sometimes, there is a need to configure custom rules for distributing commits by type. For this purpose, a rule system
 has been implemented. To achieve this, create your own rules by implementing
-the [Vasoft\VersionIncrement\SectionRules\SectionRuleInterface](https://github.com/Voral/vs-version-incrementor/blob/master/src/SectionRules/SectionRuleInterface.php)
+the [Vasoft\VersionIncrement\Contract\SectionRuleInterface](https://github.com/Voral/vs-version-incrementor/blob/master/src/Contract/SectionRuleInterface.php)
 interface and assign them to the corresponding commit types.
 
 ```php

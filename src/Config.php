@@ -8,7 +8,7 @@ use Vasoft\VersionIncrement\Commits\CommitCollection;
 use Vasoft\VersionIncrement\Commits\Section;
 use Vasoft\VersionIncrement\Contract\ChangelogFormatterInterface;
 use Vasoft\VersionIncrement\SectionRules\DefaultRule;
-use Vasoft\VersionIncrement\SectionRules\SectionRuleInterface;
+use Vasoft\VersionIncrement\Contract\SectionRuleInterface;
 
 final class Config
 {

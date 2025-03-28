@@ -4,13 +4,10 @@ declare(strict_types=1);
 
 namespace Vasoft\VersionIncrement\SectionRules;
 
-interface SectionRuleInterface
-{
-    /**
-     * @param string $type    Commit type
-     * @param string $scope   Commit scope
-     * @param array  $flags   Commit flags. Example: "!"
-     * @param string $comment Commit comment
-     */
-    public function __invoke(string $type, string $scope, array $flags, string $comment): bool;
-}
+/**
+ * @deprecated This interface is deprecated and will be removed in the next major version
+ * @see \Vasoft\VersionIncrement\Contract\SectionRuleInterface
+ *
+ * @codeCoverageIgnore
+ */
+interface SectionRuleInterface extends \Vasoft\VersionIncrement\Contract\SectionRuleInterface {}

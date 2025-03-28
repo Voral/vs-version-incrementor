@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Vasoft\VersionIncrement\Commits;
 
-use Vasoft\VersionIncrement\SectionRules\SectionRuleInterface;
+use Vasoft\VersionIncrement\Contract\SectionRuleInterface;
 
 final class Section
 {

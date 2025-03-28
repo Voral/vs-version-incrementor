@@ -124,7 +124,7 @@ chore: v3.0.0
 
 Иногда есть необходимость настроить собственные правила распределения коммитов по типам, для этого реализована система
 правил. Для этого создавайте свои правила имплементирующие
-интерфейс [Vasoft\VersionIncrement\SectionRules\SectionRuleInterface](https://github.com/Voral/vs-version-incrementor/blob/master/src/SectionRules/SectionRuleInterface.php).
+интерфейс [Vasoft\VersionIncrement\Contract\SectionRuleInterface](https://github.com/Voral/vs-version-incrementor/blob/master/src/Contract/SectionRuleInterface.php).
 И устанавливайте их для соответствующих типов коммитов
 
 ```php

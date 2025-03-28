@@ -13,7 +13,8 @@ use Vasoft\VersionIncrement\Exceptions\ChangesNotFoundException;
 use Vasoft\VersionIncrement\Exceptions\ComposerException;
 use Vasoft\VersionIncrement\Exceptions\IncorrectChangeTypeException;
 use Vasoft\VersionIncrement\Exceptions\UncommittedException;
-use Vasoft\VersionIncrement\SectionRules\SectionRuleInterface;
+use Vasoft\VersionIncrement\Contract\SectionRuleInterface;
+use Vasoft\VersionIncrement\SectionRules\SectionRuleInterface as LegacySectionRuleInterface;
 
 /**
  * @coversDefaultClass \Vasoft\VersionIncrement\SemanticVersionUpdater
@@ -1403,7 +1404,7 @@ class ExampleRule1 implements SectionRuleInterface
     }
 }
 
-class ExampleRule2 implements SectionRuleInterface
+class ExampleRule2 implements LegacySectionRuleInterface
 {
     public function __invoke(string $type, string $scope, array $flags, string $comment): bool
     {
