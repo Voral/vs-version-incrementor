@@ -213,7 +213,6 @@ class SemanticVersionUpdater
             )) {
                 $hash = $matches['hash'];
                 $commit = $matches['commit'];
-                // @todo перенести так чтобы обрабатывался флаг !
                 if (
                     $shouldProcessDefaultSquashedCommit
                     && str_ends_with($commit, $squashedCommitMessage)
