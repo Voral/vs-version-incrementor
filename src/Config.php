@@ -7,6 +7,8 @@ namespace Vasoft\VersionIncrement;
 use Vasoft\VersionIncrement\Commits\CommitCollection;
 use Vasoft\VersionIncrement\Commits\Section;
 use Vasoft\VersionIncrement\Contract\ChangelogFormatterInterface;
+use Vasoft\VersionIncrement\Contract\CommitParserInterface;
+use Vasoft\VersionIncrement\Contract\VcsExecutorInterface;
 use Vasoft\VersionIncrement\SectionRules\DefaultRule;
 use Vasoft\VersionIncrement\Contract\SectionRuleInterface;
 
@@ -31,6 +33,8 @@ final class Config
     private string $aggregateSection = '';
 
     private ?ChangelogFormatterInterface $changelogFormatter = null;
+    private ?CommitParserInterface $commitParser = null;
+    private ?VcsExecutorInterface $vcsExecutor = null;
 
     private bool $ignoreUntrackedFiles = false;
     private array $sections = [
@@ -315,7 +319,7 @@ final class Config
 
     public function getChangelogFormatter(): ChangelogFormatterInterface
     {
-        if (!$this->changelogFormatter) {
+        if (null === $this->changelogFormatter) {
             $this->changelogFormatter = new Changelog\DefaultFormatter();
         }
 
@@ -325,5 +329,33 @@ final class Config
     public function setChangelogFormatter(ChangelogFormatterInterface $changelogFormatter): void
     {
         $this->changelogFormatter = $changelogFormatter;
+    }
+
+    public function getVcsExecutor(): VcsExecutorInterface
+    {
+        if (null === $this->vcsExecutor) {
+            $this->vcsExecutor = new GitExecutor();
+        }
+
+        return $this->vcsExecutor;
+    }
+
+    public function setVcsExecutor(VcsExecutorInterface $vcsExecutor): void
+    {
+        $this->vcsExecutor = $vcsExecutor;
+    }
+
+    public function getCommitParser(): CommitParserInterface
+    {
+        if (null === $this->commitParser) {
+            $this->commitParser = new Commits\ShortParser($this->getVcsExecutor());
+        }
+
+        return $this->commitParser;
+    }
+
+    public function setCommitParser(CommitParserInterface $changelogFormatter): void
+    {
+        $this->commitParser = $changelogFormatter;
     }
 }

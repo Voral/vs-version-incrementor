@@ -311,3 +311,28 @@ of the CHANGELOG:
  - update README with configuration examples 3
  - update README with configuration examples 4
 ```
+
+## Configuring the Commit Description Parser
+
+The parser processes the string in accordance with the [Conventional Commits](https://www.conventionalcommits.org/)
+standard, which defines a commit message format for ease of automated processing. You can change this behavior by
+setting a custom parser that implements the `Vasoft\VersionIncrement\Contract\CommitParserInterface` interface.
+
+```php
+use Vasoft\VersionIncrement\Contract\CommitParserInterface;
+use Vasoft\VersionIncrement\Contract\VcsExecutorInterface;
+
+class MyParser implements CommitParserInterface
+{
+    public function __construct(private readonly VcsExecutorInterface $executor) {}
+
+    public function process(Config $config, ?string $tagsFrom, string $tagsTo = ''): CommitCollection
+    {
+        // Your parsing logic
+    }
+}
+
+$config = new Config(); 
+return $config
+    ->setCommitParser(new MyParser($config->getVcsExecutor()));
+```

@@ -133,6 +133,7 @@ following adjustments:
     - [Defining Squashed Commits via a Group](docs/config.md#defining-squashed-commits-via-a-group)
     - [Combined Definition of a Squashed Commit](docs/config.md#combined-definition-of-a-squashed-commit)
     - [General Rules for Full Commit Descriptions](docs/config.md#general-rules-for-full-commit-descriptions)
+- [Configuring the Commit Description Parser](docs/config.md#configuring-the-commit-description-parser)
 
 ## Commit Descriptions
 
@@ -229,7 +230,8 @@ This configuration example is designed for projects that follow the [Keep a Chan
 standard. It organizes changes into categories (`Added`, `Changed`, `Deprecated`, `Removed`, `Fixed`, `Security`),
 making the changelog easy to read.
 
-- *File:* [`examples/keepachangelog.php`](https://github.com/Voral/vs-version-incrementor/blob/master/examples/keepachangelog.php)
+-
+*File:* [`examples/keepachangelog.php`](https://github.com/Voral/vs-version-incrementor/blob/master/examples/keepachangelog.php)
 
 ## Useful Links
 

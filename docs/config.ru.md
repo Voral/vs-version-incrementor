@@ -319,3 +319,28 @@ Date:   Sun Mar 23 15:20:02 2025 +0300
  - update README with configuration examples 3
  - update README with configuration examples 4
 ```
+
+## Настройка парсера описания коммитов
+
+Парсер обрабатывает строку в соответствии со стандартом [Conventional Commits](https://www.conventionalcommits.org/),
+который определяет формат сообщений коммитов для удобства автоматической обработки. Вы можете изменить это поведение
+установив собственный парсер имплементирующий интерфейс Vasoft\VersionIncrement\Contract\CommitParserInterface
+
+```php
+use Vasoft\VersionIncrement\Contract\CommitParserInterface;
+use Vasoft\VersionIncrement\Contract\VcsExecutorInterface;
+
+class MyParser implements CommitParserInterface
+{
+    public function __construct(private readonly VcsExecutorInterface $executor) {}
+
+    public function process(Config $config, ?string $tagsFrom, string $tagsTo = ''): CommitCollection
+    {
+        // Ваша логика парсинга
+    }
+}
+
+$config =new Config(); 
+return $config
+    ->setCommitParser(new MyParser($config->getVcsExecutor()));
+```

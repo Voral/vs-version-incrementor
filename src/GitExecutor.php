@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace Vasoft\VersionIncrement;
 
-use Vasoft\VersionIncrement\Contract\GetExecutorInterface;
+use Vasoft\VersionIncrement\Contract\VcsExecutorInterface;
 use Vasoft\VersionIncrement\Exceptions\GitCommandException;
 
-class GitExecutor implements GetExecutorInterface
+class GitExecutor implements VcsExecutorInterface
 {
     public function status(): array
     {

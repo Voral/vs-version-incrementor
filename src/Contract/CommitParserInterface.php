@@ -9,7 +9,7 @@ use Vasoft\VersionIncrement\Config;
 
 interface CommitParserInterface
 {
-    public function __construct(GetExecutorInterface $vcs);
+    public function __construct(VcsExecutorInterface $vcs);
 
     public function process(Config $config, ?string $tagsFrom, string $tagsTo = ''): CommitCollection;
 }

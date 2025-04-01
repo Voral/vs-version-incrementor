@@ -4,11 +4,9 @@ declare(strict_types=1);
 
 namespace Vasoft\VersionIncrement;
 
-use Vasoft\VersionIncrement\Commits\Commit;
 use Vasoft\VersionIncrement\Commits\CommitCollection;
-use Vasoft\VersionIncrement\Contract\GetExecutorInterface;
+use Vasoft\VersionIncrement\Contract\VcsExecutorInterface;
 use Vasoft\VersionIncrement\Exceptions\BranchException;
-use Vasoft\VersionIncrement\Exceptions\ChangesNotFoundException;
 use Vasoft\VersionIncrement\Exceptions\ComposerException;
 use Vasoft\VersionIncrement\Exceptions\GitCommandException;
 use Vasoft\VersionIncrement\Exceptions\IncorrectChangeTypeException;
@@ -17,7 +15,7 @@ use Vasoft\VersionIncrement\Exceptions\UncommittedException;
 class SemanticVersionUpdater
 {
     private bool $debug = false;
-    private GetExecutorInterface $gitExecutor;
+    private VcsExecutorInterface $gitExecutor;
     private array $availableTypes = [
         'major',
         'minor',
@@ -28,9 +26,12 @@ class SemanticVersionUpdater
         private readonly string $projectPath,
         private readonly Config $config,
         private string $changeType = '',
-        ?GetExecutorInterface $gitExecutor = null,
+        ?VcsExecutorInterface $gitExecutor = null,
     ) {
-        $this->gitExecutor = $gitExecutor ?? new GitExecutor();
+        if (null !== $gitExecutor) {
+            $config->setVcsExecutor($gitExecutor);
+        }
+        $this->gitExecutor = $config->getVcsExecutor();
     }
 
     /**
@@ -64,7 +65,6 @@ class SemanticVersionUpdater
 
     /**
      * @throws BranchException
-     * @throws ChangesNotFoundException
      * @throws ComposerException
      * @throws GitCommandException
      * @throws IncorrectChangeTypeException
@@ -78,8 +78,7 @@ class SemanticVersionUpdater
         $this->checkUncommittedChanges();
 
         $lastTag = $this->gitExecutor->getLastTag();
-        $commits = $this->gitExecutor->getCommitsSinceLastTag($lastTag);
-        $commitCollection = $this->analyzeCommits($commits);
+        $commitCollection = $this->config->getCommitParser()->process($this->config, $lastTag);
         $this->detectionTypeChange($commitCollection);
 
         $currentVersion = $composerJson['version'] ?? '1.0.0';
@@ -189,92 +188,6 @@ class SemanticVersionUpdater
         $targetBranch = $this->config->getMasterBranch();
         if ($currentBranch !== $targetBranch) {
             throw new BranchException($currentBranch, $targetBranch);
-        }
-    }
-
-    /**
-     * @throws ChangesNotFoundException
-     * @throws GitCommandException
-     */
-    private function analyzeCommits(array $commits): CommitCollection
-    {
-        if (empty($commits)) {
-            throw new ChangesNotFoundException();
-        }
-        $commitCollection = $this->config->getCommitCollection();
-        $aggregateKey = $this->config->getAggregateSection();
-        $shouldProcessDefaultSquashedCommit = $this->config->shouldProcessDefaultSquashedCommit();
-        $squashedCommitMessage = $this->config->getSquashedCommitMessage();
-        foreach ($commits as $commit) {
-            if (preg_match(
-                '/^(?<hash>[^ ]+) (?<commit>.+)/',
-                $commit,
-                $matches,
-            )) {
-                $hash = $matches['hash'];
-                $commit = $matches['commit'];
-                if (
-                    $shouldProcessDefaultSquashedCommit
-                    && str_ends_with($commit, $squashedCommitMessage)
-                ) {
-                    $this->processAggregated($hash, $commitCollection);
-
-                    continue;
-                }
-                if (preg_match(
-                    '/^(?<key>[a-z]+)(?:\((?<scope>[^)]+)\))?(?<breaking>!)?:\s+(?<message>.+)/',
-                    $commit,
-                    $matches,
-                )) {
-                    $key = trim($matches['key']);
-                    if ($aggregateKey === $key) {
-                        $commitCollection->setMajorMarker('!' === $matches['breaking']);
-                        $this->processAggregated($hash, $commitCollection);
-                    } else {
-                        $commitCollection->add(
-                            new Commit(
-                                $commit,
-                                $key,
-                                $matches['message'],
-                                '!' === $matches['breaking'],
-                                $matches['scope'],
-                                [$matches['breaking']],
-                            ),
-                        );
-                    }
-                } else {
-                    $commitCollection->addRawMessage($commit);
-                }
-            }
-        }
-
-        return $commitCollection;
-    }
-
-    /**
-     * @throws GitCommandException
-     */
-    private function processAggregated(string $hash, CommitCollection $commitCollection): void
-    {
-        $description = $this->gitExecutor->getCommitDescription($hash);
-        foreach ($description as $line) {
-            $matches = [];
-            if (preg_match(
-                "/^[\t *-]*((?<key>[a-z]+)(?:\\((?<scope>[^)]+)\\))?(?<breaking>!)?:\\s+(?<message>.+))/",
-                $line,
-                $matches,
-            )) {
-                $commitCollection->add(
-                    new Commit(
-                        $line,
-                        $matches['key'],
-                        $matches['message'],
-                        '!' === $matches['breaking'],
-                        $matches['scope'],
-                        [$matches['breaking']],
-                    ),
-                );
-            }
         }
     }
 
