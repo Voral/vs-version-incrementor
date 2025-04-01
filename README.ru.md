@@ -230,7 +230,7 @@ jobs:
 
 Этот пример конфигурации предназначен для проектов, которые следуют стандарту [Keep a Changelog](https://keepachangelog.com/). Он отображает изменения в виде категорий (`Added`, `Changed`, `Deprecated`, `Removed`, `Fixed`, `Security`), что делает changelog удобным для чтения.
 
-- **Файл:** [`examples/keepachangelog.php`](https://github.com/Voral/vs-version-incrementor/blob/master/examples/keepachangelog.php)
+- *Файл:* [`examples/keepachangelog.php`](https://github.com/Voral/vs-version-incrementor/blob/master/examples/keepachangelog.php)
 
 ## Полезные ссылки
 
