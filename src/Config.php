@@ -321,6 +321,7 @@ final class Config
     {
         if (null === $this->changelogFormatter) {
             $this->changelogFormatter = new Changelog\DefaultFormatter();
+            $this->changelogFormatter->setConfig($this);
         }
 
         return $this->changelogFormatter;
@@ -329,6 +330,7 @@ final class Config
     public function setChangelogFormatter(ChangelogFormatterInterface $changelogFormatter): void
     {
         $this->changelogFormatter = $changelogFormatter;
+        $this->changelogFormatter->setConfig($this);
     }
 
     public function getVcsExecutor(): VcsExecutorInterface

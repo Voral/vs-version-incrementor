@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Vasoft\VersionIncrement\Changelog;
 
 use Vasoft\VersionIncrement\Commits\CommitCollection;
+use Vasoft\VersionIncrement\Config;
 use Vasoft\VersionIncrement\Contract\ChangelogFormatterInterface;
 
 /**
@@ -40,5 +41,10 @@ final class DefaultFormatter implements ChangelogFormatterInterface
         }
 
         return $changelog;
+    }
+
+    public function setConfig(Config $config): void
+    {
+        // Do nothing
     }
 }

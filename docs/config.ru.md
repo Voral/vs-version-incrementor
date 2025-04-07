@@ -209,6 +209,13 @@ use Vasoft\VersionIncrement\Contract\ChangelogFormatterInterface;
 
 class CustomFormatter implements ChangelogFormatterInterface
 {
+    private ?Config $config = null;
+    
+    public function setConfig(Config $config): void
+    {
+        $this->config = $config;
+    }
+
     public function __invoke(CommitCollection $commitCollection, string $version): string
     {
         // Ваша логика форматирования
