@@ -324,9 +324,15 @@ use Vasoft\VersionIncrement\Contract\VcsExecutorInterface;
 
 class MyParser implements CommitParserInterface
 {
-    public function __construct(private readonly VcsExecutorInterface $executor) {}
-
-    public function process(Config $config, ?string $tagsFrom, string $tagsTo = ''): CommitCollection
+    
+    private ?Config $config = null;
+    
+    public function setConfig(Config $config): void
+    {
+        $this->config = $config;
+    }
+    
+    public function process(?string $tagsFrom, string $tagsTo = ''): CommitCollection
     {
         // Your parsing logic
     }
@@ -334,5 +340,5 @@ class MyParser implements CommitParserInterface
 
 $config = new Config(); 
 return $config
-    ->setCommitParser(new MyParser($config->getVcsExecutor()));
+    ->setCommitParser(new MyParser());
 ```

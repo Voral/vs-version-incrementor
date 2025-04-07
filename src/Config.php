@@ -348,7 +348,8 @@ final class Config
     public function getCommitParser(): CommitParserInterface
     {
         if (null === $this->commitParser) {
-            $this->commitParser = new Commits\ShortParser($this->getVcsExecutor());
+            $this->commitParser = new Commits\ShortParser();
+            $this->commitParser->setConfig($this);
         }
 
         return $this->commitParser;
@@ -357,5 +358,6 @@ final class Config
     public function setCommitParser(CommitParserInterface $changelogFormatter): void
     {
         $this->commitParser = $changelogFormatter;
+        $this->commitParser->setConfig($this);
     }
 }

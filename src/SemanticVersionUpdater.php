@@ -78,7 +78,7 @@ class SemanticVersionUpdater
         $this->checkUncommittedChanges();
 
         $lastTag = $this->gitExecutor->getLastTag();
-        $commitCollection = $this->config->getCommitParser()->process($this->config, $lastTag);
+        $commitCollection = $this->config->getCommitParser()->process($lastTag);
         $this->detectionTypeChange($commitCollection);
 
         $currentVersion = $composerJson['version'] ?? '1.0.0';

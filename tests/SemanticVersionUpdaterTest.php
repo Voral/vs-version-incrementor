@@ -7,13 +7,13 @@ namespace Vasoft\VersionIncrement;
 use phpmock\phpunit\PHPMock;
 use PHPUnit\Framework\TestCase;
 use Vasoft\VersionIncrement\Changelog\ScopePreservingFormatter;
-use Vasoft\VersionIncrement\Contract\GetExecutorInterface;
+use Vasoft\VersionIncrement\Contract\SectionRuleInterface;
+use Vasoft\VersionIncrement\Contract\VcsExecutorInterface;
 use Vasoft\VersionIncrement\Exceptions\BranchException;
 use Vasoft\VersionIncrement\Exceptions\ChangesNotFoundException;
 use Vasoft\VersionIncrement\Exceptions\ComposerException;
 use Vasoft\VersionIncrement\Exceptions\IncorrectChangeTypeException;
 use Vasoft\VersionIncrement\Exceptions\UncommittedException;
-use Vasoft\VersionIncrement\Contract\SectionRuleInterface;
 use Vasoft\VersionIncrement\SectionRules\SectionRuleInterface as LegacySectionRuleInterface;
 
 /**
@@ -83,7 +83,7 @@ final class SemanticVersionUpdaterTest extends TestCase
             ->expects(self::exactly(2))
             ->willReturn(true);
 
-        $gitExecutor = self::createMock(GetExecutorInterface::class);
+        $gitExecutor = self::createMock(VcsExecutorInterface::class);
         $gitExecutor->expects(self::once())->method('getCurrentBranch')->willReturn('master');
         $gitExecutor->expects(self::once())->method('status')->willReturn([]);
         $gitExecutor->expects(self::once())->method('getLastTag')->willReturn('v2.2.0');
@@ -154,7 +154,7 @@ final class SemanticVersionUpdaterTest extends TestCase
             ->expects(self::exactly(2))
             ->willReturn(true);
 
-        $gitExecutor = self::createMock(GetExecutorInterface::class);
+        $gitExecutor = self::createMock(VcsExecutorInterface::class);
         $gitExecutor->expects(self::once())->method('getCurrentBranch')->willReturn('master');
         $gitExecutor->expects(self::once())->method('status')->willReturn([]);
         $gitExecutor->expects(self::once())->method('getLastTag')->willReturn(null);
@@ -204,7 +204,7 @@ final class SemanticVersionUpdaterTest extends TestCase
                 },
             );
 
-        $gitExecutor = self::createMock(GetExecutorInterface::class);
+        $gitExecutor = self::createMock(VcsExecutorInterface::class);
         $gitExecutor->expects(self::once())->method('getCurrentBranch')->willReturn('master');
         $gitExecutor->expects(self::once())->method('status')->willReturn([]);
         $gitExecutor->expects(self::once())->method('getLastTag')->willReturn(null);
@@ -269,7 +269,7 @@ final class SemanticVersionUpdaterTest extends TestCase
             ->expects(self::exactly(2))
             ->willReturn(true);
 
-        $gitExecutor = self::createMock(GetExecutorInterface::class);
+        $gitExecutor = self::createMock(VcsExecutorInterface::class);
         $gitExecutor->expects(self::once())->method('getCurrentBranch')->willReturn('master');
         $gitExecutor->expects(self::once())->method('status')->willReturn([]);
         $gitExecutor->expects(self::once())->method('getLastTag')->willReturn(null);
@@ -336,7 +336,7 @@ final class SemanticVersionUpdaterTest extends TestCase
             ->expects(self::exactly(2))
             ->willReturn(true);
 
-        $gitExecutor = self::createMock(GetExecutorInterface::class);
+        $gitExecutor = self::createMock(VcsExecutorInterface::class);
         $gitExecutor->expects(self::once())->method('getCurrentBranch')->willReturn('master');
         $gitExecutor->expects(self::once())->method('status')->willReturn([]);
         $gitExecutor->expects(self::once())->method('getLastTag')->willReturn('v2.2.0');
@@ -446,7 +446,7 @@ final class SemanticVersionUpdaterTest extends TestCase
             ->expects(self::exactly(2))
             ->willReturn(true);
 
-        $gitExecutor = self::createMock(GetExecutorInterface::class);
+        $gitExecutor = self::createMock(VcsExecutorInterface::class);
         $gitExecutor->expects(self::once())->method('getCurrentBranch')->willReturn('main');
         $gitExecutor->expects(self::once())->method('status')->willReturn([]);
         $gitExecutor->expects(self::once())->method('getLastTag')->willReturn('v2.2.0');
@@ -491,7 +491,7 @@ final class SemanticVersionUpdaterTest extends TestCase
             ->expects(self::exactly(1))
             ->willReturn(true);
 
-        $gitExecutor = self::createMock(GetExecutorInterface::class);
+        $gitExecutor = self::createMock(VcsExecutorInterface::class);
         $gitExecutor->expects(self::once())->method('getCurrentBranch')->willReturn('main');
         $gitExecutor->expects(self::once())->method('status')->willReturn([
             'M  file',
@@ -533,7 +533,7 @@ final class SemanticVersionUpdaterTest extends TestCase
             ->expects(self::exactly(1))
             ->willReturn(true);
 
-        $gitExecutor = self::createMock(GetExecutorInterface::class);
+        $gitExecutor = self::createMock(VcsExecutorInterface::class);
         $gitExecutor->expects(self::once())->method('getCurrentBranch')->willReturn('main');
         $gitExecutor->expects(self::once())->method('status')->willReturn([
             'M  file',
@@ -604,7 +604,7 @@ final class SemanticVersionUpdaterTest extends TestCase
             ->expects(self::exactly(2))
             ->willReturn(true);
 
-        $gitExecutor = self::createMock(GetExecutorInterface::class);
+        $gitExecutor = self::createMock(VcsExecutorInterface::class);
         $gitExecutor->expects(self::once())->method('getCurrentBranch')->willReturn('master');
         $gitExecutor->expects(self::once())->method('getLastTag')->willReturn('v2.2.0');
         $gitExecutor->expects(self::once())->method('getCommitsSinceLastTag')->willReturn([
@@ -644,7 +644,7 @@ final class SemanticVersionUpdaterTest extends TestCase
             ->expects(self::exactly(1))
             ->willReturn(true);
 
-        $gitExecutor = self::createMock(GetExecutorInterface::class);
+        $gitExecutor = self::createMock(VcsExecutorInterface::class);
         $gitExecutor->expects(self::once())->method('getCurrentBranch')->willReturn('main');
         $gitExecutor->expects(self::never())->method('getLastTag')->willReturn('v2.2.0');
         $gitExecutor->expects(self::never())->method('getCommitsSinceLastTag')->willReturn([]);
@@ -720,7 +720,7 @@ final class SemanticVersionUpdaterTest extends TestCase
                 },
             );
 
-        $gitExecutor = self::createMock(GetExecutorInterface::class);
+        $gitExecutor = self::createMock(VcsExecutorInterface::class);
         $gitExecutor->expects(self::once())->method('getCurrentBranch')->willReturn('master');
         $gitExecutor->expects(self::once())->method('getLastTag')->willReturn('v2.2.0');
         $gitExecutor->expects(self::once())->method('getCommitsSinceLastTag')->willReturn([
@@ -793,7 +793,7 @@ final class SemanticVersionUpdaterTest extends TestCase
             ->expects(self::exactly(2))
             ->willReturn(true);
 
-        $gitExecutor = self::createMock(GetExecutorInterface::class);
+        $gitExecutor = self::createMock(VcsExecutorInterface::class);
         $gitExecutor->expects(self::once())->method('getCurrentBranch')->willReturn('master');
         $gitExecutor->expects(self::once())->method('getLastTag')->willReturn('v2.2.0');
         $gitExecutor->expects(self::once())->method('getCommitsSinceLastTag')->willReturn(
@@ -863,7 +863,7 @@ final class SemanticVersionUpdaterTest extends TestCase
             ->expects(self::exactly(2))
             ->willReturn(true);
 
-        $gitExecutor = self::createMock(GetExecutorInterface::class);
+        $gitExecutor = self::createMock(VcsExecutorInterface::class);
         $gitExecutor->expects(self::once())->method('getCurrentBranch')->willReturn('master');
         $gitExecutor->expects(self::once())->method('status')->willReturn([]);
         $gitExecutor->expects(self::once())->method('getLastTag')->willReturn('v2.2.0');
@@ -938,7 +938,7 @@ final class SemanticVersionUpdaterTest extends TestCase
             ->expects(self::exactly(2))
             ->willReturn(true);
 
-        $gitExecutor = self::createMock(GetExecutorInterface::class);
+        $gitExecutor = self::createMock(VcsExecutorInterface::class);
         $gitExecutor->expects(self::once())->method('getCurrentBranch')->willReturn('master');
         $gitExecutor->expects(self::once())->method('status')->willReturn([]);
         $gitExecutor->expects(self::once())->method('getLastTag')->willReturn(null);
@@ -1021,7 +1021,7 @@ final class SemanticVersionUpdaterTest extends TestCase
             ->expects(self::exactly(2))
             ->willReturn(true);
 
-        $gitExecutor = self::createMock(GetExecutorInterface::class);
+        $gitExecutor = self::createMock(VcsExecutorInterface::class);
         $gitExecutor->expects(self::once())->method('getCurrentBranch')->willReturn('master');
         $gitExecutor->expects(self::once())->method('status')->willReturn([]);
         $gitExecutor->expects(self::once())->method('getLastTag')->willReturn(null);
@@ -1123,7 +1123,7 @@ final class SemanticVersionUpdaterTest extends TestCase
             ->expects(self::exactly(2))
             ->willReturn(true);
 
-        $gitExecutor = self::createMock(GetExecutorInterface::class);
+        $gitExecutor = self::createMock(VcsExecutorInterface::class);
         $gitExecutor->expects(self::once())->method('getCurrentBranch')->willReturn('master');
         $gitExecutor->expects(self::once())->method('status')->willReturn([]);
         $gitExecutor->expects(self::once())->method('getLastTag')->willReturn(null);
@@ -1218,7 +1218,7 @@ final class SemanticVersionUpdaterTest extends TestCase
             ->expects(self::exactly(2))
             ->willReturn(true);
 
-        $gitExecutor = self::createMock(GetExecutorInterface::class);
+        $gitExecutor = self::createMock(VcsExecutorInterface::class);
         $gitExecutor->expects(self::once())->method('getCurrentBranch')->willReturn('master');
         $gitExecutor->expects(self::once())->method('status')->willReturn([]);
         $gitExecutor->expects(self::once())->method('getLastTag')->willReturn(null);
@@ -1311,7 +1311,7 @@ final class SemanticVersionUpdaterTest extends TestCase
             ->expects(self::exactly(2))
             ->willReturn(true);
 
-        $gitExecutor = self::createMock(GetExecutorInterface::class);
+        $gitExecutor = self::createMock(VcsExecutorInterface::class);
         $gitExecutor->expects(self::once())->method('getCurrentBranch')->willReturn('master');
         $gitExecutor->expects(self::once())->method('status')->willReturn([]);
         $gitExecutor->expects(self::once())->method('getLastTag')->willReturn(null);
@@ -1373,7 +1373,7 @@ final class SemanticVersionUpdaterTest extends TestCase
             ->expects(self::exactly(1))
             ->willReturn(true);
 
-        $gitExecutor = self::createMock(GetExecutorInterface::class);
+        $gitExecutor = self::createMock(VcsExecutorInterface::class);
         $gitExecutor->expects(self::once())->method('getCurrentBranch')->willReturn('master');
         $gitExecutor->expects(self::once())->method('status')->willReturn([]);
         $gitExecutor->expects(self::once())->method('getLastTag')->willReturn(null);

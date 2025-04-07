@@ -6,29 +6,36 @@ namespace Vasoft\VersionIncrement\Commits;
 
 use Vasoft\VersionIncrement\Config;
 use Vasoft\VersionIncrement\Contract\CommitParserInterface;
-use Vasoft\VersionIncrement\Contract\VcsExecutorInterface;
 use Vasoft\VersionIncrement\Exceptions\ChangesNotFoundException;
 use Vasoft\VersionIncrement\Exceptions\GitCommandException;
 
 final class ShortParser implements CommitParserInterface
 {
     public const REG_EXP = "/^[\t *-]*((?<key>[a-z]+)(?:\\((?<scope>[^)]+)\\))?(?<breaking>!)?:\\s+(?<message>.+))/";
+    private ?Config $config = null;
 
-    public function __construct(private readonly VcsExecutorInterface $vcs) {}
+    public function setConfig(Config $config): void
+    {
+        $this->config = $config;
+    }
 
+    /**
+     * @throws ChangesNotFoundException
+     * @throws GitCommandException
+     */
     public function process(
-        Config $config,
         ?string $tagsFrom,
         string $tagsTo = '',
     ): CommitCollection {
-        $commits = $this->vcs->getCommitsSinceLastTag($tagsFrom);
+        $vcs = $this->config->getVcsExecutor();
+        $commits = $vcs->getCommitsSinceLastTag($tagsFrom);
         if (empty($commits)) {
             throw new ChangesNotFoundException();
         }
-        $commitCollection = $config->getCommitCollection();
-        $aggregateKey = $config->getAggregateSection();
-        $shouldProcessDefaultSquashedCommit = $config->shouldProcessDefaultSquashedCommit();
-        $squashedCommitMessage = $config->getSquashedCommitMessage();
+        $commitCollection = $this->config->getCommitCollection();
+        $aggregateKey = $this->config->getAggregateSection();
+        $shouldProcessDefaultSquashedCommit = $this->config->shouldProcessDefaultSquashedCommit();
+        $squashedCommitMessage = $this->config->getSquashedCommitMessage();
         foreach ($commits as $commit) {
             if (preg_match(
                 '/^(?<hash>[^ ]+) (?<commit>.+)/',
@@ -54,6 +61,9 @@ final class ShortParser implements CommitParserInterface
         return $commitCollection;
     }
 
+    /**
+     * @throws GitCommandException
+     */
     private function parseCommit(
         string $line,
         CommitCollection $commitCollection,
@@ -90,7 +100,7 @@ final class ShortParser implements CommitParserInterface
      */
     private function processAggregated(string $hash, CommitCollection $commitCollection): void
     {
-        $description = $this->vcs->getCommitDescription($hash);
+        $description = $this->config->getVcsExecutor()->getCommitDescription($hash);
         foreach ($description as $line) {
             $this->parseCommit($line, $commitCollection, '', '');
         }
