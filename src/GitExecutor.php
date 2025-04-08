@@ -9,6 +9,9 @@ use Vasoft\VersionIncrement\Exceptions\GitCommandException;
 
 class GitExecutor implements VcsExecutorInterface
 {
+    /**
+     * @codeCoverageIgnore
+     */
     public function setConfig(Config $config): void
     {
         // Do nothing

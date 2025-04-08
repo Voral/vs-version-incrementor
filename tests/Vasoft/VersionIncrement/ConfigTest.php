@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace Vasoft\VersionIncrement;
 
 use PHPUnit\Framework\TestCase;
+use Vasoft\VersionIncrement\Commits\ShortParser;
+use Vasoft\VersionIncrement\Contract\CommitParserInterface;
 
 /**
  * @coversDefaultClass \Vasoft\VersionIncrement\Config
@@ -144,5 +146,23 @@ final class ConfigTest extends TestCase
         ];
         $actual = $config->getSectionDescriptions();
         self::assertSame($expected, $actual);
+
+    }
+
+    public function testGetCommitParserReturnsShortParserByDefault(): void
+    {
+        $parser = (new Config())->getCommitParser();
+        self::assertInstanceOf(ShortParser::class, $parser, 'Default parse can be ShortParser');
+    }
+
+    public function testSetCommitParserStoresAndInitializesParser(): void
+    {
+        $config = new Config();
+        $parser = self::createMock(CommitParserInterface::class);
+        $parser->expects(self::once())
+            ->method('setConfig')
+            ->with($config);
+        $config->setCommitParser($parser);
+        self::assertSame($parser, $config->getCommitParser());
     }
 }
