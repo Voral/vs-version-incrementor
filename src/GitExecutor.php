@@ -9,6 +9,11 @@ use Vasoft\VersionIncrement\Exceptions\GitCommandException;
 
 class GitExecutor implements VcsExecutorInterface
 {
+    public function setConfig(Config $config): void
+    {
+        // Do nothing
+    }
+
     public function status(): array
     {
         return $this->runCommand('status --porcelain');

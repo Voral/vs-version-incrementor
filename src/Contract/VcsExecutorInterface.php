@@ -6,7 +6,7 @@ namespace Vasoft\VersionIncrement\Contract;
 
 use Vasoft\VersionIncrement\Exceptions\GitCommandException;
 
-interface VcsExecutorInterface
+interface VcsExecutorInterface extends ConfigurableInterface
 {
     /**
      * @throws GitCommandException
