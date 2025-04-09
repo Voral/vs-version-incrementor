@@ -97,7 +97,9 @@ final class SemanticVersionUpdaterTest extends TestCase
         $gitExecutor->expects(self::once())->method('commit');
         $gitExecutor->expects(self::never())->method('addFile');
 
-        $updater = new SemanticVersionUpdater('', new Config(), gitExecutor: $gitExecutor);
+        $config = new Config();
+        $config->setVcsExecutor($gitExecutor);
+        $updater = new SemanticVersionUpdater('', $config);
         ob_start();
         $updater->updateVersion();
         $output = ob_get_clean();
@@ -171,8 +173,9 @@ final class SemanticVersionUpdaterTest extends TestCase
         $config = new Config();
         $config->setSection('breaking', 'BREAKING CHANGES', 0);
         $config->addSectionRule('breaking', new BreakingRule());
+        $config->setVcsExecutor($gitExecutor);
 
-        $updater = new SemanticVersionUpdater('', $config, gitExecutor: $gitExecutor);
+        $updater = new SemanticVersionUpdater('', $config);
 
         ob_start();
         $updater->updateVersion();
@@ -243,8 +246,9 @@ final class SemanticVersionUpdaterTest extends TestCase
         $gitExecutor->expects(self::once())->method('setVersionTag');
         $gitExecutor->expects(self::once())->method('commit');
         $gitExecutor->expects(self::never())->method('addFile');
-
-        $updater = new SemanticVersionUpdater('/test', new Config(), gitExecutor: $gitExecutor);
+        $config = new Config();
+        $config->setVcsExecutor($gitExecutor);
+        $updater = new SemanticVersionUpdater('/test', $config);
         ob_start();
         $updater->updateVersion();
         $output = ob_get_clean();
@@ -290,7 +294,9 @@ final class SemanticVersionUpdaterTest extends TestCase
         $gitExecutor->expects(self::never())->method('commit');
         $gitExecutor->expects(self::never())->method('addFile');
 
-        $updater = new SemanticVersionUpdater('', new Config(), gitExecutor: $gitExecutor);
+        $config = new Config();
+        $config->setVcsExecutor($gitExecutor);
+        $updater = new SemanticVersionUpdater('', $config);
         $this->expectException(ChangesNotFoundException::class);
         $this->expectExceptionMessage('Changes not found in repository from previous release');
         $this->expectExceptionCode(40);
@@ -358,8 +364,9 @@ final class SemanticVersionUpdaterTest extends TestCase
         $gitExecutor->expects(self::once())->method('setVersionTag');
         $gitExecutor->expects(self::once())->method('commit');
         $gitExecutor->expects(self::never())->method('addFile');
-
-        $updater = new SemanticVersionUpdater('', new Config(), gitExecutor: $gitExecutor);
+        $config = new Config();
+        $config->setVcsExecutor($gitExecutor);
+        $updater = new SemanticVersionUpdater('', $config);
         ob_start();
         $updater->updateVersion();
         $output = ob_get_clean();
@@ -423,8 +430,9 @@ final class SemanticVersionUpdaterTest extends TestCase
         $gitExecutor->expects(self::once())->method('setVersionTag');
         $gitExecutor->expects(self::once())->method('commit');
         $gitExecutor->expects(self::never())->method('addFile');
-
-        $updater = new SemanticVersionUpdater('', new Config(), gitExecutor: $gitExecutor);
+        $config = new Config();
+        $config->setVcsExecutor($gitExecutor);
+        $updater = new SemanticVersionUpdater('', $config);
         ob_start();
         $updater->updateVersion();
         $output = ob_get_clean();
@@ -538,7 +546,8 @@ final class SemanticVersionUpdaterTest extends TestCase
 
         $config = new Config();
         $config->setMasterBranch('main');
-        $updater = new SemanticVersionUpdater('', $config, gitExecutor: $gitExecutor);
+        $config->setVcsExecutor($gitExecutor);
+        $updater = new SemanticVersionUpdater('', $config);
         ob_start();
         $updater->updateVersion();
         $output = ob_get_clean();
@@ -582,7 +591,8 @@ final class SemanticVersionUpdaterTest extends TestCase
 
         $config = new Config();
         $config->setMasterBranch('main');
-        $updater = new SemanticVersionUpdater('', $config, gitExecutor: $gitExecutor);
+        $config->setVcsExecutor($gitExecutor);
+        $updater = new SemanticVersionUpdater('', $config);
         $this->expectException(UncommittedException::class);
         $this->expectExceptionMessage('There are uncommitted changes in the repository.');
         $this->expectExceptionCode(30);
@@ -625,7 +635,8 @@ final class SemanticVersionUpdaterTest extends TestCase
         $config = new Config();
         $config->setMasterBranch('main');
         $config->setIgnoreUntrackedFiles(true);
-        $updater = new SemanticVersionUpdater('', $config, gitExecutor: $gitExecutor);
+        $config->setVcsExecutor($gitExecutor);
+        $updater = new SemanticVersionUpdater('', $config);
         $this->expectException(UncommittedException::class);
         $this->expectExceptionMessage('There are uncommitted changes in the repository.');
         $this->expectExceptionCode(30);
@@ -696,7 +707,8 @@ final class SemanticVersionUpdaterTest extends TestCase
 
         $config = new Config();
         $config->setIgnoreUntrackedFiles(true);
-        $updater = new SemanticVersionUpdater('/test', $config, gitExecutor: $gitExecutor);
+        $config->setVcsExecutor($gitExecutor);
+        $updater = new SemanticVersionUpdater('/test', $config);
         ob_start();
         $updater->updateVersion();
         $output = ob_get_clean();
@@ -730,7 +742,9 @@ final class SemanticVersionUpdaterTest extends TestCase
         $gitExecutor->expects(self::never())->method('setVersionTag');
         $gitExecutor->expects(self::never())->method('commit');
 
-        $updater = new SemanticVersionUpdater('', new Config(), gitExecutor: $gitExecutor);
+        $config = new Config();
+        $config->setVcsExecutor($gitExecutor);
+        $updater = new SemanticVersionUpdater('', $config);
         $this->expectException(BranchException::class);
         $this->expectExceptionMessage('You are not on the target branch. Current branch is "main", target is "master"');
         $this->expectExceptionCode(20);
@@ -816,7 +830,8 @@ final class SemanticVersionUpdaterTest extends TestCase
         $config->setMajorTypes(['feat', 'doc']);
         $config->setChangelogFormatter(new ScopePreservingFormatter(['dev', 'deprecated']));
         $config->setReleaseScope('');
-        $updater = new SemanticVersionUpdater('/test', $config, gitExecutor: $gitExecutor);
+        $config->setVcsExecutor($gitExecutor);
+        $updater = new SemanticVersionUpdater('/test', $config);
         ob_start();
         $updater->updateVersion();
         $output = ob_get_clean();
@@ -884,7 +899,8 @@ final class SemanticVersionUpdaterTest extends TestCase
         $config = new Config();
         $config->setMinorTypes(['docs']);
         $config->setReleaseScope('rel');
-        $updater = new SemanticVersionUpdater('/test', $config, gitExecutor: $gitExecutor);
+        $config->setVcsExecutor($gitExecutor);
+        $updater = new SemanticVersionUpdater('/test', $config);
         ob_start();
         $updater->updateVersion();
         $output = ob_get_clean();
@@ -957,7 +973,8 @@ final class SemanticVersionUpdaterTest extends TestCase
         $config = new Config();
         $config->addSectionRule('feat', new ExampleRule1());
         $config->addSectionRule('feat', new ExampleRule2());
-        $updater = new SemanticVersionUpdater('/test', $config, gitExecutor: $gitExecutor);
+        $config->setVcsExecutor($gitExecutor);
+        $updater = new SemanticVersionUpdater('/test', $config);
         ob_start();
         $updater->updateVersion();
         ob_get_clean();
@@ -1031,7 +1048,9 @@ final class SemanticVersionUpdaterTest extends TestCase
         $gitExecutor->expects(self::once())->method('commit');
         $gitExecutor->expects(self::never())->method('addFile');
 
-        $updater = new SemanticVersionUpdater('/test', new Config(), gitExecutor: $gitExecutor);
+        $config = new Config();
+        $config->setVcsExecutor($gitExecutor);
+        $updater = new SemanticVersionUpdater('/test', $config);
         ob_start();
         $updater->updateVersion();
         $output = ob_get_clean();
@@ -1139,8 +1158,10 @@ final class SemanticVersionUpdaterTest extends TestCase
         $gitExecutor->expects(self::never())->method('addFile');
         $config = (new Config())
             ->addSectionRule('feat', new ExampleRule1())
-            ->setAggregateSection('custom');
-        $updater = new SemanticVersionUpdater('/test', $config, gitExecutor: $gitExecutor);
+            ->setAggregateSection('custom')
+            ->setVcsExecutor($gitExecutor);
+
+        $updater = new SemanticVersionUpdater('/test', $config);
         ob_start();
         $updater->updateVersion();
         ob_get_clean();
@@ -1235,8 +1256,9 @@ final class SemanticVersionUpdaterTest extends TestCase
         $gitExecutor->expects(self::once())->method('commit');
         $gitExecutor->expects(self::never())->method('addFile');
         $config = (new Config())
-            ->setProcessDefaultSquashedCommit(true);
-        $updater = new SemanticVersionUpdater('/test', $config, gitExecutor: $gitExecutor);
+            ->setProcessDefaultSquashedCommit(true)
+            ->setVcsExecutor($gitExecutor);
+        $updater = new SemanticVersionUpdater('/test', $config);
         ob_start();
         $updater->updateVersion();
         ob_get_clean();
@@ -1331,8 +1353,9 @@ final class SemanticVersionUpdaterTest extends TestCase
         $gitExecutor->expects(self::never())->method('addFile');
         $config = (new Config())
             ->setSquashedCommitMessage('Squashed commit:')
-            ->setProcessDefaultSquashedCommit(true);
-        $updater = new SemanticVersionUpdater('/test', $config, gitExecutor: $gitExecutor);
+            ->setProcessDefaultSquashedCommit(true)
+            ->setVcsExecutor($gitExecutor);
+        $updater = new SemanticVersionUpdater('/test', $config);
         ob_start();
         $updater->updateVersion();
         ob_get_clean();
@@ -1405,9 +1428,10 @@ final class SemanticVersionUpdaterTest extends TestCase
 
         $config = (new Config())
             ->setSection('chore', 'Hidden section', hidden: true)
-            ->setSection('build', 'Hidden section', hidden: true);
+            ->setSection('build', 'Hidden section', hidden: true)
+            ->setVcsExecutor($gitExecutor);
 
-        $updater = new SemanticVersionUpdater('/test', $config, gitExecutor: $gitExecutor);
+        $updater = new SemanticVersionUpdater('/test', $config);
         ob_start();
         $updater->updateVersion();
         $output = ob_get_clean();
@@ -1463,7 +1487,9 @@ final class SemanticVersionUpdaterTest extends TestCase
         $gitExecutor->expects(self::never())->method('commit');
         $gitExecutor->expects(self::never())->method('addFile');
 
-        $updater = new SemanticVersionUpdater('/test', new Config(), gitExecutor: $gitExecutor);
+        $config = new Config();
+        $config->setVcsExecutor($gitExecutor);
+        $updater = new SemanticVersionUpdater('/test', $config);
         ob_start();
         $updater
             ->setDebug(true)

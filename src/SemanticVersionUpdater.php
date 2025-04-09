@@ -26,11 +26,7 @@ class SemanticVersionUpdater
         private readonly string $projectPath,
         private readonly Config $config,
         private string $changeType = '',
-        ?VcsExecutorInterface $gitExecutor = null,
     ) {
-        if (null !== $gitExecutor) {
-            $config->setVcsExecutor($gitExecutor);
-        }
         $this->gitExecutor = $config->getVcsExecutor();
     }
 

@@ -327,10 +327,12 @@ final class Config
         return $this->changelogFormatter;
     }
 
-    public function setChangelogFormatter(ChangelogFormatterInterface $changelogFormatter): void
+    public function setChangelogFormatter(ChangelogFormatterInterface $changelogFormatter): self
     {
         $this->changelogFormatter = $changelogFormatter;
         $this->changelogFormatter->setConfig($this);
+
+        return $this;
     }
 
     public function getVcsExecutor(): VcsExecutorInterface
@@ -342,9 +344,11 @@ final class Config
         return $this->vcsExecutor;
     }
 
-    public function setVcsExecutor(VcsExecutorInterface $vcsExecutor): void
+    public function setVcsExecutor(VcsExecutorInterface $vcsExecutor): self
     {
         $this->vcsExecutor = $vcsExecutor;
+
+        return $this;
     }
 
     public function getCommitParser(): CommitParserInterface
@@ -357,9 +361,11 @@ final class Config
         return $this->commitParser;
     }
 
-    public function setCommitParser(CommitParserInterface $changelogFormatter): void
+    public function setCommitParser(CommitParserInterface $changelogFormatter): self
     {
         $this->commitParser = $changelogFormatter;
         $this->commitParser->setConfig($this);
+
+        return $this;
     }
 }
