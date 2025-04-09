@@ -15,6 +15,7 @@ use Vasoft\VersionIncrement\Exceptions\ChangesNotFoundException;
 use Vasoft\VersionIncrement\Exceptions\ComposerException;
 use Vasoft\VersionIncrement\Exceptions\IncorrectChangeTypeException;
 use Vasoft\VersionIncrement\Exceptions\UncommittedException;
+use Vasoft\VersionIncrement\SectionRules\BreakingRule;
 
 /**
  * @coversDefaultClass \Vasoft\VersionIncrement\SemanticVersionUpdater
@@ -97,6 +98,82 @@ final class SemanticVersionUpdaterTest extends TestCase
         $gitExecutor->expects(self::never())->method('addFile');
 
         $updater = new SemanticVersionUpdater('', new Config(), gitExecutor: $gitExecutor);
+        ob_start();
+        $updater->updateVersion();
+        $output = ob_get_clean();
+        self::assertSame($versionAfterExpected, $versionAfter);
+        self::assertSame($textChangelogExpected, $textChangelog);
+        self::assertSame("Release 3.0.0 successfully created!\n", $output);
+    }
+
+    public function testMajorFlagWidthBreakingSection(): void
+    {
+        $versionAfter = '';
+        $versionAfterExpected = '3.0.0';
+
+        $textChangelog = '';
+        $textChangelogExpected = '# 3.0.0 (' . date('Y-m-d') . ')
+
+### BREAKING CHANGES
+- Some Example in doc
+- Some Example
+
+### New features
+- Some Example
+
+';
+
+        $filePutContents = $this->getFunctionMock(__NAMESPACE__, 'file_put_contents');
+        $filePutContents
+            ->expects(self::exactly(2))
+            ->willReturnCallback(
+                static function (string $fileName, string $contents) use (&$versionAfter, &$textChangelog): void {
+                    if ('/composer.json' === $fileName) {
+                        $composerJson = json_decode($contents, true);
+                        $versionAfter = $composerJson['version'];
+                    } elseif ('/CHANGELOG.md' === $fileName) {
+                        $textChangelog = $contents;
+                    }
+                },
+            );
+        $fileGetContents = $this->getFunctionMock(__NAMESPACE__, 'file_get_contents');
+        $fileGetContents
+            ->expects(self::exactly(2))
+            ->willReturnCallback(
+                static function (string $fileName) {
+                    return match ($fileName) {
+                        '/composer.json' => json_encode(
+                            ['version' => '2.2.0', 'name' => 'test'],
+                            JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES,
+                        ),
+                        default => '',
+                    };
+                },
+            );
+        $fileExists = $this->getFunctionMock(__NAMESPACE__, 'file_exists');
+        $fileExists
+            ->expects(self::exactly(2))
+            ->willReturn(true);
+
+        $gitExecutor = self::createMock(VcsExecutorInterface::class);
+        $gitExecutor->expects(self::once())->method('getCurrentBranch')->willReturn('master');
+        $gitExecutor->expects(self::once())->method('status')->willReturn([]);
+        $gitExecutor->expects(self::once())->method('getLastTag')->willReturn('v2.2.0');
+        $gitExecutor->expects(self::once())->method('getCommitsSinceLastTag')->willReturn([
+            'c3d4e5f6g11 doc(extremal)!: Some Example in doc',
+            'c3d4e5f6g12 feat(extremal): Some Example',
+            'c3d4e5f6g13 feat!: Some Example',
+        ]);
+        $gitExecutor->expects(self::once())->method('setVersionTag');
+        $gitExecutor->expects(self::once())->method('commit');
+        $gitExecutor->expects(self::never())->method('addFile');
+
+        $config = new Config();
+        $config->setSection('breaking', 'BREAKING CHANGES', 0);
+        $config->addSectionRule('breaking', new BreakingRule());
+
+        $updater = new SemanticVersionUpdater('', $config, gitExecutor: $gitExecutor);
+
         ob_start();
         $updater->updateVersion();
         $output = ob_get_clean();

@@ -144,6 +144,23 @@ return (new \Vasoft\VersionIncrement\Config())
     ->addSectionRule('feat', new ExampleRule2());
 ```
 
+Rule classes in the package (located in the `\Vasoft\VersionIncrement\SectionRules` namespace):
+
+- `DefaultRule` - Default section rule that applies to all commit types. It is executed if the commit type matches the
+  section code. Added automatically to each section.
+- `BreakingRule` - Rule for commits that break backward compatibility. Commits with a breaking change indicator (
+  e.g., `!`) are added to the section if they were not distributed to other sections according to sorting rules.
+  Example:
+
+```php
+use \Vasoft\VersionIncrement\SectionRules;
+return (new \Vasoft\VersionIncrement\Config())
+    ->setSection('breaking', 'BREAKING CHANGES', 0);
+    ->addSectionRule('breaking', new SectionRules\BreakingRule());
+```
+
+> Note: Ensure that the 'breaking' section is in the correct sort order for the rule to work properly.
+
 ## Ignoring Untracked Files
 
 When running the utility, all changes must be committed, and by default, there should be no untracked files. To ignore
