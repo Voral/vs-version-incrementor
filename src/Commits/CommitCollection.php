@@ -101,7 +101,7 @@ final class CommitCollection
     ): string {
         foreach ($this->sections as $index => $section) {
             foreach ($section->rules as $rule) {
-                if ($rule($commit->type, $commit->scope, $commit->flags, $commit->comment)) {
+                if ($rule($commit)) {
                     return $index;
                 }
             }

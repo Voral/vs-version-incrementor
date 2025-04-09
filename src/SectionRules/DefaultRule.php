@@ -4,14 +4,15 @@ declare(strict_types=1);
 
 namespace Vasoft\VersionIncrement\SectionRules;
 
+use Vasoft\VersionIncrement\Commits\Commit;
 use Vasoft\VersionIncrement\Contract\SectionRuleInterface;
 
 class DefaultRule implements SectionRuleInterface
 {
     public function __construct(private readonly string $type) {}
 
-    public function __invoke(string $type, string $scope, array $flags, string $comment): bool
+    public function __invoke(Commit $commit): bool
     {
-        return $type === $this->type;
+        return $commit->type === $this->type;
     }
 }

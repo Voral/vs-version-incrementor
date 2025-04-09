@@ -7,6 +7,7 @@ namespace Vasoft\VersionIncrement;
 use phpmock\phpunit\PHPMock;
 use PHPUnit\Framework\TestCase;
 use Vasoft\VersionIncrement\Changelog\ScopePreservingFormatter;
+use Vasoft\VersionIncrement\Commits\Commit;
 use Vasoft\VersionIncrement\Contract\SectionRuleInterface;
 use Vasoft\VersionIncrement\Contract\VcsExecutorInterface;
 use Vasoft\VersionIncrement\Exceptions\BranchException;
@@ -1397,16 +1398,16 @@ final class SemanticVersionUpdaterTest extends TestCase
 
 class ExampleRule1 implements SectionRuleInterface
 {
-    public function __invoke(string $type, string $scope, array $flags, string $comment): bool
+    public function __invoke(Commit $commit): bool
     {
-        return 'add' === $type;
+        return 'add' === $commit->type;
     }
 }
 
 class ExampleRule2 implements SectionRuleInterface
 {
-    public function __invoke(string $type, string $scope, array $flags, string $comment): bool
+    public function __invoke(Commit $commit): bool
     {
-        return str_starts_with(strtolower($comment), 'added');
+        return str_starts_with(strtolower($commit->comment), 'added');
     }
 }
