@@ -11,6 +11,7 @@ use Vasoft\VersionIncrement\Commits\Commit;
 use Vasoft\VersionIncrement\Contract\SectionRuleInterface;
 use Vasoft\VersionIncrement\Contract\VcsExecutorInterface;
 use Vasoft\VersionIncrement\Exceptions\BranchException;
+use Vasoft\VersionIncrement\Exceptions\ChangelogException;
 use Vasoft\VersionIncrement\Exceptions\ChangesNotFoundException;
 use Vasoft\VersionIncrement\Exceptions\ComposerException;
 use Vasoft\VersionIncrement\Exceptions\IncorrectChangeTypeException;
@@ -79,6 +80,11 @@ final class SemanticVersionUpdaterTest extends TestCase
                     };
                 },
             );
+        $fileIsWritable = $this->getFunctionMock(__NAMESPACE__, 'is_writable');
+        $fileIsWritable
+            ->expects(self::exactly(2))
+            ->willReturn(true);
+
         $fileExists = $this->getFunctionMock(__NAMESPACE__, 'file_exists');
         $fileExists
             ->expects(self::exactly(2))
@@ -152,6 +158,11 @@ final class SemanticVersionUpdaterTest extends TestCase
                     };
                 },
             );
+        $fileIsWritable = $this->getFunctionMock(__NAMESPACE__, 'is_writable');
+        $fileIsWritable
+            ->expects(self::exactly(2))
+            ->willReturn(true);
+
         $fileExists = $this->getFunctionMock(__NAMESPACE__, 'file_exists');
         $fileExists
             ->expects(self::exactly(2))
@@ -229,6 +240,11 @@ final class SemanticVersionUpdaterTest extends TestCase
                     };
                 },
             );
+        $fileIsWritable = $this->getFunctionMock(__NAMESPACE__, 'is_writable');
+        $fileIsWritable
+            ->expects(self::exactly(2))
+            ->willReturn(true);
+
         $fileExists = $this->getFunctionMock(__NAMESPACE__, 'file_exists');
         $fileExists
             ->expects(self::exactly(2))
@@ -273,6 +289,10 @@ final class SemanticVersionUpdaterTest extends TestCase
                     };
                 },
             );
+        $fileIsWritable = $this->getFunctionMock(__NAMESPACE__, 'is_writable');
+        $fileIsWritable
+            ->expects(self::exactly(1))
+            ->willReturn(true);
         $fileExists = $this->getFunctionMock(__NAMESPACE__, 'file_exists');
         $fileExists
             ->expects(self::exactly(1))
@@ -347,6 +367,10 @@ final class SemanticVersionUpdaterTest extends TestCase
                     };
                 },
             );
+        $fileIsWritable = $this->getFunctionMock(__NAMESPACE__, 'is_writable');
+        $fileIsWritable
+            ->expects(self::exactly(2))
+            ->willReturn(true);
         $fileExists = $this->getFunctionMock(__NAMESPACE__, 'file_exists');
         $fileExists
             ->expects(self::exactly(2))
@@ -415,6 +439,10 @@ final class SemanticVersionUpdaterTest extends TestCase
                     };
                 },
             );
+        $fileIsWritable = $this->getFunctionMock(__NAMESPACE__, 'is_writable');
+        $fileIsWritable
+            ->expects(self::exactly(2))
+            ->willReturn(true);
         $fileExists = $this->getFunctionMock(__NAMESPACE__, 'file_exists');
         $fileExists
             ->expects(self::exactly(2))
@@ -443,6 +471,9 @@ final class SemanticVersionUpdaterTest extends TestCase
 
     public function testComposerFileNotFound(): void
     {
+        $fileIsWritable = $this->getFunctionMock(__NAMESPACE__, 'is_writable');
+        $fileIsWritable
+            ->expects(self::never());
         $fileExists = $this->getFunctionMock(__NAMESPACE__, 'file_exists');
         $fileExists
             ->expects(self::exactly(1))
@@ -469,6 +500,10 @@ final class SemanticVersionUpdaterTest extends TestCase
                     };
                 },
             );
+        $fileIsWritable = $this->getFunctionMock(__NAMESPACE__, 'is_writable');
+        $fileIsWritable
+            ->expects(self::once())
+            ->willReturn(true);
         $fileExists = $this->getFunctionMock(__NAMESPACE__, 'file_exists');
         $fileExists
             ->expects(self::exactly(1))
@@ -526,6 +561,10 @@ final class SemanticVersionUpdaterTest extends TestCase
                     };
                 },
             );
+        $fileIsWritable = $this->getFunctionMock(__NAMESPACE__, 'is_writable');
+        $fileIsWritable
+            ->expects(self::exactly(2))
+            ->willReturn(true);
         $fileExists = $this->getFunctionMock(__NAMESPACE__, 'file_exists');
         $fileExists
             ->expects(self::exactly(2))
@@ -572,6 +611,10 @@ final class SemanticVersionUpdaterTest extends TestCase
                     };
                 },
             );
+        $fileIsWritable = $this->getFunctionMock(__NAMESPACE__, 'is_writable');
+        $fileIsWritable
+            ->expects(self::exactly(1))
+            ->willReturn(true);
         $fileExists = $this->getFunctionMock(__NAMESPACE__, 'file_exists');
         $fileExists
             ->expects(self::exactly(1))
@@ -615,6 +658,10 @@ final class SemanticVersionUpdaterTest extends TestCase
                     };
                 },
             );
+        $fileIsWritable = $this->getFunctionMock(__NAMESPACE__, 'is_writable');
+        $fileIsWritable
+            ->expects(self::exactly(1))
+            ->willReturn(true);
         $fileExists = $this->getFunctionMock(__NAMESPACE__, 'file_exists');
         $fileExists
             ->expects(self::exactly(1))
@@ -687,6 +734,11 @@ final class SemanticVersionUpdaterTest extends TestCase
                     };
                 },
             );
+        $fileIsWritable = $this->getFunctionMock(__NAMESPACE__, 'is_writable');
+        $fileIsWritable
+            ->expects(self::exactly(2))
+            ->willReturn(true);
+
         $fileExists = $this->getFunctionMock(__NAMESPACE__, 'file_exists');
         $fileExists
             ->expects(self::exactly(2))
@@ -728,6 +780,10 @@ final class SemanticVersionUpdaterTest extends TestCase
                     JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES,
                 ),
             );
+        $fileIsWritable = $this->getFunctionMock(__NAMESPACE__, 'is_writable');
+        $fileIsWritable
+            ->expects(self::exactly(1))
+            ->willReturn(true);
         $fileExists = $this->getFunctionMock(__NAMESPACE__, 'file_exists');
         $fileExists
             ->expects(self::exactly(1))
@@ -799,6 +855,10 @@ final class SemanticVersionUpdaterTest extends TestCase
                     };
                 },
             );
+        $fileIsWritable = $this->getFunctionMock(__NAMESPACE__, 'is_writable');
+        $fileIsWritable
+            ->expects(self::exactly(1))
+            ->willReturn(true);
         $fileExists = $this->getFunctionMock(__NAMESPACE__, 'file_exists');
         $fileExists
             ->expects(self::exactly(2))
@@ -880,6 +940,10 @@ final class SemanticVersionUpdaterTest extends TestCase
                     };
                 },
             );
+        $fileIsWritable = $this->getFunctionMock(__NAMESPACE__, 'is_writable');
+        $fileIsWritable
+            ->expects(self::exactly(2))
+            ->willReturn(true);
         $fileExists = $this->getFunctionMock(__NAMESPACE__, 'file_exists');
         $fileExists
             ->expects(self::exactly(2))
@@ -951,6 +1015,10 @@ final class SemanticVersionUpdaterTest extends TestCase
                     };
                 },
             );
+        $fileIsWritable = $this->getFunctionMock(__NAMESPACE__, 'is_writable');
+        $fileIsWritable
+            ->expects(self::exactly(2))
+            ->willReturn(true);
         $fileExists = $this->getFunctionMock(__NAMESPACE__, 'file_exists');
         $fileExists
             ->expects(self::exactly(2))
@@ -1027,6 +1095,10 @@ final class SemanticVersionUpdaterTest extends TestCase
                     };
                 },
             );
+        $fileIsWritable = $this->getFunctionMock(__NAMESPACE__, 'is_writable');
+        $fileIsWritable
+            ->expects(self::exactly(2))
+            ->willReturn(true);
         $fileExists = $this->getFunctionMock(__NAMESPACE__, 'file_exists');
         $fileExists
             ->expects(self::exactly(2))
@@ -1112,6 +1184,10 @@ final class SemanticVersionUpdaterTest extends TestCase
                     };
                 },
             );
+        $fileIsWritable = $this->getFunctionMock(__NAMESPACE__, 'is_writable');
+        $fileIsWritable
+            ->expects(self::exactly(2))
+            ->willReturn(true);
         $fileExists = $this->getFunctionMock(__NAMESPACE__, 'file_exists');
         $fileExists
             ->expects(self::exactly(2))
@@ -1216,6 +1292,10 @@ final class SemanticVersionUpdaterTest extends TestCase
                     };
                 },
             );
+        $fileIsWritable = $this->getFunctionMock(__NAMESPACE__, 'is_writable');
+        $fileIsWritable
+            ->expects(self::exactly(2))
+            ->willReturn(true);
         $fileExists = $this->getFunctionMock(__NAMESPACE__, 'file_exists');
         $fileExists
             ->expects(self::exactly(2))
@@ -1312,6 +1392,10 @@ final class SemanticVersionUpdaterTest extends TestCase
                     };
                 },
             );
+        $fileIsWritable = $this->getFunctionMock(__NAMESPACE__, 'is_writable');
+        $fileIsWritable
+            ->expects(self::exactly(2))
+            ->willReturn(true);
         $fileExists = $this->getFunctionMock(__NAMESPACE__, 'file_exists');
         $fileExists
             ->expects(self::exactly(2))
@@ -1406,6 +1490,12 @@ final class SemanticVersionUpdaterTest extends TestCase
                     };
                 },
             );
+
+        $fileIsWritable = $this->getFunctionMock(__NAMESPACE__, 'is_writable');
+        $fileIsWritable
+            ->expects(self::exactly(2))
+            ->willReturn(true);
+
         $fileExists = $this->getFunctionMock(__NAMESPACE__, 'file_exists');
         $fileExists
             ->expects(self::exactly(2))
@@ -1469,6 +1559,10 @@ final class SemanticVersionUpdaterTest extends TestCase
                     };
                 },
             );
+        $fileIsWritable = $this->getFunctionMock(__NAMESPACE__, 'is_writable');
+        $fileIsWritable
+            ->expects(self::exactly(1))
+            ->willReturn(true);
         $fileExists = $this->getFunctionMock(__NAMESPACE__, 'file_exists');
         $fileExists
             ->expects(self::exactly(1))
@@ -1496,6 +1590,87 @@ final class SemanticVersionUpdaterTest extends TestCase
             ->updateVersion();
         $output = ob_get_clean();
         self::assertSame($textChangelogExpected, $output);
+    }
+
+    public function testComposerFileNotWritable(): void
+    {
+        $fileIsWritable = $this->getFunctionMock(__NAMESPACE__, 'is_writable');
+        $fileIsWritable
+            ->expects(self::exactly(1))
+            ->willReturnCallback(static fn(string $fileName) => '/test/composer.json' !== $fileName);
+
+        $fileExists = $this->getFunctionMock(__NAMESPACE__, 'file_exists');
+        $fileExists
+            ->expects(self::exactly(1))
+            ->willReturn(true);
+
+        $gitExecutor = self::createMock(VcsExecutorInterface::class);
+        $gitExecutor->expects(self::never())->method('getCurrentBranch')->willReturn('');
+        $gitExecutor->expects(self::never())->method('status')->willReturn([]);
+        $gitExecutor->expects(self::never())->method('getLastTag')->willReturn(null);
+        $gitExecutor->expects(self::never())->method('getCommitsSinceLastTag')->willReturn([]);
+        $gitExecutor->expects(self::never())->method('setVersionTag');
+        $gitExecutor->expects(self::never())->method('commit');
+        $gitExecutor->expects(self::never())->method('addFile');
+        $config = new Config();
+        $config->setVcsExecutor($gitExecutor);
+
+        $updater = new SemanticVersionUpdater('/test', $config);
+        $this->expectException(ComposerException::class);
+        $this->expectExceptionMessage('Composer file is not writable.');
+        $this->expectExceptionCode(10);
+        $updater->updateVersion();
+    }
+
+    public function testChangelogFileNotWritable(): void
+    {
+        $fileIsWritable = $this->getFunctionMock(__NAMESPACE__, 'is_writable');
+        $fileIsWritable
+            ->expects(self::exactly(2))
+            ->willReturnCallback(static fn(string $fileName) => '/test/CHANGELOG.md' !== $fileName);
+
+        $fileExists = $this->getFunctionMock(__NAMESPACE__, 'file_exists');
+        $fileExists
+            ->expects(self::exactly(2))
+            ->willReturn(true);
+
+        $fileGetContents = $this->getFunctionMock(__NAMESPACE__, 'file_get_contents');
+        $fileGetContents
+            ->expects(self::exactly(1))
+            ->willReturnCallback(
+                static function (string $fileName) {
+                    return match ($fileName) {
+                        '/test/composer.json' => json_encode(
+                            ['version' => '2.2.0', 'name' => 'test'],
+                            JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES,
+                        ),
+                        default => '',
+                    };
+                },
+            );
+        $filePutContents = $this->getFunctionMock(__NAMESPACE__, 'file_put_contents');
+        $filePutContents
+            ->expects(self::exactly(1))
+            ->willReturn(null);
+
+        $gitExecutor = self::createMock(VcsExecutorInterface::class);
+        $gitExecutor->expects(self::once())->method('getCurrentBranch')->willReturn('master');
+        $gitExecutor->expects(self::once())->method('status')->willReturn([]);
+        $gitExecutor->expects(self::once())->method('getLastTag')->willReturn('v2.2.0');
+        $gitExecutor->expects(self::once())->method('getCommitsSinceLastTag')->willReturn([
+            'c3d4e5f6g11 doc(extremal): Some Example',
+        ]);
+        $gitExecutor->expects(self::never())->method('setVersionTag');
+        $gitExecutor->expects(self::never())->method('commit');
+        $gitExecutor->expects(self::never())->method('addFile');
+        $config = new Config();
+        $config->setVcsExecutor($gitExecutor);
+
+        $updater = new SemanticVersionUpdater('/test', $config);
+        $this->expectException(ChangelogException::class);
+        $this->expectExceptionMessage('Changelog file is not writable.');
+        $this->expectExceptionCode(80);
+        $updater->updateVersion();
     }
 }
 

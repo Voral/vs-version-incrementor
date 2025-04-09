@@ -7,6 +7,7 @@ namespace Vasoft\VersionIncrement;
 use Vasoft\VersionIncrement\Commits\CommitCollection;
 use Vasoft\VersionIncrement\Contract\VcsExecutorInterface;
 use Vasoft\VersionIncrement\Exceptions\BranchException;
+use Vasoft\VersionIncrement\Exceptions\ChangelogException;
 use Vasoft\VersionIncrement\Exceptions\ComposerException;
 use Vasoft\VersionIncrement\Exceptions\GitCommandException;
 use Vasoft\VersionIncrement\Exceptions\IncorrectChangeTypeException;
@@ -48,6 +49,9 @@ class SemanticVersionUpdater
         $composer = $this->projectPath . '/composer.json';
         if (!file_exists($composer)) {
             throw new ComposerException();
+        }
+        if (!is_writable($composer)) {
+            throw new ComposerException('Composer file is not writable.');
         }
 
         try {
@@ -113,6 +117,7 @@ class SemanticVersionUpdater
     }
 
     /**
+     * @throws ChangelogException
      * @throws GitCommandException
      */
     private function updateChangeLog(string $changelog): void
@@ -122,6 +127,10 @@ class SemanticVersionUpdater
         } else {
             $fileChangelog = $this->projectPath . '/CHANGELOG.md';
             if (file_exists($fileChangelog)) {
+                if (!is_writable($fileChangelog)) {
+                    throw new ChangelogException();
+                }
+
                 $changeLogContent = file_get_contents($fileChangelog);
                 $changeLogAddToGit = false;
             } else {
