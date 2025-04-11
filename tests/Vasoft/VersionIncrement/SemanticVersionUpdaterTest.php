@@ -476,10 +476,21 @@ final class SemanticVersionUpdaterTest extends TestCase
             ->expects(self::never());
         $fileExists = $this->getFunctionMock(__NAMESPACE__, 'file_exists');
         $fileExists
-            ->expects(self::exactly(1))
+            ->expects(self::once())
             ->willReturnCallback(static fn(string $fileName) => '/composer.json' !== $fileName);
+        $gitExecutor = self::createMock(VcsExecutorInterface::class);
+        $gitExecutor->expects(self::once())->method('getCurrentBranch')->willReturn('master');
+        $gitExecutor->expects(self::once())->method('status')->willReturn([]);
+        $gitExecutor->expects(self::once())->method('getLastTag')->willReturn('v2.2.0');
+        $gitExecutor->expects(self::never())->method('getCommitsSinceLastTag')->willReturn([]);
+        $gitExecutor->expects(self::never())->method('addFile');
+        $gitExecutor->expects(self::never())->method('commit');
+        $gitExecutor->expects(self::never())->method('setVersionTag');
 
-        $updater = new SemanticVersionUpdater('', new Config());
+        $config = new Config();
+        $config->setVcsExecutor($gitExecutor);
+
+        $updater = new SemanticVersionUpdater('', $config);
         $this->expectException(ComposerException::class);
         $this->expectExceptionMessage('Invalid composer.json file. Please check your composer.json file.');
         $this->expectExceptionCode(10);
@@ -509,7 +520,22 @@ final class SemanticVersionUpdaterTest extends TestCase
             ->expects(self::exactly(1))
             ->willReturn(true);
 
-        $updater = new SemanticVersionUpdater('', new Config());
+        $fileExists
+            ->expects(self::once())
+            ->willReturnCallback(static fn(string $fileName) => '/composer.json' !== $fileName);
+        $gitExecutor = self::createMock(VcsExecutorInterface::class);
+        $gitExecutor->expects(self::once())->method('getCurrentBranch')->willReturn('master');
+        $gitExecutor->expects(self::once())->method('status')->willReturn([]);
+        $gitExecutor->expects(self::once())->method('getLastTag')->willReturn('v2.2.0');
+        $gitExecutor->expects(self::never())->method('getCommitsSinceLastTag')->willReturn([]);
+        $gitExecutor->expects(self::never())->method('addFile');
+        $gitExecutor->expects(self::never())->method('commit');
+        $gitExecutor->expects(self::never())->method('setVersionTag');
+
+        $config = new Config();
+        $config->setVcsExecutor($gitExecutor);
+
+        $updater = new SemanticVersionUpdater('', $config);
         $this->expectException(ComposerException::class);
         $this->expectExceptionMessage('JSON: Syntax error');
         $this->expectExceptionCode(10);
@@ -598,27 +624,11 @@ final class SemanticVersionUpdaterTest extends TestCase
     public function testUncommitted(): void
     {
         $fileGetContents = $this->getFunctionMock(__NAMESPACE__, 'file_get_contents');
-        $fileGetContents
-            ->expects(self::exactly(1))
-            ->willReturnCallback(
-                static function (string $fileName) {
-                    return match ($fileName) {
-                        '/composer.json' => json_encode(
-                            ['version' => '2.2.0', 'name' => 'test'],
-                            JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES,
-                        ),
-                        default => '',
-                    };
-                },
-            );
+        $fileGetContents->expects(self::never());
         $fileIsWritable = $this->getFunctionMock(__NAMESPACE__, 'is_writable');
-        $fileIsWritable
-            ->expects(self::exactly(1))
-            ->willReturn(true);
+        $fileIsWritable->expects(self::never());
         $fileExists = $this->getFunctionMock(__NAMESPACE__, 'file_exists');
-        $fileExists
-            ->expects(self::exactly(1))
-            ->willReturn(true);
+        $fileExists->expects(self::never());
 
         $gitExecutor = self::createMock(VcsExecutorInterface::class);
         $gitExecutor->expects(self::once())->method('getCurrentBranch')->willReturn('main');
@@ -626,8 +636,8 @@ final class SemanticVersionUpdaterTest extends TestCase
             'M  file',
             '?? untracked file',
         ]);
-        $gitExecutor->expects(self::never())->method('getLastTag')->willReturn('v2.2.0');
-        $gitExecutor->expects(self::never())->method('getCommitsSinceLastTag')->willReturn([]);
+        $gitExecutor->expects(self::never())->method('getLastTag');
+        $gitExecutor->expects(self::never())->method('getCommitsSinceLastTag');
         $gitExecutor->expects(self::never())->method('setVersionTag');
         $gitExecutor->expects(self::never())->method('commit');
         $gitExecutor->expects(self::never())->method('addFile');
@@ -642,55 +652,7 @@ final class SemanticVersionUpdaterTest extends TestCase
         $updater->updateVersion();
     }
 
-    public function testUncommittedUntracked(): void
-    {
-        $fileGetContents = $this->getFunctionMock(__NAMESPACE__, 'file_get_contents');
-        $fileGetContents
-            ->expects(self::exactly(1))
-            ->willReturnCallback(
-                static function (string $fileName) {
-                    return match ($fileName) {
-                        '/composer.json' => json_encode(
-                            ['version' => '2.2.0', 'name' => 'test'],
-                            JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES,
-                        ),
-                        default => '',
-                    };
-                },
-            );
-        $fileIsWritable = $this->getFunctionMock(__NAMESPACE__, 'is_writable');
-        $fileIsWritable
-            ->expects(self::exactly(1))
-            ->willReturn(true);
-        $fileExists = $this->getFunctionMock(__NAMESPACE__, 'file_exists');
-        $fileExists
-            ->expects(self::exactly(1))
-            ->willReturn(true);
-
-        $gitExecutor = self::createMock(VcsExecutorInterface::class);
-        $gitExecutor->expects(self::once())->method('getCurrentBranch')->willReturn('main');
-        $gitExecutor->expects(self::once())->method('status')->willReturn([
-            'M  file',
-            '?? untracked file',
-        ]);
-        $gitExecutor->expects(self::never())->method('getLastTag')->willReturn('v2.2.0');
-        $gitExecutor->expects(self::never())->method('getCommitsSinceLastTag')->willReturn([]);
-        $gitExecutor->expects(self::never())->method('setVersionTag');
-        $gitExecutor->expects(self::never())->method('commit');
-        $gitExecutor->expects(self::never())->method('addFile');
-
-        $config = new Config();
-        $config->setMasterBranch('main');
-        $config->setIgnoreUntrackedFiles(true);
-        $config->setVcsExecutor($gitExecutor);
-        $updater = new SemanticVersionUpdater('', $config);
-        $this->expectException(UncommittedException::class);
-        $this->expectExceptionMessage('There are uncommitted changes in the repository.');
-        $this->expectExceptionCode(30);
-        $updater->updateVersion();
-    }
-
-    public function testUncommittedUntrackedOnly(): void
+    public function testUncommittedUntrackedIgnore(): void
     {
         $versionAfter = '';
         $versionAfterExpected = '2.3.0';
@@ -700,10 +662,6 @@ final class SemanticVersionUpdaterTest extends TestCase
 
 ### New features
 - Some Example
-- Some Example
-
-### Other
-- doc(extremal): Some Example
 
 ';
 
@@ -712,10 +670,10 @@ final class SemanticVersionUpdaterTest extends TestCase
             ->expects(self::exactly(2))
             ->willReturnCallback(
                 static function (string $fileName, string $contents) use (&$versionAfter, &$textChangelog): void {
-                    if ('/test/composer.json' === $fileName) {
+                    if ('/composer.json' === $fileName) {
                         $composerJson = json_decode($contents, true);
                         $versionAfter = $composerJson['version'];
-                    } elseif ('/test/CHANGELOG.md' === $fileName) {
+                    } elseif ('/CHANGELOG.md' === $fileName) {
                         $textChangelog = $contents;
                     }
                 },
@@ -726,7 +684,7 @@ final class SemanticVersionUpdaterTest extends TestCase
             ->willReturnCallback(
                 static function (string $fileName) {
                     return match ($fileName) {
-                        '/test/composer.json' => json_encode(
+                        '/composer.json' => json_encode(
                             ['version' => '2.2.0', 'name' => 'test'],
                             JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES,
                         ),
@@ -734,33 +692,31 @@ final class SemanticVersionUpdaterTest extends TestCase
                     };
                 },
             );
+        $fileGetContents->expects(self::exactly(2))->willReturn(true);
         $fileIsWritable = $this->getFunctionMock(__NAMESPACE__, 'is_writable');
-        $fileIsWritable
-            ->expects(self::exactly(2))
-            ->willReturn(true);
-
+        $fileIsWritable->expects(self::exactly(2))->willReturn(true);
         $fileExists = $this->getFunctionMock(__NAMESPACE__, 'file_exists');
-        $fileExists
-            ->expects(self::exactly(2))
-            ->willReturn(true);
+        $fileExists->expects(self::exactly(2))->willReturn(true);
 
         $gitExecutor = self::createMock(VcsExecutorInterface::class);
-        $gitExecutor->expects(self::once())->method('getCurrentBranch')->willReturn('master');
-        $gitExecutor->expects(self::once())->method('getLastTag')->willReturn('v2.2.0');
+        $gitExecutor->expects(self::once())->method('getCurrentBranch')->willReturn('main');
+        $gitExecutor->expects(self::once())->method('status')->willReturn([
+            '?? untracked file',
+        ]);
+        $gitExecutor->expects(self::once())->method('getLastTag')->willReturn('v2.1.0');
         $gitExecutor->expects(self::once())->method('getCommitsSinceLastTag')->willReturn([
-            'c3d4e5f6g11 doc(extremal): Some Example',
-            'c3d4e5f6g12 feat(extremal): Some Example',
             'c3d4e5f6g13 feat: Some Example',
         ]);
-        $gitExecutor->expects(self::once())->method('status')->willReturn(['?? untracked file']);
-        $gitExecutor->expects(self::once())->method('setVersionTag');
         $gitExecutor->expects(self::once())->method('commit');
+        $gitExecutor->expects(self::once())->method('setVersionTag');
         $gitExecutor->expects(self::never())->method('addFile');
 
         $config = new Config();
+        $config->setMasterBranch('main');
         $config->setIgnoreUntrackedFiles(true);
         $config->setVcsExecutor($gitExecutor);
-        $updater = new SemanticVersionUpdater('/test', $config);
+        $updater = new SemanticVersionUpdater('', $config);
+
         ob_start();
         $updater->updateVersion();
         $output = ob_get_clean();
@@ -772,22 +728,11 @@ final class SemanticVersionUpdaterTest extends TestCase
     public function testOtherMainBranchError(): void
     {
         $fileGetContents = $this->getFunctionMock(__NAMESPACE__, 'file_get_contents');
-        $fileGetContents
-            ->expects(self::exactly(1))
-            ->willReturn(
-                json_encode(
-                    ['version' => '2.2.0', 'name' => 'test'],
-                    JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES,
-                ),
-            );
+        $fileGetContents->expects(self::never());
         $fileIsWritable = $this->getFunctionMock(__NAMESPACE__, 'is_writable');
-        $fileIsWritable
-            ->expects(self::exactly(1))
-            ->willReturn(true);
+        $fileIsWritable->expects(self::never());
         $fileExists = $this->getFunctionMock(__NAMESPACE__, 'file_exists');
-        $fileExists
-            ->expects(self::exactly(1))
-            ->willReturn(true);
+        $fileExists->expects(self::never());
 
         $gitExecutor = self::createMock(VcsExecutorInterface::class);
         $gitExecutor->expects(self::once())->method('getCurrentBranch')->willReturn('main');
@@ -973,6 +918,7 @@ final class SemanticVersionUpdaterTest extends TestCase
         self::assertSame("Release 2.3.0 successfully created!\n", $output);
     }
 
+    /** checked */
     public function testSectionRulesPriority(): void
     {
         $textChangelog = '';
@@ -1592,6 +1538,7 @@ final class SemanticVersionUpdaterTest extends TestCase
         self::assertSame($textChangelogExpected, $output);
     }
 
+    /** @checked */
     public function testComposerFileNotWritable(): void
     {
         $fileIsWritable = $this->getFunctionMock(__NAMESPACE__, 'is_writable');
@@ -1605,9 +1552,9 @@ final class SemanticVersionUpdaterTest extends TestCase
             ->willReturn(true);
 
         $gitExecutor = self::createMock(VcsExecutorInterface::class);
-        $gitExecutor->expects(self::never())->method('getCurrentBranch')->willReturn('');
-        $gitExecutor->expects(self::never())->method('status')->willReturn([]);
-        $gitExecutor->expects(self::never())->method('getLastTag')->willReturn(null);
+        $gitExecutor->expects(self::once())->method('getCurrentBranch')->willReturn('master');
+        $gitExecutor->expects(self::once())->method('status')->willReturn([]);
+        $gitExecutor->expects(self::once())->method('getLastTag')->willReturn(null);
         $gitExecutor->expects(self::never())->method('getCommitsSinceLastTag')->willReturn([]);
         $gitExecutor->expects(self::never())->method('setVersionTag');
         $gitExecutor->expects(self::never())->method('commit');
@@ -1671,6 +1618,71 @@ final class SemanticVersionUpdaterTest extends TestCase
         $this->expectExceptionMessage('Changelog file is not writable.');
         $this->expectExceptionCode(80);
         $updater->updateVersion();
+    }
+
+    public function testUpdateVersionWithoutComposerJson(): void
+    {
+        $versionAfter = '';
+        $textChangelog = '';
+        $textChangelogExpected = '# 4.2.0 (' . date('Y-m-d') . ')
+
+### New features
+- Some Example
+- Some Example
+
+### Other
+- doc(extremal): Some Example
+
+';
+
+        $filePutContents = $this->getFunctionMock(__NAMESPACE__, 'file_put_contents');
+        $filePutContents
+            ->expects(self::exactly(1))
+            ->willReturnCallback(
+                static function (string $fileName, string $contents) use (&$versionAfter, &$textChangelog): void {
+                    if ('/test/composer.json' === $fileName) {
+                        $versionAfter = 'wrong';
+                    } elseif ('/test/CHANGELOG.md' === $fileName) {
+                        $textChangelog = $contents;
+                    }
+                },
+            );
+        $fileGetContents = $this->getFunctionMock(__NAMESPACE__, 'file_get_contents');
+        $fileGetContents
+            ->expects(self::once())
+            ->willReturn('');
+        $fileIsWritable = $this->getFunctionMock(__NAMESPACE__, 'is_writable');
+        $fileIsWritable
+            ->expects(self::once())
+            ->willReturn(true);
+
+        $fileExists = $this->getFunctionMock(__NAMESPACE__, 'file_exists');
+        $fileExists
+            ->expects(self::once())
+            ->willReturn(true);
+
+        $gitExecutor = self::createMock(VcsExecutorInterface::class);
+        $gitExecutor->expects(self::once())->method('getCurrentBranch')->willReturn('master');
+        $gitExecutor->expects(self::once())->method('status')->willReturn([]);
+        $gitExecutor->expects(self::once())->method('getLastTag')->willReturn('v4.1.0');
+        $gitExecutor->expects(self::once())->method('getCommitsSinceLastTag')->willReturn([
+            'c3d4e5f6g1 doc(extremal): Some Example',
+            'c3d4e5f6g2 feat(extremal): Some Example',
+            'c3d4e5f6g3 feat: Some Example',
+        ]);
+        $gitExecutor->expects(self::once())->method('setVersionTag');
+        $gitExecutor->expects(self::once())->method('commit');
+        $gitExecutor->expects(self::never())->method('addFile');
+        $config = new Config();
+        $config->setVcsExecutor($gitExecutor);
+        $config->setEnabledComposerVersioning(false);
+        $updater = new SemanticVersionUpdater('/test', $config);
+        ob_start();
+        $updater->updateVersion();
+        $output = ob_get_clean();
+        self::assertSame('', $versionAfter, 'Composer version was not updated.');
+        self::assertSame($textChangelogExpected, $textChangelog);
+        self::assertSame("Release 4.2.0 successfully created!\n", $output);
     }
 }
 

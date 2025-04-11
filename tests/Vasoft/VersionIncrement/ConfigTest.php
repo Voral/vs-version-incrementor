@@ -182,4 +182,12 @@ final class ConfigTest extends TestCase
         $config->setTagFormatter($formatter);
         self::assertSame($formatter, $config->getTagFormatter());
     }
+
+    public function testEnabledComposerVersioning(): void
+    {
+        $config = new Config();
+        self::assertTrue($config->isEnabledComposerVersioning(), 'Composer versioning is true by default');
+        $config->setEnabledComposerVersioning(false);
+        self::assertFalse($config->isEnabledComposerVersioning(), 'Composer versioning can be disabled');
+    }
 }

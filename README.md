@@ -134,6 +134,7 @@ following adjustments:
     - [Combined Definition of a Squashed Commit](docs/config.md#combined-definition-of-a-squashed-commit)
     - [General Rules for Full Commit Descriptions](docs/config.md#general-rules-for-full-commit-descriptions)
 - [Configuring the Commit Description Parser](docs/config.md#configuring-the-commit-description-parser)
+- [Disabling Version Updates in composer.json](docs/config.md#disabling-version-updates-in-composerjson)
 
 ## Commit Descriptions
 

@@ -65,6 +65,7 @@ class SemanticVersionUpdater
 
     /**
      * @throws BranchException
+     * @throws ChangelogException
      * @throws ComposerException
      * @throws GitCommandException
      * @throws IncorrectChangeTypeException
@@ -73,20 +74,26 @@ class SemanticVersionUpdater
     public function updateVersion(): void
     {
         $this->checkChangeType();
-        $composerJson = $this->getComposerJson();
         $this->checkGitBranch();
         $this->checkUncommittedChanges();
 
         $lastTag = $this->gitExecutor->getLastTag();
+        if ($this->config->isEnabledComposerVersioning()) {
+            $composerJson = $this->getComposerJson();
+            $currentVersion = $composerJson['version'] ?? '1.0.0';
+        } else {
+            $currentVersion = $this->config->getTagFormatter()->extractVersion($lastTag);
+        }
+
         $commitCollection = $this->config->getCommitParser()->process($lastTag);
         $this->detectionTypeChange($commitCollection);
 
-        $currentVersion = $composerJson['version'] ?? '1.0.0';
+        $newVersion = $this->incrementVersion($currentVersion, $this->changeType);
 
-        $newVersion = $this->updateComposerVersion($currentVersion, $this->changeType);
-
-        $composerJson['version'] = $newVersion;
-        $this->updateComposerJson($composerJson);
+        if ($this->config->isEnabledComposerVersioning()) {
+            $composerJson['version'] = $newVersion;
+            $this->updateComposerJson($composerJson);
+        }
         $changelog = $this->config->getChangelogFormatter()($commitCollection, $newVersion);
 
         $this->updateChangeLog($changelog);
@@ -196,7 +203,7 @@ class SemanticVersionUpdater
         }
     }
 
-    private function updateComposerVersion(string $currentVersion, string $changeType): string
+    private function incrementVersion(string $currentVersion, string $changeType): string
     {
         [$major, $minor, $patch] = explode('.', $currentVersion);
         switch ($changeType) {

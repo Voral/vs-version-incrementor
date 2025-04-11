@@ -366,3 +366,19 @@ $config = new Config();
 return $config
     ->setCommitParser(new MyParser());
 ```
+
+## Disabling Version Updates in composer.json
+
+In some projects, version management may be handled exclusively through Git tags without updating the `composer.json` file. To support this, an option has been added to disable version management in `composer.json`.
+
+```php
+return (new \Vasoft\VersionIncrement\Config())
+    ->setEnabledComposerVersioning(false);
+```
+
+When this setting is disabled:
+- The version will be determined solely based on Git tags.
+- The `composer.json` file will not be analyzed or updated.
+- All version-related operations will be performed only within the context of tags.
+
+By default, version updates in `composer.json` are enabled.

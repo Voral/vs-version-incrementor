@@ -33,6 +33,8 @@ final class Config
 
     private string $aggregateSection = '';
 
+    private bool $enabledComposerVersioning = true;
+
     private ?ChangelogFormatterInterface $changelogFormatter = null;
     private ?CommitParserInterface $commitParser = null;
     private ?VcsExecutorInterface $vcsExecutor = null;
@@ -404,5 +406,33 @@ final class Config
         $this->tagFormatter->setConfig($this);
 
         return $this;
+    }
+
+    /**
+     * Enables or disables version management in the `composer.json` file.
+     *
+     * When disabled, version management will rely solely on Git tags instead of updating `composer.json`.
+     *
+     * @param bool $enabledComposerVersioning Whether to enable version management in `composer.json`.
+     *                                        - `true`: Enable version management in `composer.json`.
+     *                                        - `false`: Disable version management in `composer.json`.
+     *
+     * @return $this this Config instance for method chaining
+     */
+    public function setEnabledComposerVersioning(bool $enabledComposerVersioning): self
+    {
+        $this->enabledComposerVersioning = $enabledComposerVersioning;
+
+        return $this;
+    }
+
+    /**
+     * Checks whether version management in the `composer.json` file is enabled.
+     *
+     * @return bool Returns `true` if version management in `composer.json` is enabled, `false` otherwise.
+     */
+    public function isEnabledComposerVersioning(): bool
+    {
+        return $this->enabledComposerVersioning;
     }
 }
