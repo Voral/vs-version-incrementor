@@ -7,6 +7,7 @@ namespace Vasoft\VersionIncrement;
 use PHPUnit\Framework\TestCase;
 use Vasoft\VersionIncrement\Commits\ShortParser;
 use Vasoft\VersionIncrement\Contract\CommitParserInterface;
+use Vasoft\VersionIncrement\Contract\TagFormatterInterface;
 
 /**
  * @coversDefaultClass \Vasoft\VersionIncrement\Config
@@ -146,7 +147,6 @@ final class ConfigTest extends TestCase
         ];
         $actual = $config->getSectionDescriptions();
         self::assertSame($expected, $actual);
-
     }
 
     public function testGetCommitParserReturnsShortParserByDefault(): void
@@ -164,5 +164,22 @@ final class ConfigTest extends TestCase
             ->with($config);
         $config->setCommitParser($parser);
         self::assertSame($parser, $config->getCommitParser());
+    }
+
+    public function testGetTagFormatterReturnsDefault(): void
+    {
+        $formatter = (new Config())->getTagFormatter();
+        self::assertInstanceOf(Tag\DefaultFormatter::class, $formatter, 'Default parse can be ShortParser');
+    }
+
+    public function testSetTagFormatterAndInitializes(): void
+    {
+        $config = new Config();
+        $formatter = self::createMock(TagFormatterInterface::class);
+        $formatter->expects(self::once())
+            ->method('setConfig')
+            ->with($config);
+        $config->setTagFormatter($formatter);
+        self::assertSame($formatter, $config->getTagFormatter());
     }
 }

@@ -8,9 +8,10 @@ use Vasoft\VersionIncrement\Commits\CommitCollection;
 use Vasoft\VersionIncrement\Commits\Section;
 use Vasoft\VersionIncrement\Contract\ChangelogFormatterInterface;
 use Vasoft\VersionIncrement\Contract\CommitParserInterface;
+use Vasoft\VersionIncrement\Contract\SectionRuleInterface;
+use Vasoft\VersionIncrement\Contract\TagFormatterInterface;
 use Vasoft\VersionIncrement\Contract\VcsExecutorInterface;
 use Vasoft\VersionIncrement\SectionRules\DefaultRule;
-use Vasoft\VersionIncrement\Contract\SectionRuleInterface;
 
 final class Config
 {
@@ -35,6 +36,7 @@ final class Config
     private ?ChangelogFormatterInterface $changelogFormatter = null;
     private ?CommitParserInterface $commitParser = null;
     private ?VcsExecutorInterface $vcsExecutor = null;
+    private ?TagFormatterInterface $tagFormatter = null;
 
     private bool $ignoreUntrackedFiles = false;
     private array $sections = [
@@ -365,6 +367,41 @@ final class Config
     {
         $this->commitParser = $changelogFormatter;
         $this->commitParser->setConfig($this);
+
+        return $this;
+    }
+
+    /**
+     * Retrieves the tag formatter instance.
+     *
+     * If no custom tag formatter is set, a default instance of `DefaultFormatter` is created and configured.
+     *
+     * @return TagFormatterInterface the tag formatter instance
+     */
+    public function getTagFormatter(): TagFormatterInterface
+    {
+        if (null === $this->tagFormatter) {
+            $this->tagFormatter = new Tag\DefaultFormatter();
+            $this->tagFormatter->setConfig($this);
+        }
+
+        return $this->tagFormatter;
+    }
+
+    /**
+     * Sets a custom tag formatter for the configuration.
+     *
+     * The provided formatter will be used for all tag-related operations. The formatter's configuration
+     * is automatically updated to use the current `Config` instance.
+     *
+     * @param TagFormatterInterface $tagFormatter the custom tag formatter to set
+     *
+     * @return $this this Config instance for method chaining
+     */
+    public function setTagFormatter(TagFormatterInterface $tagFormatter): self
+    {
+        $this->tagFormatter = $tagFormatter;
+        $this->tagFormatter->setConfig($this);
 
         return $this;
     }
