@@ -11,6 +11,7 @@ use Vasoft\VersionIncrement\Contract\CommitParserInterface;
 use Vasoft\VersionIncrement\Contract\SectionRuleInterface;
 use Vasoft\VersionIncrement\Contract\TagFormatterInterface;
 use Vasoft\VersionIncrement\Contract\VcsExecutorInterface;
+use Vasoft\VersionIncrement\Exceptions\UnknownPropertyException;
 use Vasoft\VersionIncrement\SectionRules\DefaultRule;
 
 /**
@@ -22,6 +23,7 @@ use Vasoft\VersionIncrement\SectionRules\DefaultRule;
  */
 final class Config
 {
+    private array $props = [];
     private string $squashedCommitMessage = 'Squashed commit of the following:';
     private bool $processDefaultSquashedCommit = false;
     private array $minorTypes = [
@@ -734,5 +736,51 @@ final class Config
     public function isEnabledComposerVersioning(): bool
     {
         return $this->enabledComposerVersioning;
+    }
+
+    /**
+     * Sets a custom property in the configuration.
+     *
+     * This method allows you to store custom key-value pairs in the configuration. These properties can be used to pass
+     * additional parameters required by custom implementations (e.g., formatters, VCS executors, parsers, etc.).
+     *
+     * @param string $key   The name of the property to set. This should be a unique identifier for the property.
+     * @param mixed  $value The value to associate with the property. This can be any type of data required by the custom
+     *                      implementation.
+     *
+     * @return $this this Config instance for method chaining
+     *
+     * @example
+     * ```php
+     * return (new \Vasoft\VersionIncrement\Config())
+     *     ->set('customParam', 'customValue');
+     * ```
+     */
+    public function set(string $key, mixed $value): self
+    {
+        $this->props[$key] = $value;
+
+        return $this;
+    }
+
+    /**
+     * Retrieves the value of a custom property from the configuration.
+     *
+     * This method retrieves the value associated with the specified property key. If the property does not exist,
+     * an exception is thrown to indicate that the property is unknown.
+     *
+     * @param string $key The name of the property to retrieve. This should match the key used when setting the property.
+     *
+     * @return mixed the value associated with the property
+     *
+     * @throws UnknownPropertyException if the specified property does not exist in the configuration
+     */
+    public function get(string $key): mixed
+    {
+        if (!isset($this->props[$key])) {
+            throw new UnknownPropertyException($key);
+        }
+
+        return $this->props[$key];
     }
 }

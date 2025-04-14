@@ -369,7 +369,8 @@ return $config
 
 ## Disabling Version Updates in composer.json
 
-In some projects, version management may be handled exclusively through Git tags without updating the `composer.json` file. To support this, an option has been added to disable version management in `composer.json`.
+In some projects, version management may be handled exclusively through Git tags without updating the `composer.json`
+file. To support this, an option has been added to disable version management in `composer.json`.
 
 ```php
 return (new \Vasoft\VersionIncrement\Config())
@@ -377,8 +378,44 @@ return (new \Vasoft\VersionIncrement\Config())
 ```
 
 When this setting is disabled:
+
 - The version will be determined solely based on Git tags.
 - The `composer.json` file will not be analyzed or updated.
 - All version-related operations will be performed only within the context of tags.
 
 By default, version updates in `composer.json` are enabled.
+
+## Sets a custom property in the configuration
+
+You can to store custom key-value pairs in the configuration. These properties can be used to pass
+additional parameters required by custom implementations (e.g., formatters, VCS executors, parsers, etc.).
+
+ ```php
+     return (new \Vasoft\VersionIncrement\Config())
+         ->set(\MyApp\Custom\CustomFormatter::PARAM_KEY, 'customValue');
+```
+
+And you can use it:
+```php
+namespace MyApp\Custom;
+
+use Vasoft\VersionIncrement\Commits\CommitCollection;
+use Vasoft\VersionIncrement\Contract\ChangelogFormatterInterface;
+
+class CustomFormatter implements ChangelogFormatterInterface
+{
+    public const PARAM_KEY = 'customParam';
+    private ?Config $config = null;
+    
+    public function setConfig(Config $config): void
+    {
+        $this->config = $config;
+    }
+    
+    public function __invoke(CommitCollection $commitCollection, string $version): string
+    {
+        // Your custom formatting logic
+        return $this->config->get(self::PARAM_KEY)." Custom changelog for version {$version}:\n";
+    }
+}
+```

@@ -378,7 +378,8 @@ return $config
 
 ## Отключение обновления версии в composer.json
 
-В некоторых проектах управление версией может осуществляться только через Git теги, без обновления файла `composer.json`. Для этого предусмотрена возможность отключения работы с версией в `composer.json`.
+В некоторых проектах управление версией может осуществляться только через Git теги, без обновления
+файла `composer.json`. Для этого предусмотрена возможность отключения работы с версией в `composer.json`.
 
 ```php
 return (new \Vasoft\VersionIncrement\Config())
@@ -386,8 +387,45 @@ return (new \Vasoft\VersionIncrement\Config())
 ```
 
 При отключении данной настройки:
+
 - Версия будет определяться исключительно на основе Git тегов.
 - Файл `composer.json` не будет анализироваться и обновляться.
 - Все операции с версией будут выполняться только в контексте тегов.
 
 По умолчанию обновление версии в `composer.json` включено.
+
+## Передача произвольных параметров конфигурации
+
+Вы можете сохранять произвольные пары ключ-значение в конфигурации. Эти параметры вы можете использовать в своих
+реализациях(например форматере CHANGELOG, парсера коммитов и т.п.).
+
+ ```php
+     return (new \Vasoft\VersionIncrement\Config())
+         ->set(\MyApp\Custom\CustomFormatter::PARAM_KEY, 'customValue');
+```
+
+Далее вы можете использовать это следующим образом:
+
+```php
+namespace MyApp\Custom;
+
+use Vasoft\VersionIncrement\Commits\CommitCollection;
+use Vasoft\VersionIncrement\Contract\ChangelogFormatterInterface;
+
+class CustomFormatter implements ChangelogFormatterInterface
+{
+    public const PARAM_KEY = 'customParam';
+    private ?Config $config = null;
+    
+    public function setConfig(Config $config): void
+    {
+        $this->config = $config;
+    }
+    
+    public function __invoke(CommitCollection $commitCollection, string $version): string
+    {
+        // Your custom formatting logic
+        return $this->config->get(self::PARAM_KEY)." Custom changelog for version {$version}:\n";
+    }
+}
+```

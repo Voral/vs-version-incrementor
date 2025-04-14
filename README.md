@@ -135,6 +135,7 @@ following adjustments:
     - [General Rules for Full Commit Descriptions](docs/config.md#general-rules-for-full-commit-descriptions)
 - [Configuring the Commit Description Parser](docs/config.md#configuring-the-commit-description-parser)
 - [Disabling Version Updates in composer.json](docs/config.md#disabling-version-updates-in-composerjson)
+- [Sets a custom property in the configuration](docs/config.md#sets-a-custom-property-in-the-configuration)
 
 ## Commit Descriptions
 
@@ -199,6 +200,7 @@ The script can be integrated into CI/CD pipelines. In case of errors, it returns
 | 60    | Error executing a Git command         |
 | 70    | Invalid version change type           |
 | 80    | Changelog File Error                  |
+| 90    | Unknown config property               |
 | 500   | Other errors                          |
 
 You can use it in the command line, for example:

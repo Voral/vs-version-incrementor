@@ -8,6 +8,7 @@ use PHPUnit\Framework\TestCase;
 use Vasoft\VersionIncrement\Commits\ShortParser;
 use Vasoft\VersionIncrement\Contract\CommitParserInterface;
 use Vasoft\VersionIncrement\Contract\TagFormatterInterface;
+use Vasoft\VersionIncrement\Exceptions\UnknownPropertyException;
 
 /**
  * @coversDefaultClass \Vasoft\VersionIncrement\Config
@@ -189,5 +190,34 @@ final class ConfigTest extends TestCase
         self::assertTrue($config->isEnabledComposerVersioning(), 'Composer versioning is true by default');
         $config->setEnabledComposerVersioning(false);
         self::assertFalse($config->isEnabledComposerVersioning(), 'Composer versioning can be disabled');
+    }
+
+    /**
+     * @dataProvider provideUserPropertySavedCases
+     */
+    public function testUserPropertySaved(mixed $value, string $description): void
+    {
+        $config = new Config();
+        $config->set('test', $value);
+        self::assertSame($value, $config->get('test'), $description);
+    }
+
+    public static function provideUserPropertySavedCases(): iterable
+    {
+        return [
+            [1, 'Integer value'],
+            [1.1, 'Float value'],
+            ['string', 'String value'],
+            [[123, '56'], 'Array value'],
+            [new \stdClass(), 'Object value'],
+        ];
+    }
+
+    public function testUserPropertyException(): void
+    {
+        $config = new Config();
+        self::expectException(UnknownPropertyException::class);
+        self::expectExceptionMessage('Unknown property: test');
+        $config->get('test');
     }
 }
