@@ -1762,6 +1762,70 @@ final class SemanticVersionUpdaterTest extends TestCase
         self::assertSame($textChangelogExpected, $textChangelog);
         self::assertSame("Release 4.2.0 successfully created!\n", $output);
     }
+    public function testUpdateVersionWithoutComposerJsonDefaultVersion(): void
+    {
+        $versionAfter = '';
+        $textChangelog = '';
+        $textChangelogExpected = '# 1.1.0 (' . date('Y-m-d') . ')
+
+### New features
+- Some Example
+- Some Example
+
+### Other
+- doc(extremal): Some Example
+
+';
+
+        $filePutContents = $this->getFunctionMock(__NAMESPACE__, 'file_put_contents');
+        $filePutContents
+            ->expects(self::exactly(1))
+            ->willReturnCallback(
+                static function (string $fileName, string $contents) use (&$versionAfter, &$textChangelog): void {
+                    if ('/test/composer.json' === $fileName) {
+                        $versionAfter = 'wrong';
+                    } elseif ('/test/CHANGELOG.md' === $fileName) {
+                        $textChangelog = $contents;
+                    }
+                },
+            );
+        $fileGetContents = $this->getFunctionMock(__NAMESPACE__, 'file_get_contents');
+        $fileGetContents
+            ->expects(self::once())
+            ->willReturn('');
+        $fileIsWritable = $this->getFunctionMock(__NAMESPACE__, 'is_writable');
+        $fileIsWritable
+            ->expects(self::once())
+            ->willReturn(true);
+
+        $fileExists = $this->getFunctionMock(__NAMESPACE__, 'file_exists');
+        $fileExists
+            ->expects(self::once())
+            ->willReturn(true);
+
+        $gitExecutor = self::createMock(VcsExecutorInterface::class);
+        $gitExecutor->expects(self::once())->method('getCurrentBranch')->willReturn('master');
+        $gitExecutor->expects(self::once())->method('status')->willReturn([]);
+        $gitExecutor->expects(self::once())->method('getLastTag')->willReturn(null);
+        $gitExecutor->expects(self::once())->method('getCommitsSinceLastTag')->willReturn([
+            'c3d4e5f6g1 doc(extremal): Some Example',
+            'c3d4e5f6g2 feat(extremal): Some Example',
+            'c3d4e5f6g3 feat: Some Example',
+        ]);
+        $gitExecutor->expects(self::once())->method('setVersionTag');
+        $gitExecutor->expects(self::once())->method('commit');
+        $gitExecutor->expects(self::never())->method('addFile');
+        $config = new Config();
+        $config->setVcsExecutor($gitExecutor);
+        $config->setEnabledComposerVersioning(false);
+        $updater = new SemanticVersionUpdater('/test', $config);
+        ob_start();
+        $updater->updateVersion();
+        $output = ob_get_clean();
+        self::assertSame('', $versionAfter, 'Composer version was not updated.');
+        self::assertSame($textChangelogExpected, $textChangelog);
+        self::assertSame("Release 1.1.0 successfully created!\n", $output);
+    }
 }
 
 class ExampleRule1 implements SectionRuleInterface
