@@ -50,7 +50,6 @@ final class Config
 
     public function __construct()
     {
-        // @scrutinizer ignore-unreadable-property
         $this->sections = new Sections();
     }
 
@@ -121,16 +120,12 @@ final class Config
      */
     public function getCommitCollection(): CommitCollection
     {
-        if (null === $this->commitCollection) {
-            $this->commitCollection = (new CommitCollectionFactory(
-                $this,
-                $this->majorTypes,
-                $this->minorTypes,
-                self::DEFAULT_SECTION,
-            ))->getCollection($this->sections->getSortedSections());
-        }
-
-        return $this->commitCollection;
+        return $this->commitCollection ??= (new CommitCollectionFactory(
+            $this,
+            $this->majorTypes,
+            $this->minorTypes,
+            self::DEFAULT_SECTION,
+        ))->getCollection($this->sections->getSortedSections());
     }
 
     /**
@@ -455,11 +450,7 @@ final class Config
      */
     public function getVcsExecutor(): VcsExecutorInterface
     {
-        if (null === $this->vcsExecutor) {
-            $this->vcsExecutor = new GitExecutor();
-        }
-
-        return $this->vcsExecutor;
+        return $this->vcsExecutor ??= new GitExecutor();
     }
 
     /**
