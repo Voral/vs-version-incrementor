@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Vasoft\VersionIncrement;
 
 use Vasoft\VersionIncrement\Commits\CommitCollection;
+use Vasoft\VersionIncrement\Commits\CommitCollectionFactory;
 use Vasoft\VersionIncrement\Commits\Section;
 use Vasoft\VersionIncrement\Contract\ChangelogFormatterInterface;
 use Vasoft\VersionIncrement\Contract\CommitParserInterface;
@@ -23,6 +24,7 @@ use Vasoft\VersionIncrement\SectionRules\DefaultRule;
  */
 final class Config
 {
+    private ?CommitCollection $commitCollection = null;
     private array $scopes = [];
     private array $props = [];
     private string $squashedCommitMessage = 'Squashed commit of the following:';
@@ -202,26 +204,17 @@ final class Config
      */
     public function getCommitCollection(): CommitCollection
     {
-        $this->sortSections();
-        $sections = [];
-        $default = null;
-        foreach ($this->sections as $key => $section) {
-            $section = new Section(
-                $key,
-                $section['title'],
-                $section['hidden'],
-                $this->getSectionRules($key),
-                in_array($key, $this->majorTypes, true),
-                in_array($key, $this->minorTypes, true),
+        if (null === $this->commitCollection) {
+            $this->sortSections();
+            $this->commitCollection = (new CommitCollectionFactory(
                 $this,
-            );
-            if (self::DEFAULT_SECTION === $key) {
-                $default = $section;
-            }
-            $sections[$key] = $section;
+                $this->majorTypes,
+                $this->minorTypes,
+                self::DEFAULT_SECTION,
+            ))->getCollection($this->sections);
         }
 
-        return new CommitCollection($sections, /* @scrutinizer ignore-type */ $default);
+        return $this->commitCollection;
     }
 
     private function sortSections(): void
