@@ -43,8 +43,8 @@ final class ApplicationTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->wrongConfigPath = __DIR__ . '/fixtures/wrong';
-        $this->configPath = __DIR__ . '/fixtures/normal';
+        $this->wrongConfigPath = __DIR__ . '/Fixtures/Wrong';
+        $this->configPath = __DIR__ . '/Fixtures/Normal';
         if (null === $this->mockGetEnv) {
             $this->mockGetEnv = $this->getFunctionMock(__NAMESPACE__, 'getenv');
             $this->mockGetEnv->expects(TestCase::any())->willReturnCallback(

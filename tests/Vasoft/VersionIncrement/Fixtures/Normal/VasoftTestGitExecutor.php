@@ -2,6 +2,8 @@
 
 declare(strict_types=1);
 
+namespace Vasoft\VersionIncrement\Fixtures\Normal;
+
 use Vasoft\VersionIncrement\Config;
 use Vasoft\VersionIncrement\Contract\VcsExecutorInterface;
 
