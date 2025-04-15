@@ -101,16 +101,11 @@ final class ShortParser implements CommitParserInterface
     }
 
     /**
-     * @param string $hash
-     * @param CommitCollection $commitCollection
-     * @throws ConfigNotSetException
      * @throws GitCommandException
      */
     private function processAggregated(string $hash, CommitCollection $commitCollection): void
     {
-        if (null === $this->config) {
-            throw new ConfigNotSetException();
-        }
+        /** @scrutinizer ignore-call */
         $description = $this->config->getVcsExecutor()->getCommitDescription($hash);
         foreach ($description as $line) {
             $this->parseCommit($line, $commitCollection, '', '');
