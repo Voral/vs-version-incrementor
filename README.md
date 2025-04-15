@@ -6,24 +6,47 @@
 [![Code Coverage](https://scrutinizer-ci.com/g/Voral/vs-version-incrementor/badges/coverage.png?b=master)](https://scrutinizer-ci.com/g/Voral/vs-version-incrementor/?branch=master)
 [![Code Intelligence Status](https://scrutinizer-ci.com/g/Voral/vs-version-incrementor/badges/code-intelligence.svg?b=master)](https://scrutinizer-ci.com/code-intelligence)
 
-This tool automates the process of updating versions in Composer projects based on Git commit analysis and CHANGELOG
-generation. It helps adhere to semantic versioning and
+This tool automates the process of version management in Composer-based projects by analyzing Git commits and generating
+a `CHANGELOG`. It adheres to [semantic versioning](https://semver.org/) and supports
 the [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/) standard.
 
-The version is built according to the semantic rule `<Major>.<Minor>.<Patch>`:
+The version follows the semantic rule `<Major>.<Minor>.<Patch>`:
 
-- *Major*: Changes for major updates, breaking backward compatibility, etc.
-- *Minor*: Adding new features without changing existing ones and without breaking backward compatibility.
-- *Patch*: Minor changes or bug fixes.
+- *Major*: Breaking changes that affect backward compatibility.
+- *Minor*: New features added without breaking existing functionality.
+- *Patch*: Bug fixes or minor improvements.
 
 ## Key Features
 
-- Analyzing the current version from `composer.json`.
-- Determining the type of change (`major`, `minor`, `patch`) based on commits.
-- Updating the `composer.json` file with the new version.
-- Creating Git tags for releases and commits.
-- Supporting custom configurations for commit types.
-- Supporting custom CHANGELOG format.
+- **Version Management**: Automatically determines the next version based on commit analysis and
+  updates `composer.json`.
+- **Git Integration**: Creates Git tags for releases and handles commits according to the project's versioning strategy.
+- **Customizable Commit Types**: Define custom commit types and their impact on version
+  increments (`major`, `minor`, `patch`).
+- **Advanced CHANGELOG Generation**:
+    - Supports custom formatting for the `CHANGELOG.md` file.
+    - Option to hide duplicate entries within the same section for cleaner output.
+    - Configurable scope preservation for specific commit types.
+- **Support for Squashed Commits**: Handles squashed commits (e.g., from `git merge --squash`) by parsing detailed
+  descriptions.
+- **Configurable Rules**: Implement custom rules for categorizing commits into sections.
+- **Flexible Configuration**:
+    - Customize the main branch name (e.g., `main` instead of `master`).
+    - Configure release-related settings, such as release scope and section.
+    - Ignore untracked files during version updates.
+- **Semantic Versioning Compliance**: Ensures strict adherence to semantic versioning principles.
+- **Optional Composer Versioning**: Disable version updates in `composer.json` if versioning is managed solely through
+  Git tags.
+- **Extensibility**:
+    - Use custom parsers, formatters, and VCS executors for advanced workflows.
+    - Extend functionality with custom properties via the `Config` class.
+
+### Why Use This Tool?
+
+- Simplifies version management by automating repetitive tasks.
+- Improves consistency in versioning and changelog generation.
+- Provides flexibility for custom workflows and project-specific requirements.
+- Reduces human error by relying on automated analysis of commit messages.
 
 ## Installation
 
@@ -191,18 +214,18 @@ feat!: Removed old API endpoints
 
 The script can be integrated into CI/CD pipelines. In case of errors, it returns different exit codes:
 
-| Code  | Description                           |
-|-------|---------------------------------------|
-| 10    | Composer configuration error          |
-| 20    | Git branch is not the main branch     |
-| 30    | Uncommitted changes in the repository |
-| 40    | No changes in the repository          |
-| 50    | Invalid configuration file            |
-| 60    | Error executing a Git command         |
-| 70    | Invalid version change type           |
-| 80    | Changelog File Error                  |
-| 90    | Unknown config property               |
-| 500   | Other errors                          |
+| Code | Description                           |
+|------|---------------------------------------|
+| 10   | Composer configuration error          |
+| 20   | Git branch is not the main branch     |
+| 30   | Uncommitted changes in the repository |
+| 40   | No changes in the repository          |
+| 50   | Invalid configuration file            |
+| 60   | Error executing a Git command         |
+| 70   | Invalid version change type           |
+| 80   | Changelog File Error                  |
+| 90   | Unknown config property               |
+| 500  | Other errors                          |
 
 You can use it in the command line, for example:
 
@@ -236,6 +259,7 @@ standard. It organizes changes into categories (`Added`, `Changed`, `Deprecated`
 making the changelog easy to read.
 
 -
+
 *File:* [`examples/keepachangelog.php`](https://github.com/Voral/vs-version-incrementor/blob/master/examples/keepachangelog.php)
 
 ## Useful Links
