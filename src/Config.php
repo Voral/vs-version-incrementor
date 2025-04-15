@@ -220,7 +220,7 @@ final class Config
             $sections[$key] = $section;
         }
 
-        return new CommitCollection($sections, $default);
+        return new CommitCollection($sections, /* @scrutinizer ignore-type */ $default);
     }
 
     private function sortSections(): void
