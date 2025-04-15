@@ -15,6 +15,7 @@ use Vasoft\VersionIncrement\Exceptions\UncommittedException;
 
 class SemanticVersionUpdater
 {
+    public const DEFAULT_VERSION = '1.0.0';
     private bool $debug = false;
     private VcsExecutorInterface $gitExecutor;
     private array $availableTypes = [
@@ -80,7 +81,9 @@ class SemanticVersionUpdater
         $lastTag = $this->gitExecutor->getLastTag();
         if ($this->config->isEnabledComposerVersioning()) {
             $composerJson = $this->getComposerJson();
-            $currentVersion = $composerJson['version'] ?? '1.0.0';
+            $currentVersion = $composerJson['version'] ?? self::DEFAULT_VERSION;
+        } elseif (null === $lastTag) {
+            $currentVersion = self::DEFAULT_VERSION;
         } else {
             $currentVersion = $this->config->getTagFormatter()->extractVersion($lastTag);
         }
