@@ -65,7 +65,7 @@ class ScopePreservingFormatter implements ChangelogFormatterInterface
         ) {
             return '';
         }
-        $scopes = $this->config->getScopes();
+        $scopes = $this->config?->getScopes() ?? [];
         $scope = $scopes[$commit->scope] ?? $commit->scope;
 
         return sprintf('%s: ', $scope);
