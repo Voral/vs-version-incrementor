@@ -50,6 +50,7 @@ final class Config
 
     public function __construct()
     {
+        // @scrutinizer ignore-unreadable-property
         $this->sections = new Sections();
     }
 
