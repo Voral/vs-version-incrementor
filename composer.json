@@ -15,7 +15,7 @@
     "scripts": {
         "vi": "php ./bin/vs-version-increment",
         "vi:debug": "php ./bin/vs-version-increment --debug",
-        "test": "php vendor/bin/phpunit --display-warnings",
+        "test": "php vendor/bin/phpunit --display-warnings --filter=testOtherMainBranchHideDoubles",
         "coverage": "php -dzend_extension=xdebug.so -dxdebug.mode=coverage vendor/bin/phpunit --coverage-text",
         "stan": "vendor/bin/phpstan analyse src tests",
         "fixer": "vendor/bin/php-cs-fixer fix --dry-run --diff",

@@ -419,3 +419,16 @@ class CustomFormatter implements ChangelogFormatterInterface
     }
 }
 ```
+
+## Suppress Duplicate Lines in CHANGELOG
+
+You can configure whether duplicate entries (lines with identical content) should be hidden in the generated CHANGELOG. When enabled, only the first occurrence of a duplicate entry will be displayed within each section. This improves the readability of the CHANGELOG by reducing redundancy and making it more concise.
+
+> **Note:** Duplicate entries are hidden only within the same section. Entries in different sections are not affected.
+
+To enable hiding of duplicate entries, use the following configuration:
+
+```php
+return (new \Vasoft\VersionIncrement\Config())
+    ->setHideDoubles(true);
+```

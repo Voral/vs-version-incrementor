@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Vasoft\VersionIncrement\Commits;
 
+use Vasoft\VersionIncrement\Config;
 use Vasoft\VersionIncrement\Contract\SectionRuleInterface;
 
 final class Section
@@ -21,6 +22,7 @@ final class Section
         public readonly array $rules,
         public readonly bool $isMajorMarker,
         public readonly bool $isMinorMarker,
+        public readonly Config $config,
     ) {}
 
     public function addCommit(Commit $commit): void
@@ -33,6 +35,19 @@ final class Section
      */
     public function getCommits(): array
     {
+        if ($this->config->isHideDoubles()) {
+            $result = [];
+            $index = [];
+            foreach ($this->commits as $commit) {
+                if (!isset($index[$commit->comment])) {
+                    $result[] = $commit;
+                    $index[$commit->comment] = true;
+                }
+            }
+
+            return $result;
+        }
+
         return $this->commits;
     }
 

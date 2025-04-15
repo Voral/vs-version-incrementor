@@ -49,6 +49,8 @@ final class Config
     private ?VcsExecutorInterface $vcsExecutor = null;
     private ?TagFormatterInterface $tagFormatter = null;
 
+    private bool $hideDoubles = false;
+
     private bool $ignoreUntrackedFiles = false;
     private array $sections = [
         'feat' => [
@@ -210,6 +212,7 @@ final class Config
                 $this->getSectionRules($key),
                 in_array($key, $this->majorTypes, true),
                 in_array($key, $this->minorTypes, true),
+                $this,
             );
             if (self::DEFAULT_SECTION === $key) {
                 $default = $section;
@@ -782,5 +785,37 @@ final class Config
         }
 
         return $this->props[$key];
+    }
+
+    /**
+     * Enables or disables hiding of duplicate entries within the same section in the CHANGELOG.
+     *
+     * This method configures whether duplicate entries (lines with identical content) should be hidden in the generated
+     * CHANGELOG. When enabled, only the first occurrence of a duplicate entry will be displayed within each section.
+     *
+     * @param bool $hideDoubles Whether to hide duplicate entries:
+     *                          - `true`: Hide duplicate entries within the same section.
+     *                          - `false`: Display all entries, including duplicates (default behavior).
+     *
+     * @return $this this Config instance for method chaining
+     */
+    public function setHideDoubles(bool $hideDoubles): self
+    {
+        $this->hideDoubles = $hideDoubles;
+
+        return $this;
+    }
+
+    /**
+     * Checks whether hiding of duplicate entries within the same section is enabled.
+     *
+     * This method retrieves the current configuration for hiding duplicate entries in the CHANGELOG. If enabled, duplicate
+     * entries within the same section will be hidden during the generation of the CHANGELOG.
+     *
+     * @return bool returns `true` if hiding of duplicate entries is enabled, `false` otherwise
+     */
+    public function isHideDoubles(): bool
+    {
+        return $this->hideDoubles;
     }
 }

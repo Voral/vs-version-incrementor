@@ -136,6 +136,7 @@ following adjustments:
 - [Configuring the Commit Description Parser](docs/config.md#configuring-the-commit-description-parser)
 - [Disabling Version Updates in composer.json](docs/config.md#disabling-version-updates-in-composerjson)
 - [Sets a custom property in the configuration](docs/config.md#sets-a-custom-property-in-the-configuration)
+- [Suppress Duplicate Lines in CHANGELOG](docs/config.md#suppress-duplicate-lines-in-changelog)
 
 ## Commit Descriptions
 
