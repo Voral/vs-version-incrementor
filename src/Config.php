@@ -6,12 +6,12 @@ namespace Vasoft\VersionIncrement;
 
 use Vasoft\VersionIncrement\Commits\CommitCollection;
 use Vasoft\VersionIncrement\Commits\CommitCollectionFactory;
-use Vasoft\VersionIncrement\Commits\Section;
 use Vasoft\VersionIncrement\Contract\ChangelogFormatterInterface;
 use Vasoft\VersionIncrement\Contract\CommitParserInterface;
 use Vasoft\VersionIncrement\Contract\SectionRuleInterface;
 use Vasoft\VersionIncrement\Contract\TagFormatterInterface;
 use Vasoft\VersionIncrement\Contract\VcsExecutorInterface;
+use Vasoft\VersionIncrement\Core\Sections;
 use Vasoft\VersionIncrement\Exceptions\UnknownPropertyException;
 use Vasoft\VersionIncrement\SectionRules\DefaultRule;
 
@@ -35,83 +35,23 @@ final class Config
     private array $majorTypes = [];
     private array $sectionRules = [];
     public const DEFAULT_SECTION = 'other';
-
-    private int $defaultOrder = 500;
-    private bool $sored = true;
     private string $masterBranch = 'master';
     private string $releaseSection = 'chore';
-
     private string $releaseScope = 'release';
-
     private string $aggregateSection = '';
-
     private bool $enabledComposerVersioning = true;
-
     private ?ChangelogFormatterInterface $changelogFormatter = null;
     private ?CommitParserInterface $commitParser = null;
     private ?VcsExecutorInterface $vcsExecutor = null;
     private ?TagFormatterInterface $tagFormatter = null;
-
     private bool $hideDoubles = false;
-
     private bool $ignoreUntrackedFiles = false;
-    private array $sections = [
-        'feat' => [
-            'title' => 'New features',
-            'order' => 10,
-            'hidden' => false,
-        ],
-        'fix' => [
-            'title' => 'Fixes',
-            'order' => 20,
-            'hidden' => false,
-        ],
-        'chore' => [
-            'title' => 'Other changes',
-            'order' => 30,
-            'hidden' => false,
-        ],
-        'docs' => [
-            'title' => 'Documentation',
-            'order' => 40,
-            'hidden' => false,
-        ],
-        'style' => [
-            'title' => 'Styling',
-            'order' => 50,
-            'hidden' => false,
-        ],
-        'refactor' => [
-            'title' => 'Refactoring',
-            'order' => 60,
-            'hidden' => false,
-        ],
-        'test' => [
-            'title' => 'Tests',
-            'order' => 70,
-            'hidden' => false,
-        ],
-        'perf' => [
-            'title' => 'Performance',
-            'order' => 80,
-            'hidden' => false,
-        ],
-        'ci' => [
-            'title' => 'Configure CI',
-            'order' => 90,
-            'hidden' => false,
-        ],
-        'build' => [
-            'title' => 'Change build system',
-            'order' => 100,
-            'hidden' => false,
-        ],
-        'other' => [
-            'title' => 'Other',
-            'order' => 110,
-            'hidden' => false,
-        ],
-    ];
+    private readonly Sections $sections;
+
+    public function __construct()
+    {
+        $this->sections = new Sections();
+    }
 
     /**
      * Sets the sections configuration for the tool.
@@ -132,15 +72,7 @@ final class Config
      */
     public function setSections(array $sections): self
     {
-        $this->sored = false;
-        $this->sections = [];
-        foreach ($sections as $key => $value) {
-            $this->sections[$key] = [
-                'title' => $value['title'] ?? $key,
-                'order' => $value['order'] ?? ++$this->defaultOrder,
-                'hidden' => $value['hidden'] ?? false,
-            ];
-        }
+        $this->sections->setSections($sections);
 
         return $this;
     }
@@ -168,30 +100,14 @@ final class Config
         int $order = -1,
         ?bool $hidden = null,
     ): self {
-        $this->sored = false;
-        $exists = $this->sections[$key] ?? null;
-        $this->sections[$key] = [
-            'title' => $title,
-            'order' => -1 === $order ? ($exists ? $exists['order'] : ++$this->defaultOrder) : $order,
-            'hidden' => null !== $hidden ? $hidden : ($exists ? $exists['hidden'] : false),
-        ];
+        $this->sections->setSection($key, $title, $order, $hidden);
 
         return $this;
     }
 
-    /**
-     * Retrieves the index of sections as an array with empty values.
-     *
-     * This method sorts the sections internally and returns an array where the keys are section names and the values
-     * are empty arrays. This is useful for initializing data structures that require a predefined set of sections.
-     *
-     * @return array an associative array with section names as keys and empty arrays as values
-     */
-    public function getSectionIndex(): array
+    public function getSections(): Sections
     {
-        $this->sortSections();
-
-        return array_fill_keys(array_keys($this->sections), []);
+        return $this->sections;
     }
 
     /**
@@ -205,77 +121,15 @@ final class Config
     public function getCommitCollection(): CommitCollection
     {
         if (null === $this->commitCollection) {
-            $this->sortSections();
             $this->commitCollection = (new CommitCollectionFactory(
                 $this,
                 $this->majorTypes,
                 $this->minorTypes,
                 self::DEFAULT_SECTION,
-            ))->getCollection($this->sections);
+            ))->getCollection($this->sections->getSortedSections());
         }
 
         return $this->commitCollection;
-    }
-
-    private function sortSections(): void
-    {
-        if (!$this->sored) {
-            $this->checkDefaultSection();
-            uasort($this->sections, static fn($a, $b) => $a['order'] <=> $b['order']);
-            $this->sored = true;
-        }
-    }
-
-    /**
-     * Retrieves the descriptions of all configured sections.
-     *
-     * This method generates a list of section descriptions in the format "key - title".
-     * The sections are sorted internally before generating the descriptions. Each description consists of the section's
-     * unique identifier (key) and its display name (title).
-     *
-     * Used for --list option
-     *
-     * @return array an array of strings, where each string represents a section description in the format "key - title"
-     */
-    public function getSectionDescriptions(): array
-    {
-        $this->sortSections();
-        $result = [];
-        foreach ($this->sections as $key => $section) {
-            $result[] = sprintf('%s - %s', $key, $section['title']);
-        }
-
-        return $result;
-    }
-
-    /**
-     * Retrieves the title of a specific section.
-     *
-     * This method returns the title of the section identified by the given key. If the section does not exist, the key
-     * itself is returned as the title.
-     *
-     * @param string $key the key of the section
-     *
-     * @return string the title of the section or the key if the section does not exist
-     */
-    public function getSectionTitle(string $key): string
-    {
-        return $this->sections[$key]['title'] ?? $key;
-    }
-
-    /**
-     * Checks whether a specific section is hidden.
-     *
-     * This method determines if the section identified by the given key is marked as hidden in the configuration. If
-     * the section does not exist, it is considered visible (not hidden).
-     *
-     * @param string $key the key of the section
-     *
-     * @return bool returns `true` if the section is hidden, `false` otherwise
-     */
-    public function isSectionHidden(string $key): bool
-    {
-        return $this->sections[$key]['hidden'] ?? false;
     }
 
     /**
@@ -305,22 +159,7 @@ final class Config
      */
     public function getReleaseSection(): string
     {
-        return isset($this->sections[$this->releaseSection]) ? $this->releaseSection : self::DEFAULT_SECTION;
-    }
-
-    private function checkDefaultSection(): void
-    {
-        if (!isset($this->sections[self::DEFAULT_SECTION])) {
-            $maxOrder = 0;
-            foreach ($this->sections as $section) {
-                $maxOrder = max($maxOrder, $section['order']);
-            }
-            $this->sections[self::DEFAULT_SECTION] = [
-                'title' => 'Other',
-                'order' => $maxOrder + 1000,
-                'hidden' => false,
-            ];
-        }
+        return $this->sections->exits($this->releaseSection) ? $this->releaseSection : self::DEFAULT_SECTION;
     }
 
     /**

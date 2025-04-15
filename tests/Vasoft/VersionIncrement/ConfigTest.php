@@ -47,7 +47,7 @@ final class ConfigTest extends TestCase
             'build' => [],
             'other' => [],
         ];
-        $actual = $config->getSectionIndex();
+        $actual = $config->getSections()->getIndex();
         self::assertSame($expected, $actual);
         self::assertSame(array_keys($expected), array_keys($actual));
     }
@@ -55,8 +55,8 @@ final class ConfigTest extends TestCase
     public function testReplaceSection(): void
     {
         $config = new Config();
-        self::assertSame('New features', $config->getSectionTitle('feat'));
-        self::assertFalse($config->isSectionHidden('feat'));
+        self::assertSame('New features', $config->getSections()->getTitle('feat'));
+        self::assertFalse($config->getSections()->isHidden('feat'));
         $config->setSection('feat', 'Replaced title', 25, true);
         $expected = [
             'fix' => [],
@@ -71,11 +71,11 @@ final class ConfigTest extends TestCase
             'build' => [],
             'other' => [],
         ];
-        $actual = $config->getSectionIndex();
+        $actual = $config->getSections()->getIndex();
         self::assertSame($expected, $actual);
         self::assertSame(implode(',', array_keys($expected)), implode(',', array_keys($actual)));
-        self::assertSame('Replaced title', $config->getSectionTitle('feat'));
-        self::assertTrue($config->isSectionHidden('feat'));
+        self::assertSame('Replaced title', $config->getSections()->getTitle('feat'));
+        self::assertTrue($config->getSections()->isHidden('feat'));
     }
 
     public function testSetSections(): void
@@ -98,56 +98,15 @@ final class ConfigTest extends TestCase
             'feat' => [],
             'other' => [],
         ];
-        $actual = $config->getSectionIndex();
+        $actual = $config->getSections()->getIndex();
         self::assertSame($expected, $actual);
         self::assertSame(array_keys($expected), array_keys($actual));
-        self::assertSame('New features title', $config->getSectionTitle('feat'));
-        self::assertTrue($config->isSectionHidden('feat'));
-        self::assertSame('New build', $config->getSectionTitle('build'));
-        self::assertTrue($config->isSectionHidden('build'));
-        self::assertSame('Other', $config->getSectionTitle('other'));
-        self::assertFalse($config->isSectionHidden('other'));
-    }
-
-    public function testGetDefaultSectionDescriptions(): void
-    {
-        $config = new Config();
-        $expected = [
-            'feat - New features',
-            'fix - Fixes',
-            'chore - Other changes',
-            'docs - Documentation',
-            'style - Styling',
-            'refactor - Refactoring',
-            'test - Tests',
-            'perf - Performance',
-            'ci - Configure CI',
-            'build - Change build system',
-            'other - Other',
-        ];
-        $actual = $config->getSectionDescriptions();
-        self::assertSame($expected, $actual);
-    }
-
-    public function testGetDefaultSectionDescriptionsCustom(): void
-    {
-        $config = new Config();
-        $config->setSection('fix', 'Bug fixes');
-        $expected = [
-            'feat - New features',
-            'fix - Bug fixes',
-            'chore - Other changes',
-            'docs - Documentation',
-            'style - Styling',
-            'refactor - Refactoring',
-            'test - Tests',
-            'perf - Performance',
-            'ci - Configure CI',
-            'build - Change build system',
-            'other - Other',
-        ];
-        $actual = $config->getSectionDescriptions();
-        self::assertSame($expected, $actual);
+        self::assertSame('New features title', $config->getSections()->getTitle('feat'));
+        self::assertTrue($config->getSections()->isHidden('feat'));
+        self::assertSame('New build', $config->getSections()->getTitle('build'));
+        self::assertTrue($config->getSections()->isHidden('build'));
+        self::assertSame('Other', $config->getSections()->getTitle('other'));
+        self::assertFalse($config->getSections()->isHidden('other'));
     }
 
     public function testGetCommitParserReturnsShortParserByDefault(): void

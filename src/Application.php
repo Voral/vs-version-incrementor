@@ -52,16 +52,25 @@ class Application
     private function displayList(Config $config): void
     {
         $output = 'Available sections:' . PHP_EOL;
-        $output .= '    ' . implode(PHP_EOL . '    ', $config->getSectionDescriptions()) . PHP_EOL;
+        $titles = $config->getSections()->getTitles();
+        $output .= $this->formatList($titles);
         $scopes = $config->getScopes();
         if (!empty($scopes)) {
             $output .= PHP_EOL . 'Available scopes:' . PHP_EOL;
-            foreach ($scopes as $key => $title) {
-                $output .= '    ' . $key . ' - ' . $title . PHP_EOL;
-            }
+            $output .= $this->formatList($scopes);
         }
 
         fwrite(STDOUT, $output);
+    }
+
+    private function formatList(array $values): string
+    {
+        $output = '';
+        foreach ($values as $key => $title) {
+            $output .= '    ' . $key . ' - ' . $title . PHP_EOL;
+        }
+
+        return $output;
     }
 
     private function checkParams(array $argv): void
