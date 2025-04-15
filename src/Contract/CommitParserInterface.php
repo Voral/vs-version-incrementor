@@ -5,6 +5,9 @@ declare(strict_types=1);
 namespace Vasoft\VersionIncrement\Contract;
 
 use Vasoft\VersionIncrement\Commits\CommitCollection;
+use Vasoft\VersionIncrement\Exceptions\ChangesNotFoundException;
+use Vasoft\VersionIncrement\Exceptions\ConfigNotSetException;
+use Vasoft\VersionIncrement\Exceptions\GitCommandException;
 
 /**
  * Interface CommitParserInterface.
@@ -27,6 +30,10 @@ interface CommitParserInterface extends ConfigurableInterface
      *                              up to the latest commit.
      *
      * @return CommitCollection a collection of parsed commits, grouped and organized according to the parser's logic
+     *
+     * @throws ChangesNotFoundException
+     * @throws ConfigNotSetException
+     * @throws GitCommandException
      */
     public function process(?string $tagsFrom, string $tagsTo = ''): CommitCollection;
 }

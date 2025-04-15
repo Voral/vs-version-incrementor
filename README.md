@@ -215,18 +215,19 @@ feat!: Removed old API endpoints
 
 The script can be integrated into CI/CD pipelines. In case of errors, it returns different exit codes:
 
-| Code | Description                           |
-|------|---------------------------------------|
-| 10   | Composer configuration error          |
-| 20   | Git branch is not the main branch     |
-| 30   | Uncommitted changes in the repository |
-| 40   | No changes in the repository          |
-| 50   | Invalid configuration file            |
-| 60   | Error executing a Git command         |
-| 70   | Invalid version change type           |
-| 80   | Changelog File Error                  |
-| 90   | Unknown config property               |
-| 500  | Other errors                          |
+| Code  | Description                           |
+|-------|---------------------------------------|
+| 10    | Composer configuration error          |
+| 20    | Git branch is not the main branch     |
+| 30    | Uncommitted changes in the repository |
+| 40    | No changes in the repository          |
+| 50    | Invalid configuration file            |
+| 60    | Error executing a Git command         |
+| 70    | Invalid version change type           |
+| 80    | Changelog File Error                  |
+| 90    | Unknown config property               |
+| 100   | Configuration is not set              |
+| 500   | Other errors                          |
 
 You can use it in the command line, for example:
 

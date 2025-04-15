@@ -7,6 +7,7 @@ namespace Vasoft\VersionIncrement\Commits;
 use Vasoft\VersionIncrement\Config;
 use Vasoft\VersionIncrement\Contract\CommitParserInterface;
 use Vasoft\VersionIncrement\Exceptions\ChangesNotFoundException;
+use Vasoft\VersionIncrement\Exceptions\ConfigNotSetException;
 use Vasoft\VersionIncrement\Exceptions\GitCommandException;
 
 final class ShortParser implements CommitParserInterface
@@ -21,12 +22,16 @@ final class ShortParser implements CommitParserInterface
 
     /**
      * @throws ChangesNotFoundException
+     * @throws ConfigNotSetException
      * @throws GitCommandException
      */
     public function process(
         ?string $tagsFrom,
         string $tagsTo = '',
     ): CommitCollection {
+        if (null === $this->config) {
+            throw new ConfigNotSetException();
+        }
         $vcs = $this->config->getVcsExecutor();
         $commits = $vcs->getCommitsSinceLastTag($tagsFrom);
         if (empty($commits)) {
