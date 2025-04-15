@@ -30,7 +30,7 @@ class Application
             $configFile = $composerJsonPath . '/.vs-version-increment.php';
             $config = $this->loadConfig($configFile);
             if ($this->showList) {
-                fwrite(STDOUT, implode(PHP_EOL, $config->getSectionDescriptions()) . PHP_EOL);
+                $this->displayList($config);
 
                 return 0;
             }
@@ -47,6 +47,21 @@ class Application
         }
 
         return $exitCode;
+    }
+
+    private function displayList(Config $config): void
+    {
+        $output = 'Available sections:' . PHP_EOL;
+        $output .= '    ' . implode(PHP_EOL . '    ', $config->getSectionDescriptions()) . PHP_EOL;
+        $scopes = $config->getScopes();
+        if (!empty($scopes)) {
+            $output .= PHP_EOL . 'Available scopes:' . PHP_EOL;
+            foreach ($scopes as $key => $title) {
+                $output .= '    ' . $key . ' - ' . $title . PHP_EOL;
+            }
+        }
+
+        fwrite(STDOUT, $output);
     }
 
     private function checkParams(array $argv): void

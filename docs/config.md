@@ -199,7 +199,21 @@ return (new \Vasoft\VersionIncrement\Config())
 In this example, only comments with the `dev` and `deprecated` scopes will be preserved in `CHANGELOG.md`. All other
 scopes will be ignored.
 
----
+### Configuring Human-Readable Titles for Scopes
+
+You can configure human-readable titles for scopes that will be used in `CHANGELOG.md`. This allows you to replace
+technical scope names with more user-friendly descriptions.
+The configuration is taken into account when using `ScopePreservingFormatter`, or you can incorporate it into your own
+implementation of `Vasoft\VersionIncrement\Contract\ChangelogFormatterInterface`.
+
+```php
+return (new \Vasoft\VersionIncrement\Config())
+    ->setChangelogFormatter(new ScopePreservingFormatter(['dev', 'deprecated']))
+    ->addScope('deprecated', 'Deprecated Features');
+```
+
+Registered scopes are also displayed by the command ./vendor/bin/vs-version-increment --list in addition to the list of
+commit types.
 
 ### Creating a Custom Formatter
 
@@ -396,6 +410,7 @@ additional parameters required by custom implementations (e.g., formatters, VCS 
 ```
 
 And you can use it:
+
 ```php
 namespace MyApp\Custom;
 
@@ -422,7 +437,9 @@ class CustomFormatter implements ChangelogFormatterInterface
 
 ## Suppress Duplicate Lines in CHANGELOG
 
-You can configure whether duplicate entries (lines with identical content) should be hidden in the generated CHANGELOG. When enabled, only the first occurrence of a duplicate entry will be displayed within each section. This improves the readability of the CHANGELOG by reducing redundancy and making it more concise.
+You can configure whether duplicate entries (lines with identical content) should be hidden in the generated CHANGELOG.
+When enabled, only the first occurrence of a duplicate entry will be displayed within each section. This improves the
+readability of the CHANGELOG by reducing redundancy and making it more concise.
 
 > **Note:** Duplicate entries are hidden only within the same section. Entries in different sections are not affected.
 

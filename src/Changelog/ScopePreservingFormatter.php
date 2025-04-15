@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Vasoft\VersionIncrement\Changelog;
 
+use Vasoft\VersionIncrement\Commits\Commit;
 use Vasoft\VersionIncrement\Commits\CommitCollection;
 use Vasoft\VersionIncrement\Config;
 use Vasoft\VersionIncrement\Contract\ChangelogFormatterInterface;
@@ -14,6 +15,8 @@ use Vasoft\VersionIncrement\Contract\ChangelogFormatterInterface;
  */
 class ScopePreservingFormatter implements ChangelogFormatterInterface
 {
+    private ?Config $config = null;
+
     /**
      * Constructs a new ScopePreservingFormatter instance.
      *
@@ -42,18 +45,10 @@ class ScopePreservingFormatter implements ChangelogFormatterInterface
         $date = date('Y-m-d');
         $changelog = "# {$version} ({$date})\n\n";
         $sections = $commitCollection->getVisibleSections();
-        $allScopes = empty($this->preservedScopes);
         foreach ($sections as $section) {
             $changelog .= sprintf("### %s\n", $section->title);
             foreach ($section->getCommits() as $commit) {
-                if ('' !== $commit->scope
-                    && ($allScopes || in_array($commit->scope, $this->preservedScopes, true))
-                ) {
-                    $scope = sprintf('%s: ', $commit->scope);
-                } else {
-                    $scope = '';
-                }
-
+                $scope = $this->getScopeForCommit($commit);
                 $changelog .= "- {$scope}{$commit->comment}\n";
             }
             $changelog .= "\n";
@@ -62,8 +57,22 @@ class ScopePreservingFormatter implements ChangelogFormatterInterface
         return $changelog;
     }
 
+    private function getScopeForCommit(Commit $commit): string
+    {
+        if (
+            '' === $commit->scope
+            || (!empty($this->preservedScopes) && !in_array($commit->scope, $this->preservedScopes, true))
+        ) {
+            return '';
+        }
+        $scopes = $this->config->getScopes();
+        $scope = $scopes[$commit->scope] ?? $commit->scope;
+
+        return sprintf('%s: ', $scope);
+    }
+
     public function setConfig(Config $config): void
     {
-        // Do nothing
+        $this->config = $config;
     }
 }

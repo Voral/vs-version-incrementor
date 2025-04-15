@@ -21,7 +21,6 @@ final class ApplicationTest extends TestCase
     private string $configPath = '';
 
     private ?MockObject $mockGetEnv = null;
-    private ?MockObject $mockGetCwd = null;
     public static int $mockGetEnvCount = 0;
     public static false|string $mockGetEnvResult = false;
     public static string $mockGetEnvVariableName = '';
@@ -45,6 +44,7 @@ final class ApplicationTest extends TestCase
         parent::setUp();
         $this->wrongConfigPath = __DIR__ . '/Fixtures/Wrong';
         $this->configPath = __DIR__ . '/Fixtures/Normal';
+        $this->configWithScopes = __DIR__ . '/Fixtures/Scopes';
         if (null === $this->mockGetEnv) {
             $this->mockGetEnv = $this->getFunctionMock(__NAMESPACE__, 'getenv');
             $this->mockGetEnv->expects(TestCase::any())->willReturnCallback(
@@ -61,7 +61,7 @@ final class ApplicationTest extends TestCase
             );
             $mockGetcwd = $this->getFunctionMock(__NAMESPACE__, 'getcwd');
             $mockGetcwd->expects(self::any())->willReturnCallback(
-                static function (): false|string {
+                static function (): string {
                     ++self::$mockGetCwdCount;
 
                     return '/tmp/example1';
@@ -123,17 +123,18 @@ final class ApplicationTest extends TestCase
     {
         $expectedVariableName = 'COMPOSER';
         $expectedOutput = <<<'TEXT'
-            feat - New features
-            fix - Fixes
-            chore - Other changes
-            docs - Documentation
-            style - Styling
-            refactor - Refactoring
-            test - Tests
-            perf - Performance
-            ci - Configure CI
-            build - Change build system
-            other - Other
+            Available sections:
+                feat - New features
+                fix - Fixes
+                chore - Other changes
+                docs - Documentation
+                style - Styling
+                refactor - Refactoring
+                test - Tests
+                perf - Performance
+                ci - Configure CI
+                build - Change build system
+                other - Other
 
             TEXT;
         $this->resetGetenv('/tmp/example', false);
@@ -155,17 +156,18 @@ final class ApplicationTest extends TestCase
     {
         $expectedVariableName = 'COMPOSER';
         $expectedOutput = <<<'TEXT'
-            feat - New features
-            fix - Fixes
-            chore - Other changes
-            docs - Documentation
-            style - Styling
-            refactor - Refactoring
-            test - Tests
-            perf - Performance
-            ci - Configure CI
-            build - Change build system
-            other - Other
+            Available sections:
+                feat - New features
+                fix - Fixes
+                chore - Other changes
+                docs - Documentation
+                style - Styling
+                refactor - Refactoring
+                test - Tests
+                perf - Performance
+                ci - Configure CI
+                build - Change build system
+                other - Other
 
             TEXT;
         $this->resetGetenv(false, false);
@@ -216,12 +218,37 @@ final class ApplicationTest extends TestCase
     public function testAppListFromConfig(): void
     {
         $expectedOutput = <<<'TEXT'
-            add - Added
-            upd - Changed
-            other - Other
+            Available sections:
+                add - Added
+                upd - Changed
+                other - Other
 
             TEXT;
         $this->resetGetenv($this->configPath, false);
+        $this->resetGetcwd();
+        $this->resetFileExists(true);
+        $this->resetFWrite();
+
+        $exitCode = (new Application())->run(['script.php', '--list']);
+
+        self::assertSame($expectedOutput, self::$mockFWriteOutput, 'Wrong output');
+        self::assertSame(0, $exitCode, 'Wrong exit code');
+    }
+
+    public function testAppListFromConfigWidthScopes(): void
+    {
+        $expectedOutput = <<<'TEXT'
+            Available sections:
+                add - Added
+                upd - Changed
+                other - Other
+
+            Available scopes:
+                api - API
+                front - Frontend
+
+            TEXT;
+        $this->resetGetenv($this->configWithScopes, false);
         $this->resetGetcwd();
         $this->resetFileExists(true);
         $this->resetFWrite();

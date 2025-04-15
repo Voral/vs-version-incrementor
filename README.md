@@ -76,7 +76,7 @@ Utility help command
 ./vendor/bin/vs-version-increment --help
 ```
 
-Retrieving the list of registered commit types
+Retrieving the list of registered commit types and registered scopes
 
 ```bash
 ./vendor/bin/vs-version-increment --list
@@ -150,6 +150,7 @@ following adjustments:
 - [Ignoring Untracked Files](docs/config.md#ignoring-untracked-files)
 - [Configuring CHANGELOG Formatting](docs/config.md#configuring-changelog-formatting)
     - [Using a Scope-Preserving Formatter](docs/config.md#using-a-scope-preserving-formatter)
+    - [Configuring Human-Readable Titles for Scopes](docs/config.md#configuring-human-readable-titles-for-scopes)
     - [Creating a Custom Formatter](docs/config.md#creating-a-custom-formatter)
 - [Configuring Squashed Commits](docs/config.md#configuring-squashed-commits)
     - [Default Squashed Commit](docs/config.md#default-squashed-commit)

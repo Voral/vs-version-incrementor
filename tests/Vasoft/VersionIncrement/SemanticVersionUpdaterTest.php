@@ -923,6 +923,100 @@ final class SemanticVersionUpdaterTest extends TestCase
         self::assertSame("Release 3.0.0 successfully created!\n", $output);
     }
 
+    public function testUpdateVersionAutoMajorTitledScopes(): void
+    {
+        $versionAfter = '';
+        $versionAfterExpected = '3.0.0';
+
+        $textChangelog = '';
+        $textChangelogExpected = '# 3.0.0 (' . date('Y-m-d') . ')
+
+### New features
+- Some Example
+- Some Example
+- dev: Some Example for development
+
+### Other changes
+- Deprecated marks: Deprecated notice
+
+### Other
+- doc(extremal): Some Example
+
+';
+
+        $filePutContents = $this->getFunctionMock(__NAMESPACE__, 'file_put_contents');
+        $filePutContents
+            ->expects(self::exactly(2))
+            ->willReturnCallback(
+                static function (string $fileName, string $contents) use (&$versionAfter, &$textChangelog): void {
+                    if ('/test/composer.json' === $fileName) {
+                        $composerJson = json_decode($contents, true);
+                        $versionAfter = $composerJson['version'];
+                    } elseif ('/test/CHANGELOG.md' === $fileName) {
+                        $textChangelog = $contents;
+                    }
+                },
+            );
+        $fileGetContents = $this->getFunctionMock(__NAMESPACE__, 'file_get_contents');
+        $fileGetContents
+            ->expects(self::exactly(1))
+            ->willReturnCallback(
+                static function (string $fileName) {
+                    return match ($fileName) {
+                        '/test/composer.json' => json_encode(
+                            ['version' => '2.2.0', 'name' => 'test'],
+                            JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES,
+                        ),
+                        default => '',
+                    };
+                },
+            );
+        $fileIsWritable = $this->getFunctionMock(__NAMESPACE__, 'is_writable');
+        $fileIsWritable
+            ->expects(self::exactly(1))
+            ->willReturn(true);
+        $fileExists = $this->getFunctionMock(__NAMESPACE__, 'file_exists');
+        $fileExists
+            ->expects(self::exactly(2))
+            ->willReturnCallback(
+                static function (string $fileName) {
+                    return match ($fileName) {
+                        '/test/CHANGELOG.md' => false,
+                        default => true,
+                    };
+                },
+            );
+
+        $gitExecutor = self::createMock(VcsExecutorInterface::class);
+        $gitExecutor->expects(self::once())->method('getCurrentBranch')->willReturn('master');
+        $gitExecutor->expects(self::once())->method('getLastTag')->willReturn('v2.2.0');
+        $gitExecutor->expects(self::once())->method('getCommitsSinceLastTag')->willReturn([
+            'c3d4e5f6g11 doc(extremal): Some Example',
+            'c3d4e5f6g12 feat(extremal): Some Example',
+            'c3d4e5f6g13 feat: Some Example',
+            'c3d4e5f6g14 feat(dev): Some Example for development',
+            'c3d4e5f6g14 chore(deprecated): Deprecated notice',
+        ]);
+        $gitExecutor->expects(self::once())->method('status')->willReturn([]);
+        $gitExecutor->expects(self::once())->method('addFile');
+        $gitExecutor->expects(self::once())->method('setVersionTag');
+        $gitExecutor->expects(self::once())->method('commit');
+
+        $config = new Config();
+        $config->setMajorTypes(['feat', 'doc']);
+        $config->setChangelogFormatter(new ScopePreservingFormatter(['dev', 'deprecated']));
+        $config->addScope('deprecated', 'Deprecated marks');
+        $config->setReleaseScope('');
+        $config->setVcsExecutor($gitExecutor);
+        $updater = new SemanticVersionUpdater('/test', $config);
+        ob_start();
+        $updater->updateVersion();
+        $output = ob_get_clean();
+        self::assertSame($versionAfterExpected, $versionAfter);
+        self::assertSame($textChangelogExpected, $textChangelog);
+        self::assertSame("Release 3.0.0 successfully created!\n", $output);
+    }
+
     public function testUpdateVersionAutoMinor(): void
     {
         $versionAfter = '';

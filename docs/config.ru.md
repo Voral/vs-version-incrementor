@@ -205,6 +205,19 @@ return (new \Vasoft\VersionIncrement\Config())
 В этом примере в `CHANGELOG.md` будут сохранены только комментарии с скоупами `dev` и `deprecated`. Остальные скоупы
 будут игнорироваться.
 
+### Настройка человекочитаемых заголовков для скоупов
+
+Вы можете настроить человекочитаемые заголовки для скоупов, которые будут использоваться в `CHANGELOG.md`. Это позволяет заменять технические названия скоупов на более понятные для пользователей описания.
+Настройка учитывается при использовании ScopePreservingFormatter, либо вы можете использовать в своей реализации `Vasoft\VersionIncrement\Contract\ChangelogFormatterInterface`
+
+```php
+return (new \Vasoft\VersionIncrement\Config())
+    ->setChangelogFormatter(new ScopePreservingFormatter(['dev', 'deprecated']))
+    ->addScope('deprecated', 'Deprecated Features');
+```
+
+Зарегистрированные скоупы так же выводятся командой `./vendor/bin/vs-version-increment --list` в дополнение к списку типов коммитов
+
 ### Создание собственного форматера
 
 Если стандартные форматеры не удовлетворяют вашим требованиям, вы можете создать собственный форматер. Для этого

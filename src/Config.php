@@ -23,6 +23,7 @@ use Vasoft\VersionIncrement\SectionRules\DefaultRule;
  */
 final class Config
 {
+    private array $scopes = [];
     private array $props = [];
     private string $squashedCommitMessage = 'Squashed commit of the following:';
     private bool $processDefaultSquashedCommit = false;
@@ -817,5 +818,35 @@ final class Config
     public function isHideDoubles(): bool
     {
         return $this->hideDoubles;
+    }
+
+    /**
+     * Adds a human-readable title for a specific scope.
+     *
+     * This method associates a scope key with a human-readable title. The title will be used in the CHANGELOG
+     * instead of the raw scope name when generating commit messages. If the scope already exists, its title
+     * will be updated.
+     *
+     * @param string $key   The scope key (e.g., 'dev', 'deprecated').
+     * @param string $title The human-readable title for the scope (e.g., 'Development', 'Deprecated Features').
+     */
+    public function addScope(string $key, string $title): self
+    {
+        $this->scopes[$key] = $title;
+
+        return $this;
+    }
+
+    /**
+     * Retrieves all configured scopes and their human-readable titles.
+     *
+     * This method returns an associative array where keys are scope codes and values are their corresponding
+     * human-readable titles. These titles are used in the CHANGELOG to replace raw scope names for better readability.
+     *
+     * @return array an associative array of scopes, where keys are scope codes and values are their titles
+     */
+    public function getScopes(): array
+    {
+        return $this->scopes;
     }
 }
