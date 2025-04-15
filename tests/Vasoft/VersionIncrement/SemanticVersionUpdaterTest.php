@@ -1762,6 +1762,7 @@ final class SemanticVersionUpdaterTest extends TestCase
         self::assertSame($textChangelogExpected, $textChangelog);
         self::assertSame("Release 4.2.0 successfully created!\n", $output);
     }
+
     public function testUpdateVersionWithoutComposerJsonDefaultVersion(): void
     {
         $versionAfter = '';
