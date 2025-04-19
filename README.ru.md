@@ -4,7 +4,8 @@
 
 [![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/Voral/vs-version-incrementor/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/Voral/vs-version-incrementor/?branch=master)
 [![Code Coverage](https://scrutinizer-ci.com/g/Voral/vs-version-incrementor/badges/coverage.png?b=master)](https://scrutinizer-ci.com/g/Voral/vs-version-incrementor/?branch=master)
-[![Code Intelligence Status](https://scrutinizer-ci.com/g/Voral/vs-version-incrementor/badges/code-intelligence.svg?b=master)](https://scrutinizer-ci.com/code-intelligence)
+[![Code Intelligence Status](https://scrutinizer-ci.com/g/Voral/vs-version-incrementor/badges/code-intelligence.svg?b=master)](https://scrutinizer-ci.com/code-intelligence) \
+![PHP Tests](https://github.com/Voral/vs-version-incrementor/actions/workflows/php.yml/badge.svg)
 
 Этот инструмент автоматизирует процесс управления версиями в проектах на основе Composer, анализируя Git-коммиты и генерируя `CHANGELOG`. Он соответствует стандарту [семантического версионирования](https://semver.org/) и поддерживает спецификацию [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/).
 
