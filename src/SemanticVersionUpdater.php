@@ -18,7 +18,7 @@ class SemanticVersionUpdater
     public const DEFAULT_VERSION = '1.0.0';
     private bool $debug = false;
     private VcsExecutorInterface $gitExecutor;
-    private array $availableTypes = [
+    public static array $availableTypes = [
         'major',
         'minor',
         'patch',
@@ -37,7 +37,7 @@ class SemanticVersionUpdater
      */
     private function checkChangeType(): void
     {
-        if ('' !== $this->changeType && !in_array($this->changeType, $this->availableTypes, true)) {
+        if ('' !== $this->changeType && !in_array($this->changeType, self::$availableTypes, true)) {
             throw  new IncorrectChangeTypeException($this->changeType);
         }
     }

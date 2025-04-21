@@ -19,6 +19,7 @@ final class ApplicationTest extends TestCase
 
     private string $wrongConfigPath = '';
     private string $configPath = '';
+    private string $configWithScopes = '';
 
     private ?MockObject $mockGetEnv = null;
     public static int $mockGetEnvCount = 0;
@@ -142,13 +143,15 @@ final class ApplicationTest extends TestCase
         $this->resetFileExists(false);
         $this->resetFWrite();
 
+        ob_start();
         $exitCode = (new Application())->run(['script.php', '--list']);
+        $output = ob_get_clean();
         self::assertSame(1, self::$mockGetEnvCount, 'Getenv should be called once');
         self::assertSame($expectedVariableName, self::$mockGetEnvVariableName, 'Wrong variable name');
         self::assertSame(0, self::$mockGetCwdCount, 'Getcwd should not be called');
         self::assertSame(1, self::$mockFileExistsCount, 'File exists should be called once');
 
-        self::assertSame($expectedOutput, self::$mockFWriteOutput, 'Wrong output');
+        self::assertSame($expectedOutput, $output, 'Wrong output');
         self::assertSame(0, $exitCode, 'Wrong exit code');
     }
 
@@ -175,12 +178,14 @@ final class ApplicationTest extends TestCase
         $this->resetFileExists(false);
         $this->resetFWrite();
 
+        ob_start();
         $exitCode = (new Application())->run(['script.php', '--list']);
+        $output = ob_get_clean();
         self::assertSame(1, self::$mockGetEnvCount, 'Getenv should be called once');
         self::assertSame($expectedVariableName, self::$mockGetEnvVariableName, 'Wrong variable name');
         self::assertSame(1, self::$mockGetCwdCount, 'Getcwd should be called once');
 
-        self::assertSame($expectedOutput, self::$mockFWriteOutput, 'Wrong output');
+        self::assertSame($expectedOutput, $output, 'Wrong output');
         self::assertSame(0, $exitCode, 'Wrong exit code');
     }
 
@@ -228,10 +233,10 @@ final class ApplicationTest extends TestCase
         $this->resetGetcwd();
         $this->resetFileExists(true);
         $this->resetFWrite();
-
+        ob_start();
         $exitCode = (new Application())->run(['script.php', '--list']);
-
-        self::assertSame($expectedOutput, self::$mockFWriteOutput, 'Wrong output');
+        $output = ob_get_clean();
+        self::assertSame($expectedOutput, $output, 'Wrong output');
         self::assertSame(0, $exitCode, 'Wrong exit code');
     }
 
@@ -252,22 +257,24 @@ final class ApplicationTest extends TestCase
         $this->resetGetcwd();
         $this->resetFileExists(true);
         $this->resetFWrite();
-
+        ob_start();
         $exitCode = (new Application())->run(['script.php', '--list']);
+        $output = ob_get_clean();
 
-        self::assertSame($expectedOutput, self::$mockFWriteOutput, 'Wrong output');
+        self::assertSame($expectedOutput, $output, 'Wrong output');
         self::assertSame(0, $exitCode, 'Wrong exit code');
     }
 
     public function testAppHelp(): void
     {
         $expectedOutput = 'Vasoft Semantic Version Increment
-run vs-version-increment [--debug] [--list] [--help] [major|minor|patch]
-Usage:
-    --debug   Enable debug mode
-    --help    Display this help message
-    --list    Show list of sections
-    major|minor|patch    Increment type
+run vs-version-increment [keys] [type]
+Keys:
+   --list    Show list of sections
+   --debug   Enable debug mode
+   --help    Display this help message
+Type:
+   major|minor|patch   Updates version according to the passed type
 ';
         $this->resetGetenv($this->configPath, false);
         $this->resetGetcwd();
@@ -276,9 +283,6 @@ Usage:
         ob_start();
         $exitCode = (new Application())->run(['script.php', '--help']);
         $output = ob_get_clean();
-        self::assertSame(0, self::$mockGetEnvCount, 'Getenv should not be called');
-        self::assertSame(0, self::$mockGetCwdCount, 'Getcwd should not be called');
-        self::assertSame(0, self::$mockFileExistsCount, 'File exists should not be called');
 
         self::assertSame(0, $exitCode, 'Wrong exit code');
         self::assertSame($expectedOutput, $output);

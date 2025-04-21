@@ -4,105 +4,44 @@ declare(strict_types=1);
 
 namespace Vasoft\VersionIncrement;
 
+use Vasoft\VersionIncrement\Core\Help;
+use Vasoft\VersionIncrement\Core\Legend;
+use Vasoft\VersionIncrement\Core\UpdateRunner;
 use Vasoft\VersionIncrement\Exceptions\ApplicationException;
 use Vasoft\VersionIncrement\Exceptions\InvalidConfigFileException;
 
 class Application
 {
-    private bool $debug = false;
-    private bool $showList = false;
-    private bool $modeHelp = false;
-    private string $changeType = '';
-
     public function run(array $argv): int
     {
-        $exitCode = 0;
+        array_shift($argv);
 
         try {
-            $this->checkParams($argv);
-            if ($this->modeHelp) {
-                $this->displayHelp();
-
-                return 0;
-            }
-
             $composerJsonPath = getenv('COMPOSER') ?: getcwd();
             $configFile = $composerJsonPath . '/.vs-version-increment.php';
             $config = $this->loadConfig($configFile);
-            if ($this->showList) {
-                $this->displayList($config);
-
-                return 0;
+            $helper = new Help();
+            $handlers = [
+                $helper,
+                new Legend($config),
+                new UpdateRunner($composerJsonPath, $config),
+            ];
+            $helper->registerHandlersFromArray($handlers);
+            foreach ($handlers as $handler) {
+                if (($exitCode = $handler->handle($argv)) !== null) {
+                    return $exitCode;
+                }
             }
-            $versionUpdater = new SemanticVersionUpdater($composerJsonPath, $config, $this->changeType);
-            $versionUpdater
-                ->setDebug($this->debug)
-                ->updateVersion();
+
+            return 0;
         } catch (ApplicationException $e) {
             fwrite(STDERR, 'Error: ' . $e->getMessage() . PHP_EOL);
-            $exitCode = $e->getCode();
+
+            return $e->getCode();
         } catch (\Throwable $e) {
             fwrite(STDERR, 'Error: ' . $e->getMessage() . PHP_EOL);
-            $exitCode = ApplicationException::CODE;
-        }
 
-        return $exitCode;
-    }
-
-    private function displayList(Config $config): void
-    {
-        $output = 'Available sections:' . PHP_EOL;
-        $titles = $config->getSections()->getTitles();
-        $output .= $this->formatList($titles);
-        $scopes = $config->getScopes();
-        if (!empty($scopes)) {
-            $output .= PHP_EOL . 'Available scopes:' . PHP_EOL;
-            $output .= $this->formatList($scopes);
-        }
-
-        fwrite(STDOUT, $output);
-    }
-
-    private function formatList(array $values): string
-    {
-        $output = '';
-        foreach ($values as $key => $title) {
-            $output .= '    ' . $key . ' - ' . $title . PHP_EOL;
-        }
-
-        return $output;
-    }
-
-    private function checkParams(array $argv): void
-    {
-        unset($argv[0]);
-
-        $this->showList = false;
-        $this->debug = false;
-        $this->changeType = '';
-
-        foreach ($argv as $arg) {
-            switch ($arg) {
-                case '--help':
-                    $this->modeHelp = true;
-
-                    return;
-
-                case '--list':
-                    $this->showList = true;
-
-                    return;
-
-                case '--debug':
-                    $this->debug = true;
-                    break;
-
-                default:
-                    if (empty($this->changeType)) {
-                        $this->changeType = $arg;
-                    }
-                    break;
-            }
+            return ApplicationException::CODE;
         }
     }
 
@@ -121,19 +60,5 @@ class Application
         }
 
         return $config;
-    }
-
-    private function displayHelp(): void
-    {
-        echo <<<'HELP'
-            Vasoft Semantic Version Increment
-            run vs-version-increment [--debug] [--list] [--help] [major|minor|patch]
-            Usage:
-                --debug   Enable debug mode
-                --help    Display this help message
-                --list    Show list of sections
-                major|minor|patch    Increment type
-
-            HELP;
     }
 }
