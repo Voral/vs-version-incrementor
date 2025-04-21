@@ -6,6 +6,8 @@ namespace Vasoft\VersionIncrement;
 
 use Vasoft\VersionIncrement\Commits\CommitCollection;
 use Vasoft\VersionIncrement\Contract\VcsExecutorInterface;
+use Vasoft\VersionIncrement\Events\Event;
+use Vasoft\VersionIncrement\Events\EventType;
 use Vasoft\VersionIncrement\Exceptions\BranchException;
 use Vasoft\VersionIncrement\Exceptions\ChangelogException;
 use Vasoft\VersionIncrement\Exceptions\ComposerException;
@@ -109,6 +111,7 @@ class SemanticVersionUpdater
     private function commitRelease(string $newVersion): void
     {
         if (!$this->debug) {
+            $this->config->getEventBus()->dispatch(new Event(EventType::BEFORE_VERSION_SET, $newVersion));
             $releaseScope = trim($this->config->getReleaseScope());
             if ('' !== $releaseScope) {
                 $releaseScope = sprintf('(%s)', $releaseScope);
@@ -123,6 +126,7 @@ class SemanticVersionUpdater
             );
             $this->gitExecutor->setVersionTag($newVersion);
             echo "Release {$newVersion} successfully created!\n";
+            $this->config->getEventBus()->dispatch(new Event(EventType::AFTER_VERSION_SET, $newVersion));
         }
     }
 

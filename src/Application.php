@@ -7,6 +7,8 @@ namespace Vasoft\VersionIncrement;
 use Vasoft\VersionIncrement\Core\Help;
 use Vasoft\VersionIncrement\Core\Legend;
 use Vasoft\VersionIncrement\Core\UpdateRunner;
+use Vasoft\VersionIncrement\Events\Event;
+use Vasoft\VersionIncrement\Events\EventType;
 use Vasoft\VersionIncrement\Exceptions\ApplicationException;
 use Vasoft\VersionIncrement\Exceptions\InvalidConfigFileException;
 
@@ -15,6 +17,7 @@ class Application
     public function run(array $argv): int
     {
         array_shift($argv);
+        $config = null;
 
         try {
             $composerJsonPath = getenv('COMPOSER') ?: getcwd();
@@ -36,10 +39,12 @@ class Application
             return 0;
         } catch (ApplicationException $e) {
             fwrite(STDERR, 'Error: ' . $e->getMessage() . PHP_EOL);
+            $config?->getEventBus()->dispatch(new Event(EventType::ON_ERROR));
 
             return $e->getCode();
         } catch (\Throwable $e) {
             fwrite(STDERR, 'Error: ' . $e->getMessage() . PHP_EOL);
+            $config?->getEventBus()->dispatch(new Event(EventType::ON_ERROR));
 
             return ApplicationException::CODE;
         }

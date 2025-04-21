@@ -12,6 +12,7 @@ use Vasoft\VersionIncrement\Contract\SectionRuleInterface;
 use Vasoft\VersionIncrement\Contract\TagFormatterInterface;
 use Vasoft\VersionIncrement\Contract\VcsExecutorInterface;
 use Vasoft\VersionIncrement\Core\Sections;
+use Vasoft\VersionIncrement\Events\EventBus;
 use Vasoft\VersionIncrement\Exceptions\UnknownPropertyException;
 use Vasoft\VersionIncrement\SectionRules\DefaultRule;
 
@@ -24,6 +25,7 @@ use Vasoft\VersionIncrement\SectionRules\DefaultRule;
  */
 final class Config
 {
+    private ?EventBus $eventBus = null;
     private ?CommitCollection $commitCollection = null;
     private array $scopes = [];
     private array $props = [];
@@ -672,5 +674,26 @@ final class Config
     public function getScopes(): array
     {
         return $this->scopes;
+    }
+
+    /**
+     * Retrieves the event bus instance.
+     *
+     * This method provides access to the `EventBus` instance, which is responsible for managing and dispatching events
+     * within the application. If the event bus has not been initialized yet, a new instance of `EventBus` will be created
+     * and stored for future use.
+     *
+     * The event bus is used to facilitate communication between different parts of the application by allowing components
+     * to subscribe to and handle specific events.
+     *
+     * @return EventBus the event bus instance used for dispatching and handling events
+     */
+    public function getEventBus(): EventBus
+    {
+        if (null === $this->eventBus) {
+            $this->eventBus = new EventBus();
+        }
+
+        return $this->eventBus;
     }
 }
