@@ -1,3 +1,14 @@
+# 2.1.0 (2025-04-22)
+
+### New features
+- add --no-commit option for version updates
+- add UserException for custom error handling in extensions
+- integrate event bus and improve error handling
+
+### Documentation
+- add EventBus documentation
+- Table of error codes is changed
+
 # 2.0.0 (2025-04-15)
 
 ### BREAKING CHANGES
