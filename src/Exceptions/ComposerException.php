@@ -6,7 +6,7 @@ namespace Vasoft\VersionIncrement\Exceptions;
 
 final class ComposerException extends ApplicationException
 {
-    public const CODE = 10;
+    protected int $applicationCode = 10;
 
     public function __construct(string $message = '', ?\Throwable $previous = null)
     {

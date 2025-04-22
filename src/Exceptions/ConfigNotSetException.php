@@ -6,7 +6,7 @@ namespace Vasoft\VersionIncrement\Exceptions;
 
 class ConfigNotSetException extends ApplicationException
 {
-    public const CODE = 100;
+    protected int $applicationCode = 100;
 
     public function __construct(?\Throwable $previous = null)
     {

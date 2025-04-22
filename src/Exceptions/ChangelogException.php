@@ -6,7 +6,7 @@ namespace Vasoft\VersionIncrement\Exceptions;
 
 final class ChangelogException extends ApplicationException
 {
-    public const CODE = 80;
+    protected int $applicationCode = 80;
 
     public function __construct(string $message = '', ?\Throwable $previous = null)
     {

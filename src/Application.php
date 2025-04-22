@@ -46,7 +46,7 @@ class Application
             fwrite(STDERR, 'Error: ' . $e->getMessage() . PHP_EOL);
             $config?->getEventBus()->dispatch(new Event(EventType::ON_ERROR));
 
-            return ApplicationException::CODE;
+            return ApplicationException::DEFAULT_CODE;
         }
     }
 

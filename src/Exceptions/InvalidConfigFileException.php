@@ -6,7 +6,7 @@ namespace Vasoft\VersionIncrement\Exceptions;
 
 class InvalidConfigFileException extends ApplicationException
 {
-    public const CODE = 50;
+    protected int $applicationCode = 50;
 
     public function __construct(?\Throwable $previous = null)
     {

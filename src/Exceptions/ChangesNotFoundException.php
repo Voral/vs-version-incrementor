@@ -6,7 +6,7 @@ namespace Vasoft\VersionIncrement\Exceptions;
 
 class ChangesNotFoundException extends ApplicationException
 {
-    public const CODE = 40;
+    protected int $applicationCode = 40;
 
     public function __construct(?\Throwable $previous = null)
     {

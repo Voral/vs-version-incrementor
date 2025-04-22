@@ -6,7 +6,7 @@ namespace Vasoft\VersionIncrement\Exceptions;
 
 class BranchException extends ApplicationException
 {
-    public const CODE = 20;
+    protected int $applicationCode = 20;
 
     public function __construct(string $currentBranch = '', string $targetBranch = '', ?\Throwable $previous = null)
     {

@@ -6,7 +6,7 @@ namespace Vasoft\VersionIncrement\Exceptions;
 
 class IncorrectChangeTypeException extends ApplicationException
 {
-    public const CODE = 70;
+    protected int $applicationCode = 70;
 
     public function __construct(string $changeType, ?\Throwable $previous = null)
     {

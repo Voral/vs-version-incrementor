@@ -229,6 +229,7 @@ The script can be integrated into CI/CD pipelines. In case of errors, it returns
 | 90    | Unknown config property               |
 | 100   | Configuration is not set              |
 | 500   | Other errors                          |
+| ≥5000 | User-defined custom errors            |
 
 You can use it in the command line, for example:
 
@@ -249,6 +250,33 @@ jobs:
       - name: Run version increment script
         run: ./vendor/bin/vs-version-increment
 ```
+
+## Error Handling for Custom Extensions
+
+When developing custom extensions or integrations for this tool, it is important to handle errors consistently and avoid
+conflicts with system-defined error codes. To achieve this, developers should use the `UserException` class for all
+custom error scenarios.
+
+### Key Points:
+
+- **Reserved Error Codes**: The `UserException` class ensures that all user-defined error codes are offset by `5000`.
+  This guarantees that custom error codes do not overlap with system-defined codes (below `5000`).
+- **Usage Example**:
+  ```php
+  use Vasoft\VersionIncrement\Exceptions\UserException;
+
+  throw new UserException(
+      code: 100, // Your custom error code (will be converted to 5100)
+      message: 'Custom error message describing the issue.'
+  );
+  ```
+- **Best Practices**:
+    - Use descriptive error messages to help users understand the cause of the error.
+    - Document the meaning of custom error codes in your extension's documentation.
+    - Avoid using error codes below `5000`, as these are reserved for system-defined errors.
+
+By adhering to these guidelines, you can ensure seamless integration of your custom extensions with the tool while
+maintaining clarity and consistency in error handling.
 
 ## Configuration Examples
 

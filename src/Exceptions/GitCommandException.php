@@ -6,7 +6,7 @@ namespace Vasoft\VersionIncrement\Exceptions;
 
 class GitCommandException extends ApplicationException
 {
-    public const CODE = 60;
+    protected int $applicationCode = 60;
 
     public function __construct(string $command, array $output, ?\Throwable $previous = null)
     {
