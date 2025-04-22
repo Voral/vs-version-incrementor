@@ -83,6 +83,12 @@ Retrieving the list of registered commit types and registered scopes
 ./vendor/bin/vs-version-increment --list
 ```
 
+Execute all file updates (e.g., CHANGELOG.md, composer.json) but skip creating the final Git commit and version tag
+
+```bash
+./vendor/bin/vs-version-increment --no-commit
+```
+
 The `--debug` flag allows you to preview the changes that will be made to the CHANGELOG and version without actually
 applying them
 

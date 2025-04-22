@@ -270,9 +270,10 @@ final class ApplicationTest extends TestCase
         $expectedOutput = 'Vasoft Semantic Version Increment
 run vs-version-increment [keys] [type]
 Keys:
-   --list    Show list of sections
-   --debug   Enable debug mode
-   --help    Display this help message
+   --list        Show list of sections
+   --debug       Enable debug mode
+   --no-commit   Execute all file updates (e.g., CHANGELOG.md, composer.json) but skip creating the final Git commit and version tag.
+   --help        Display this help message
 Type:
    major|minor|patch   Updates version according to the passed type
 ';

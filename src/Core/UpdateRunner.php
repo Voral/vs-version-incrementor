@@ -16,7 +16,10 @@ use Vasoft\VersionIncrement\Exceptions\UncommittedException;
 
 class UpdateRunner implements ApplicationHandlerInterface
 {
+    public const KEY_DEBUG = '--debug';
+    public const KEY_NO_COMMIT = '--no-commit';
     private bool $debug = false;
+    private bool $doCommit = true;
 
     public function __construct(
         private readonly string $composerJsonPath,
@@ -34,7 +37,7 @@ class UpdateRunner implements ApplicationHandlerInterface
     public function handle(array $argv): ?int
     {
         $changeType = $this->checkParams($argv);
-        (new SemanticVersionUpdater($this->composerJsonPath, $this->config, $changeType))
+        (new SemanticVersionUpdater($this->composerJsonPath, $this->config, $changeType, $this->doCommit))
             ->setDebug($this->debug)
             ->updateVersion();
 
@@ -47,8 +50,11 @@ class UpdateRunner implements ApplicationHandlerInterface
 
         foreach ($argv as $arg) {
             switch ($arg) {
-                case '--debug':
+                case self::KEY_DEBUG:
                     $this->debug = true;
+                    break;
+                case self::KEY_NO_COMMIT:
+                    $this->doCommit = false;
                     break;
 
                 default:
@@ -65,7 +71,12 @@ class UpdateRunner implements ApplicationHandlerInterface
     public function getHelp(): array
     {
         return [
-            new HelpRow(Help::SECTION_KEYS, '--debug', 'Enable debug mode'),
+            new HelpRow(Help::SECTION_KEYS, self::KEY_DEBUG, 'Enable debug mode'),
+            new HelpRow(
+                Help::SECTION_KEYS,
+                self::KEY_NO_COMMIT,
+                'Execute all file updates (e.g., CHANGELOG.md, composer.json) but skip creating the final Git commit and version tag.',
+            ),
             new HelpRow(
                 Help::SECTION_TYPES,
                 implode('|', SemanticVersionUpdater::$availableTypes),

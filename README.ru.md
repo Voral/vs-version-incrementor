@@ -87,6 +87,12 @@ composer require --dev voral/version-increment
 ./vendor/bin/vs-version-increment --list
 ```
 
+Внесение изменений в файлах (таких, как CHANGELOG.md и composer.json), но без создания финального коммита и тега версии.
+
+```bash
+./vendor/bin/vs-version-increment --no-commit
+```
+
 Флаг `--debug` позволяет предварительно просмотреть изменения, которые будут внесены в CHANGELOG и версию, без их
 реального применения.
 
@@ -299,6 +305,7 @@ jobs:
 категорий (`Added`, `Changed`, `Deprecated`, `Removed`, `Fixed`, `Security`), что делает changelog удобным для чтения.
 
 -
+
 *Файл:* [`examples/keepachangelog.php`](https://github.com/Voral/vs-version-incrementor/blob/master/examples/keepachangelog.php)
 
 ## Полезные ссылки

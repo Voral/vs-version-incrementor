@@ -30,6 +30,7 @@ class SemanticVersionUpdater
         private readonly string $projectPath,
         private readonly Config $config,
         private string $changeType = '',
+        private readonly bool $doCommit = true,
     ) {
         $this->gitExecutor = $config->getVcsExecutor();
     }
@@ -112,22 +113,42 @@ class SemanticVersionUpdater
     {
         if (!$this->debug) {
             $this->config->getEventBus()->dispatch(new Event(EventType::BEFORE_VERSION_SET, $newVersion));
-            $releaseScope = trim($this->config->getReleaseScope());
-            if ('' !== $releaseScope) {
-                $releaseScope = sprintf('(%s)', $releaseScope);
+            if ($this->doCommit) {
+                $this->processWithCommit($newVersion);
+            } else {
+                $this->processWithOutCommit($newVersion);
             }
-            $this->gitExecutor->commit(
-                sprintf(
-                    '%s%s: v%s',
-                    $this->config->getReleaseSection(),
-                    $releaseScope,
-                    $newVersion,
-                ),
-            );
-            $this->gitExecutor->setVersionTag($newVersion);
-            echo "Release {$newVersion} successfully created!\n";
             $this->config->getEventBus()->dispatch(new Event(EventType::AFTER_VERSION_SET, $newVersion));
         }
+    }
+
+    /**
+     * @throws GitCommandException
+     */
+    private function processWithCommit(string $newVersion): void
+    {
+        $releaseScope = trim($this->config->getReleaseScope());
+        if ('' !== $releaseScope) {
+            $releaseScope = sprintf('(%s)', $releaseScope);
+        }
+        $this->gitExecutor->commit(
+            sprintf(
+                '%s%s: v%s',
+                $this->config->getReleaseSection(),
+                $releaseScope,
+                $newVersion,
+            ),
+        );
+        $this->gitExecutor->setVersionTag($newVersion);
+        echo "Release {$newVersion} successfully created!\n";
+    }
+
+    private function processWithOutCommit(string $newVersion): void
+    {
+        echo "Version {$newVersion} is ready for release.\n";
+        echo "To complete the process, commit your changes and add a Git tag:\n";
+        echo "    git commit -m \"chore(release): v{$newVersion}\"\n";
+        echo "    git tag v{$newVersion}\n";
     }
 
     /**
