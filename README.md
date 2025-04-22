@@ -257,6 +257,53 @@ jobs:
         run: ./vendor/bin/vs-version-increment
 ```
 
+## Event Handling with EventBus
+
+The module includes an `EventBus` for handling events that occur during the utility's operation. This allows developers
+to create custom event handlers and extend the tool's functionality.
+
+### Key Features:
+
+- **Event Subscription**: Developers can subscribe to various events, such as the start of a version update, successful
+  completion, or error occurrence.
+- **Custom Event Handlers**: You can implement custom event handlers to perform additional actions, such as logging or
+  sending notifications.
+
+### Example Usage:
+
+```php
+use Vasoft\VersionIncrement\Events\EventType;
+use Vasoft\VersionIncrement\Config;
+
+$config = new Config();
+
+$eventBus = $config->getEventBus();
+$eventBus->on(EventType::BEFORE_VERSION_SET, function ($event) {
+    echo "Starting version update...\n";
+});
+
+$eventBus->on(EventType::AFTER_VERSION_SET_SUCCESS, function ($event) {
+    echo "Version successfully updated to {$event->getNewVersion()}.\n";
+});
+
+$eventBus->on(EventType::AFTER_VERSION_SET_ERROR, function ($event) {
+    echo "Error updating version: {$event->getError()->getMessage()}\n";
+});
+```
+
+### Available Event Types:
+
+| Event Type                  | Description                                                |
+|-----------------------------|------------------------------------------------------------|
+| `BEFORE_VERSION_SET`        | Triggered before the version update begins.                |
+| `AFTER_VERSION_SET_SUCCESS` | Triggered after the version update completes successfully. |
+| `AFTER_VERSION_SET_ERROR`   | Triggered when an error occurs.                            |
+
+### Recommendations:
+
+- Use `EventBus` to integrate third-party systems, such as monitoring or notification systems.
+- Ensure that your event handlers do not slow down the main execution process of the utility.
+
 ## Error Handling for Custom Extensions
 
 When developing custom extensions or integrations for this tool, it is important to handle errors consistently and avoid
@@ -295,9 +342,7 @@ This configuration example is designed for projects that follow the [Keep a Chan
 standard. It organizes changes into categories (`Added`, `Changed`, `Deprecated`, `Removed`, `Fixed`, `Security`),
 making the changelog easy to read.
 
--
-
-*File:* [`examples/keepachangelog.php`](https://github.com/Voral/vs-version-incrementor/blob/master/examples/keepachangelog.php)
+- *File:* [`examples/keepachangelog.php`](https://github.com/Voral/vs-version-incrementor/blob/master/examples/keepachangelog.php)
 
 ## Useful Links
 

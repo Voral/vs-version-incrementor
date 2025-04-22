@@ -264,6 +264,53 @@ jobs:
         run: ./vendor/bin/vs-version-increment
 ```
 
+## Обработка событий с использованием EventBus
+
+Модуль имеет `EventBus` для обработки событий, возникающих в процессе работы утилиты. Это позволяет разработчикам
+создавать собственные обработчики событий и расширять функциональность инструмента.
+
+### Основные возможности:
+
+- **Подписка на события**: Разработчики могут подписаться на различные события, такие как начало обновления версии,
+  успешное завершение или возникновение ошибки.
+- **Создание пользовательских обработчиков**: Вы можете реализовать собственные обработчики событий для выполнения
+  дополнительных действий, например, логирования или отправки уведомлений.
+
+### Пример использования:
+
+```php
+use Vasoft\VersionIncrement\Events\EventType;
+use Vasoft\VersionIncrement\Config;
+
+$config = new Config();
+
+$eventBus = $config->getEventBus();
+$eventBus->on(EventType::BEFORE_VERSION_SET, function ($event) {
+    echo "Начинаю обновление версии...\n";
+});
+
+$eventBus->on(EventType::AFTER_VERSION_SET_SUCCESS, function ($event) {
+    echo "Версия успешно обновлена до {$event->getNewVersion()}.\n";
+});
+
+$eventBus->on(EventType::AFTER_VERSION_SET_ERROR, function ($event) {
+    echo "Ошибка при обновлении версии: {$event->getError()->getMessage()}\n";
+});
+```
+
+### Доступные типы событий:
+
+| Тип события                 | Описание                                       |
+|-----------------------------|------------------------------------------------|
+| `BEFORE_VERSION_SET`        | Срабатывает перед началом обновления версии.   |
+| `AFTER_VERSION_SET_SUCCESS` | Срабатывает после успешного обновления версии. |
+| `AFTER_VERSION_SET_ERROR`   | Срабатывает при возникновении ошибки.          |
+
+### Рекомендации:
+
+- Используйте `EventBus` для интеграции сторонних систем, таких как системы мониторинга или уведомлений.
+- Убедитесь, что ваши обработчики событий не замедляют основной процесс выполнения утилиты.
+
 ## Обработка ошибок в пользовательских расширениях
 
 При разработке пользовательских расширений или интеграций для этого инструмента, таких как собственные парсеры,
@@ -304,9 +351,7 @@ jobs:
 стандарту [Keep a Changelog](https://keepachangelog.com/). Он отображает изменения в виде
 категорий (`Added`, `Changed`, `Deprecated`, `Removed`, `Fixed`, `Security`), что делает changelog удобным для чтения.
 
--
-
-*Файл:* [`examples/keepachangelog.php`](https://github.com/Voral/vs-version-incrementor/blob/master/examples/keepachangelog.php)
+- *Файл:* [`examples/keepachangelog.php`](https://github.com/Voral/vs-version-incrementor/blob/master/examples/keepachangelog.php)
 
 ## Полезные ссылки
 
