@@ -1,3 +1,14 @@
+# 2.1.1 (2025-05-13)
+
+### Fixes
+- improve --debug mode handling for uncommitted changes
+
+### Documentation
+- update EventBus documentation
+
+### Refactoring
+- make GitExecutor::runCommand final and public
+
 # 2.1.0 (2025-04-22)
 
 ### New features
