@@ -267,28 +267,30 @@ to create custom event handlers and extend the tool's functionality.
 - **Event Subscription**: Developers can subscribe to various events, such as the start of a version update, successful
   completion, or error occurrence.
 - **Custom Event Handlers**: You can implement custom event handlers to perform additional actions, such as logging or
-  sending notifications.
+  sending notifications. The handler must implement the `\Vasoft\VersionIncrement\Contract\EventListenerInterface`
+  interface.
 
 ### Example Usage:
 
 ```php
 use Vasoft\VersionIncrement\Events\EventType;
 use Vasoft\VersionIncrement\Config;
+use Vasoft\VersionIncrement\Contract\EventListenerInterface;
+
+class Listener implements EventListenerInterface {
+    public function handle(\Vasoft\VersionIncrement\Events\Event $event): void
+    {
+         echo $event->eventType->name,PHP_EOL;
+    }
+}
+$listener = new Listener();
 
 $config = new Config();
 
 $eventBus = $config->getEventBus();
-$eventBus->on(EventType::BEFORE_VERSION_SET, function ($event) {
-    echo "Starting version update...\n";
-});
-
-$eventBus->on(EventType::AFTER_VERSION_SET_SUCCESS, function ($event) {
-    echo "Version successfully updated to {$event->getNewVersion()}.\n";
-});
-
-$eventBus->on(EventType::AFTER_VERSION_SET_ERROR, function ($event) {
-    echo "Error updating version: {$event->getError()->getMessage()}\n";
-});
+$eventBus->addListener(EventType::BEFORE_VERSION_SET, $listener);
+$eventBus->addListener(EventType::AFTER_VERSION_SET_SUCCESS, $listener);
+$eventBus->addListener(EventType::AFTER_VERSION_SET_ERROR, $listener);
 ```
 
 ### Available Event Types:

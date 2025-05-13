@@ -274,28 +274,29 @@ jobs:
 - **Подписка на события**: Разработчики могут подписаться на различные события, такие как начало обновления версии,
   успешное завершение или возникновение ошибки.
 - **Создание пользовательских обработчиков**: Вы можете реализовать собственные обработчики событий для выполнения
-  дополнительных действий, например, логирования или отправки уведомлений.
+  дополнительных действий, например, логирования или отправки уведомлений. Обработчик должен имплементировать интерфейс `\Vasoft\VersionIncrement\Contract\EventListenerInterface`
 
 ### Пример использования:
 
 ```php
 use Vasoft\VersionIncrement\Events\EventType;
 use Vasoft\VersionIncrement\Config;
+use Vasoft\VersionIncrement\Contract\EventListenerInterface;
+
+class Listener implements EventListenerInterface {
+    public function handle(\Vasoft\VersionIncrement\Events\Event $event): void
+    {
+         echo $event->eventType->name,PHP_EOL;
+    }
+}
+$listener = new Listener();
 
 $config = new Config();
 
 $eventBus = $config->getEventBus();
-$eventBus->on(EventType::BEFORE_VERSION_SET, function ($event) {
-    echo "Начинаю обновление версии...\n";
-});
-
-$eventBus->on(EventType::AFTER_VERSION_SET_SUCCESS, function ($event) {
-    echo "Версия успешно обновлена до {$event->getNewVersion()}.\n";
-});
-
-$eventBus->on(EventType::AFTER_VERSION_SET_ERROR, function ($event) {
-    echo "Ошибка при обновлении версии: {$event->getError()->getMessage()}\n";
-});
+$eventBus->addListener(EventType::BEFORE_VERSION_SET, $listener);
+$eventBus->addListener(EventType::AFTER_VERSION_SET_SUCCESS, $listener);
+$eventBus->addListener(EventType::AFTER_VERSION_SET_ERROR, $listener);
 ```
 
 ### Доступные типы событий:
