@@ -214,7 +214,10 @@ class SemanticVersionUpdater
         }
 
         if (!empty($out)) {
-            throw new UncommittedException();
+            if (!$this->debug) {
+                throw new UncommittedException();
+            }
+            echo PHP_EOL,'WARNING: there are uncommitted changes.', PHP_EOL, PHP_EOL;
         }
     }
 
