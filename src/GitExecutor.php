@@ -66,7 +66,7 @@ class GitExecutor implements VcsExecutorInterface
     /**
      * @throws GitCommandException
      */
-    private function runCommand(string $command): array
+    final public function runCommand(string $command): array
     {
         exec("git {$command} 2>&1", $output, $returnCode);
         if (0 !== $returnCode) {
