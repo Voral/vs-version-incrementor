@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Vasoft\VersionIncrement\Commits;
 
-final class CommitCollection
+final class CommitCollection implements \IteratorAggregate
 {
     private bool $majorMarker = false;
     private bool $minorMarker = false;
@@ -45,7 +45,6 @@ final class CommitCollection
 
     private function detectMarkers(Commit $commit): void
     {
-
         if ($commit->breakingChange) {
             $this->majorMarker = true;
 
@@ -113,7 +112,6 @@ final class CommitCollection
 
     public function hasMajorMarker(): bool
     {
-
         return $this->majorMarker;
     }
 
@@ -126,6 +124,13 @@ final class CommitCollection
     {
         if ($majorMarker) {
             $this->majorMarker = true;
+        }
+    }
+
+    public function getIterator(): \Traversable
+    {
+        foreach ($this->sections as $section) {
+            yield $section;
         }
     }
 }
