@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Vasoft\VersionIncrement\Contract;
 
-use Vasoft\VersionIncrement\Commits\ChangedFiles;
+use Vasoft\VersionIncrement\Commits\ModifiedFile;
 use Vasoft\VersionIncrement\Exceptions\GitCommandException;
 
 /**
@@ -121,9 +121,9 @@ interface VcsExecutorInterface extends ConfigurableInterface
      * @param null|string $lastTag    The tag to compare against. If null, compares against the initial commit.
      * @param string      $pathFilter optional path filter to limit the scope of the diff operation
      *
-     * @return ChangedFiles a DTO containing categorized lists of changed files
+     * @return array<ModifiedFile> List DTO of changed files
      *
      * @throws GitCommandException if an error occurs while executing the VCS command
      */
-    public function getFilesSinceTag(?string $lastTag, string $pathFilter = ''): ChangedFiles;
+    public function getFilesSinceTag(?string $lastTag, string $pathFilter = ''): array;
 }

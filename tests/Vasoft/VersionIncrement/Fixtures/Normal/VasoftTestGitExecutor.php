@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Vasoft\VersionIncrement\Fixtures\Normal;
 
-use Vasoft\VersionIncrement\Commits\ChangedFiles;
 use Vasoft\VersionIncrement\Config;
 use Vasoft\VersionIncrement\Contract\VcsExecutorInterface;
 
@@ -58,8 +57,8 @@ class VasoftTestGitExecutor implements VcsExecutorInterface
         return ['feat: Some Example'];
     }
 
-    public function getFilesSinceTag(?string $lastTag, string $pathFilter = ''): ChangedFiles
+    public function getFilesSinceTag(?string $lastTag, string $pathFilter = ''): array
     {
-        return new ChangedFiles();
+        return [];
     }
 }

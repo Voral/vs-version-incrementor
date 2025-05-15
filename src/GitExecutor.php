@@ -4,7 +4,8 @@ declare(strict_types=1);
 
 namespace Vasoft\VersionIncrement;
 
-use Vasoft\VersionIncrement\Commits\ChangedFiles;
+use Vasoft\VersionIncrement\Commits\FileModifyType;
+use Vasoft\VersionIncrement\Commits\ModifiedFile;
 use Vasoft\VersionIncrement\Contract\VcsExecutorInterface;
 use Vasoft\VersionIncrement\Exceptions\GitCommandException;
 use Vasoft\VersionIncrement\Exceptions\VcsNoChangedFilesException;
@@ -88,106 +89,38 @@ class GitExecutor implements VcsExecutorInterface
      * @param null|string $lastTag    The Git tag to compare against. If null, compares against the initial commit.
      * @param string      $pathFilter optional path filter to limit the scope of the diff operation
      *
-     * @return ChangedFiles a DTO containing categorized lists of changed files
+     * @return array<ModifiedFile> List DTO of changed files
      *
      * @throws VcsNoChangedFilesException if no changes are found since the specified tag
      * @throws GitCommandException        if there's an issue executing the `git diff` command
      */
-    public function getFilesSinceTag(?string $lastTag, string $pathFilter = ''): ChangedFiles
+    public function getFilesSinceTag(?string $lastTag, string $pathFilter = ''): array
     {
         $command = "diff --name-status {$lastTag}...";
         if (!empty($pathFilter)) {
             $command .= " -- {$pathFilter}";
         }
-        $added = [];
-        $removed = [];
-        $modified = [];
-        $renamed = [];
-        $copied = [];
-
         $files = $this->runCommand($command);
         if (empty($files)) {
             throw new VcsNoChangedFilesException($lastTag);
         }
-
+        $collection = [];
         foreach ($files as $file) {
             $fields = explode("\t", $file);
             if (count($fields) < 2) {
                 continue;
             }
             $status = trim($fields[0]);
-            $status = preg_replace('/\s+/', '', $status);
-
+            $status = $status[0];
             $filePath = trim($fields[1]);
             $oldFilePath = trim($fields[2] ?? '');
-            switch ($status) {
-                case 'A':
-                    $this->checkUnset($filePath, $renamed);
-                    $this->checkUnset($filePath, $removed);
-                    $this->checkUnset($filePath, $copied);
-                    $added[$filePath] = $filePath;
-                    break;
-                case 'D':
-                    $this->checkUnset($filePath, $added);
-                    $this->checkUnset($filePath, $modified);
-                    $this->checkInArrayUnset($filePath, $renamed);
-                    $this->checkInArrayUnset($filePath, $copied);
-                    $removed[$filePath] = $filePath;
-                    break;
-                case 'M':
-                    $modified[$filePath] = $filePath;
-                    break;
-                case 'R':
-                    $this->checkInArrayUnset($filePath, $added);
-                    $renamed[$filePath] = $oldFilePath;
-                    break;
-                case 'C':
-                    $this->checkInArrayUnset($filePath, $added);
-                    $copied[$filePath] = $oldFilePath;
-                    break;
+            $type = FileModifyType::tryFrom($status);
+            if (null === $type) {
+                continue;
             }
+            $collection[] = new ModifiedFile($type, $filePath, $oldFilePath);
         }
 
-        return new ChangedFiles(
-            $added,
-            $removed,
-            $modified,
-            $renamed,
-            $copied,
-        );
-    }
-
-    /**
-     * Removes a value from an array if it exists.
-     *
-     * This method searches for the given value in the array and removes it by its key.
-     * It ensures that the value is completely removed from the array to avoid conflicts.
-     *
-     * @param string        $value  the value to search for and remove
-     * @param array<string> &$array the array to modify by reference
-     */
-    private function checkInArrayUnset(string $value, array &$array): void
-    {
-        $key = array_search($value, $array, true);
-
-        if (false !== $key) {
-            unset($array[$key]);
-        }
-    }
-
-    /**
-     * Removes a key from an array if it exists.
-     *
-     * This method checks if the specified key exists in the array and removes it.
-     * It is used to ensure that a file does not appear in multiple change categories.
-     *
-     * @param string               $key    the key to check and remove
-     * @param array<string,string> &$array the array to modify by reference
-     */
-    private function checkUnset(string $key, array &$array): void
-    {
-        if (isset($array[$key])) {
-            unset($array[$key]);
-        }
+        return $collection;
     }
 }

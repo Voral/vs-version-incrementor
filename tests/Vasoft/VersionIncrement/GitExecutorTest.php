@@ -6,6 +6,8 @@ namespace Vasoft\VersionIncrement;
 
 use phpmock\phpunit\PHPMock;
 use PHPUnit\Framework\TestCase;
+use Vasoft\VersionIncrement\Commits\FileModifyType;
+use Vasoft\VersionIncrement\Commits\ModifiedFile;
 use Vasoft\VersionIncrement\Exceptions\GitCommandException;
 
 /**
@@ -205,6 +207,62 @@ final class GitExecutorTest extends TestCase
             );
         $executor = new GitExecutor();
         self::assertSame($commandOutput, $executor->status());
+        self::assertSame($expectedCommand, $lastCommand);
+    }
+
+    public function testFilesSinceTag(): void
+    {
+        $lastCommand = '';
+        $expectedCommand = 'git diff --name-status v1.3.0... 2>&1';
+        $exec = $this->getFunctionMock(__NAMESPACE__, 'exec');
+        $exec
+            ->expects(self::exactly(1))
+            ->willReturnCallback(
+                static function (string $command, &$output = null, ?int &$returnCode = null) use (&$lastCommand): void {
+                    $lastCommand = $command;
+                    $returnCode = 0;
+                    $output = [
+                        "A\tfile1.php",
+                        "D\tfile2.php",
+                        "M\tfile3.php",
+                        "R\tfile4.php\tfile5.php",
+                        "R78\tfile14.php\tfile15.php",
+                        "C\tfile6.php\tfile7.php",
+                        "U\tfile99.php",
+                    ];
+                },
+            );
+        $executor = new GitExecutor();
+        $result = $executor->getFilesSinceTag('v1.3.0');
+
+        self::assertCount(6, $result);
+
+        self::assertInstanceOf(ModifiedFile::class, $result[2]);
+
+        self::assertSame(FileModifyType::ADD, $result[0]->type);
+        self::assertSame('file1.php', $result[0]->path);
+        self::assertSame('', $result[0]->destination);
+
+        self::assertSame(FileModifyType::DELETE, $result[1]->type);
+        self::assertSame('file2.php', $result[1]->path);
+        self::assertSame('', $result[1]->destination);
+
+        self::assertSame(FileModifyType::MODIFY, $result[2]->type);
+        self::assertSame('file3.php', $result[2]->path);
+        self::assertSame('', $result[2]->destination);
+
+        self::assertSame(FileModifyType::RENAME, $result[3]->type);
+        self::assertSame('file4.php', $result[3]->path);
+        self::assertSame('file5.php', $result[3]->destination);
+
+        self::assertSame(FileModifyType::RENAME, $result[4]->type);
+        self::assertSame('file14.php', $result[4]->path);
+        self::assertSame('file15.php', $result[4]->destination);
+
+        self::assertSame(FileModifyType::COPY, $result[5]->type);
+        self::assertSame('file6.php', $result[5]->path);
+        self::assertSame('file7.php', $result[5]->destination);
+
         self::assertSame($expectedCommand, $lastCommand);
     }
 
