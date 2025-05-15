@@ -9,6 +9,7 @@ use PHPUnit\Framework\TestCase;
 use Vasoft\VersionIncrement\Commits\FileModifyType;
 use Vasoft\VersionIncrement\Commits\ModifiedFile;
 use Vasoft\VersionIncrement\Exceptions\GitCommandException;
+use Vasoft\VersionIncrement\Exceptions\VcsNoChangedFilesException;
 
 /**
  * @internal
@@ -222,6 +223,8 @@ final class GitExecutorTest extends TestCase
                     $lastCommand = $command;
                     $returnCode = 0;
                     $output = [
+                        'A',
+                        'file100.php',
                         "A\tfile1.php",
                         "D\tfile2.php",
                         "M\tfile3.php",
@@ -264,6 +267,45 @@ final class GitExecutorTest extends TestCase
         self::assertSame('file7.php', $result[5]->destination);
 
         self::assertSame($expectedCommand, $lastCommand);
+    }
+
+    public function testFilesSinceTagWithFilter(): void
+    {
+        $lastCommand = '';
+        $expectedCommand = 'git diff --name-status v1.3.0... -- core 2>&1';
+        $exec = $this->getFunctionMock(__NAMESPACE__, 'exec');
+        $exec
+            ->expects(self::exactly(1))
+            ->willReturnCallback(
+                static function (string $command, &$output = null, ?int &$returnCode = null) use (&$lastCommand): void {
+                    $lastCommand = $command;
+                    $returnCode = 0;
+                    $output = ["A\tfile1.php"];
+                },
+            );
+        $executor = new GitExecutor();
+        $executor->getFilesSinceTag('v1.3.0', 'core');
+
+        self::assertSame($expectedCommand, $lastCommand);
+    }
+
+    public function testFilesSinceTagNoFiles(): void
+    {
+        $exec = $this->getFunctionMock(__NAMESPACE__, 'exec');
+        $exec
+            ->expects(self::exactly(1))
+            ->willReturnCallback(
+                static function (string $command, &$output = null, ?int &$returnCode = null): void {
+                    $returnCode = 0;
+                    $output = [];
+                },
+            );
+        $executor = new GitExecutor();
+        self::expectException(VcsNoChangedFilesException::class);
+        self::expectExceptionCode(110);
+        self::expectExceptionMessage('Failed to retrieve files since tag v1.3.0');
+
+        $executor->getFilesSinceTag('v1.3.0');
     }
 
     public function testGetCurrentBranch(): void
