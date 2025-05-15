@@ -1,3 +1,8 @@
+# 3.0.0 (2025-05-15)
+
+### BREAKING CHANGES
+- add getFilesSinceTag method to VcsExecutorInterface
+
 # 2.1.1 (2025-05-13)
 
 ### Fixes

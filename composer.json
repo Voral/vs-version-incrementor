@@ -52,7 +52,7 @@
     "bin": [
         "bin/vs-version-increment"
     ],
-    "version": "2.1.1",
+    "version": "3.0.0",
     "license": "MIT",
     "keywords": [
         "changelog",
