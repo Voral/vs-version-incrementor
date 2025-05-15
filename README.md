@@ -277,11 +277,15 @@ to create custom event handlers and extend the tool's functionality.
 use Vasoft\VersionIncrement\Events\EventType;
 use Vasoft\VersionIncrement\Config;
 use Vasoft\VersionIncrement\Contract\EventListenerInterface;
+use Vasoft\VersionIncrement\SemanticVersionUpdater;
 
 class Listener implements EventListenerInterface {
     public function handle(\Vasoft\VersionIncrement\Events\Event $event): void
     {
-         echo $event->eventType->name,PHP_EOL;
+        print_r([
+            $event->getData(SemanticVersionUpdater::LAST_VERSION_TAG) ?? 'unknown',   
+            $event->eventType->name,        
+        ]);
     }
 }
 $listener = new Listener();
@@ -290,8 +294,8 @@ $config = new Config();
 
 $eventBus = $config->getEventBus();
 $eventBus->addListener(EventType::BEFORE_VERSION_SET, $listener);
-$eventBus->addListener(EventType::AFTER_VERSION_SET_SUCCESS, $listener);
-$eventBus->addListener(EventType::AFTER_VERSION_SET_ERROR, $listener);
+$eventBus->addListener(EventType::AFTER_VERSION_SET, $listener);
+$eventBus->addListener(EventType::ON_ERROR, $listener);
 ```
 
 ### Available Event Types:
