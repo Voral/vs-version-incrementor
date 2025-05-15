@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Vasoft\VersionIncrement\Contract;
 
+use Vasoft\VersionIncrement\Commits\ChangedFiles;
 use Vasoft\VersionIncrement\Exceptions\GitCommandException;
 
 /**
@@ -108,4 +109,21 @@ interface VcsExecutorInterface extends ConfigurableInterface
      * @throws GitCommandException if an error occurs while executing the VCS command
      */
     public function getCommitDescription(string $commitId): array;
+
+    /**
+     * Retrieves the list of changed files since the specified tag.
+     *
+     * This method analyzes the changes between the given tag and the current state of the repository.
+     * It categorizes files into groups such as added, removed, modified, renamed, and copied.
+     * Files are grouped to ensure that no file appears in conflicting categories (e.g., a file cannot
+     * be both added and removed).
+     *
+     * @param null|string $lastTag    The tag to compare against. If null, compares against the initial commit.
+     * @param string      $pathFilter optional path filter to limit the scope of the diff operation
+     *
+     * @return ChangedFiles a DTO containing categorized lists of changed files
+     *
+     * @throws GitCommandException if an error occurs while executing the VCS command
+     */
+    public function getFilesSinceTag(?string $lastTag, string $pathFilter = ''): ChangedFiles;
 }

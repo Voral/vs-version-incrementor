@@ -234,6 +234,7 @@ The script can be integrated into CI/CD pipelines. In case of errors, it returns
 | 80    | Changelog File Error                  |
 | 90    | Unknown config property               |
 | 100   | Configuration is not set              |
+| 110   | Failed to retrieve files since tag    |
 | 500   | Other errors                          |
 | ≥5000 | User-defined custom errors            |
 
@@ -344,7 +345,8 @@ This configuration example is designed for projects that follow the [Keep a Chan
 standard. It organizes changes into categories (`Added`, `Changed`, `Deprecated`, `Removed`, `Fixed`, `Security`),
 making the changelog easy to read.
 
-- *File:* [`examples/keepachangelog.php`](https://github.com/Voral/vs-version-incrementor/blob/master/examples/keepachangelog.php)
+-
+*File:* [`examples/keepachangelog.php`](https://github.com/Voral/vs-version-incrementor/blob/master/examples/keepachangelog.php)
 
 ## Useful Links
 
