@@ -1,3 +1,11 @@
+# 3.1.0 (2025-10-17)
+
+### New features
+- enhance scope processing with dynamic interpreters
+
+### Documentation
+- enhance composer.json example with script descriptions
+
 # 3.0.0 (2025-05-15)
 
 ### BREAKING CHANGES
