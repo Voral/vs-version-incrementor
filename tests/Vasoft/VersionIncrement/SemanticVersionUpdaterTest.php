@@ -6,6 +6,7 @@ namespace Vasoft\VersionIncrement;
 
 use phpmock\phpunit\PHPMock;
 use PHPUnit\Framework\TestCase;
+use Vasoft\VersionIncrement\Changelog\Interpreter\RegexpScopeInterpreter;
 use Vasoft\VersionIncrement\Changelog\ScopePreservingFormatter;
 use Vasoft\VersionIncrement\Commits\Commit;
 use Vasoft\VersionIncrement\Contract\SectionRuleInterface;
@@ -845,6 +846,7 @@ final class SemanticVersionUpdaterTest extends TestCase
 
 ### Other changes
 - deprecated: Deprecated notice
+- [task](https://example.com/task/456) Process task
 
 ### Other
 - doc(extremal): Some Example
@@ -903,6 +905,7 @@ final class SemanticVersionUpdaterTest extends TestCase
             'c3d4e5f6g13 feat: Some Example',
             'c3d4e5f6g14 feat(dev): Some Example for development',
             'c3d4e5f6g14 chore(deprecated): Deprecated notice',
+            'c3d4e5f6g15 chore(task456): Process task',
         ]);
         $gitExecutor->expects(self::once())->method('status')->willReturn([]);
         $gitExecutor->expects(self::once())->method('addFile');
@@ -911,7 +914,11 @@ final class SemanticVersionUpdaterTest extends TestCase
 
         $config = new Config();
         $config->setMajorTypes(['feat', 'doc']);
-        $config->setChangelogFormatter(new ScopePreservingFormatter(['dev', 'deprecated']));
+        $config->setChangelogFormatter(new ScopePreservingFormatter([
+            'dev',
+            'deprecated',
+            new RegexpScopeInterpreter('#task(\d+)#', '[task](https://example.com/task/$1) '),
+        ]));
         $config->setReleaseScope('');
         $config->setVcsExecutor($gitExecutor);
         $updater = new SemanticVersionUpdater('/test', $config);

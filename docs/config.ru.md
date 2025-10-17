@@ -189,11 +189,11 @@ return (new \Vasoft\VersionIncrement\Config())
 
 #### Особенности работы `ScopePreservingFormatter`:
 
-- Форматер принимает массив скоупов в конструкторе.
+- Форматтер принимает массив скоупов или интерпретаторов скоупов в конструкторе.
 - Если массив скоупов пустой, то сохраняются *все скоупы*.
-- В противном случае сохраняются только те скоупы, которые указаны в массиве.
+- В противном случае будут включены только скоупы, соответствующие указанным шаблонам или интерпретаторам.
 
-Пример конфигурации:
+#### Базовое использование со статическими скоупами:
 
 ```php
 use Vasoft\VersionIncrement\Changelog\ScopePreservingFormatter;
@@ -205,10 +205,129 @@ return (new \Vasoft\VersionIncrement\Config())
 В этом примере в `CHANGELOG.md` будут сохранены только комментарии с скоупами `dev` и `deprecated`. Остальные скоупы
 будут игнорироваться.
 
+#### Продвинутое использование с динамической интерпретацией скоупов:
+
+Для более сложных сценариев вы можете использовать `RegexpScopeInterpreter` для динамического преобразования скоупов на
+основе регулярных выражений:
+
+```php
+use Vasoft\VersionIncrement\Changelog\ScopePreservingFormatter;
+use Vasoft\VersionIncrement\Changelog\Interpreter\RegexpScopeInterpreter;
+
+return (new \Vasoft\VersionIncrement\Config())
+    ->setChangelogFormatter(new ScopePreservingFormatter([
+        new RegexpScopeInterpreter(
+            '#^task(\d+)$#', 
+            '[Task $1](https://tracker.company.com/task/$1): '
+        ),
+        new RegexpScopeInterpreter(
+            '#^JIRA-(\w+)-(\d+)$#', 
+            '[JIRA-$1-$2](https://jira.company.com/browse/JIRA-$1-$2): '
+        ),
+        'database', // Статический скоуп для обратной совместимости
+        'api'       // Статический скоуп
+    ]));
+```
+
+Как это работает:
+
+- Форматтер обрабатывает скоупы в порядке их определения в массиве
+- Для каждого скоупа коммита проверяются все интерпретаторы и статические скоупы
+- Если RegexpScopeInterpreter соответствует шаблону скоупа, возвращается преобразованная строка
+- Если статическая строка точно совпадает, используется маппинг скоупов из конфигурации
+- Первый совпавший интерпретатор или скоуп побеждает
+
+Примеры преобразований:
+
+- task123 → `[Task 123](https://tracker.company.com/task/123):`
+- JIRA-FEAT-456 → `[JIRA-FEAT-456](https://jira.company.com/browse/JIRA-FEAT-456):`
+- database → database: (если есть в конфиге) или Database: (с человеко-читаемым заголовком)
+
+#### Смешанное использование со статическими и динамическими скоупами:
+
+Вы можете комбинировать оба подхода для максимальной гибкости:
+
+```php
+use Vasoft\VersionIncrement\Changelog\ScopePreservingFormatter;
+use Vasoft\VersionIncrement\Changelog\Interpreter\RegexpScopeInterpreter;
+
+return (new \Vasoft\VersionIncrement\Config())
+    ->setChangelogFormatter(new ScopePreservingFormatter([
+        // Динамические интерпретаторы для систем отслеживания задач
+        new RegexpScopeInterpreter('#^task(\d+)$#', '[Task $1](https://tracker.com/task/$1): '),
+        new RegexpScopeInterpreter('#^issue-(\d+)$#', '[Issue $1](https://issues.com/issue/$1): '),
+        
+        // Статические скоупы для общих модулей
+        'database',
+        'api',
+        'ui'
+    ]))
+    ->addScope('database', 'Database')
+    ->addScope('api', 'API')
+    ->addScope('ui', 'User Interface');
+```
+
+Эта конфигурация предоставляет как динамические ссылки для трекеров задач, так и чистые человеко-читаемые заголовки для
+общих скоупов.
+
+#### Расширение возможностей с помощью пользовательских интерпретаторов скоупов
+
+Для максимальной гибкости вы можете создавать собственные интерпретаторы скоупов, реализуя интерфейс
+`Vasoft\VersionIncrement\Contract\ScopeInterpreterInterface`. Это позволяет реализовать сложную логику, выходящую за
+рамки регулярных выражений, такую как API-вызовы, запросы к базам данных или пользовательские правила преобразования.
+
+Пример пользовательского интерпретатора:
+
+```php
+use Vasoft\VersionIncrement\Contract\ScopeInterpreterInterface;
+
+class JiraScopeInterpreter implements ScopeInterpreterInterface
+{
+    public function __construct(private readonly string $jiraBaseUrl) {}
+    
+    public function interpret(string $scope): ?string
+    {
+        // Сопоставление с шаблоном JIRA-тикета (например, PROJ-123, FEAT-456)
+        if (preg_match('#^([A-Z]+)-(\d+)$#', $scope, $matches)) {
+            $project = $matches[1];
+            $ticketId = $matches[2];
+            $url = "{$this->jiraBaseUrl}/browse/{$project}-{$ticketId}";
+            return "[{$project}-{$ticketId}]({$url}): ";
+        }
+        
+        return null;
+    }
+}
+```
+
+Использование в конфигурации:
+
+```php
+use Vasoft\VersionIncrement\Changelog\ScopePreservingFormatter;
+
+return (new \Vasoft\VersionIncrement\Config())
+    ->setChangelogFormatter(new ScopePreservingFormatter([
+        new JiraScopeInterpreter('https://company.atlassian.net'),
+    ]));
+```
+
+Преимущества пользовательских интерпретаторов:
+
+- Сложная логика: Обработка нескольких вариантов шаблонов в одном интерпретаторе
+- Внешние данные: Интеграция с внешними системами (API, базы данных)
+- Бизнес-правила: Реализация специфичных для проекта правил преобразования
+- Многократное использование: Совместное использование интерпретаторов в нескольких проектах
+- Тестируемость: Каждый интерпретатор может быть независимо покрыт модульными тестами
+
+Этот подход обеспечивает неограниченную расширяемость для обработки сложных требований к преобразованию скоупов в вашем
+проекте.
+
 ### Настройка человекочитаемых заголовков для скоупов
 
-Вы можете настроить человекочитаемые заголовки для скоупов, которые будут использоваться в `CHANGELOG.md`. Это позволяет заменять технические названия скоупов на более понятные для пользователей описания.
-Настройка учитывается при использовании ScopePreservingFormatter, либо вы можете использовать в своей реализации `Vasoft\VersionIncrement\Contract\ChangelogFormatterInterface`
+Вы можете настроить человекочитаемые заголовки для скоупов, которые будут использоваться в `CHANGELOG.md`. Это позволяет
+заменять технические названия скоупов на более понятные для пользователей описания.
+Настройка учитывается при использовании ScopePreservingFormatter, либо вы можете использовать в своей реализации
+`Vasoft\VersionIncrement\Contract\ChangelogFormatterInterface`
 
 ```php
 return (new \Vasoft\VersionIncrement\Config())
@@ -216,7 +335,8 @@ return (new \Vasoft\VersionIncrement\Config())
     ->addScope('deprecated', 'Deprecated Features');
 ```
 
-Зарегистрированные скоупы так же выводятся командой `./vendor/bin/vs-version-increment --list` в дополнение к списку типов коммитов
+Зарегистрированные скоупы так же выводятся командой `./vendor/bin/vs-version-increment --list` в дополнение к списку
+типов коммитов
 
 ### Создание собственного форматера
 
@@ -445,9 +565,12 @@ class CustomFormatter implements ChangelogFormatterInterface
 
 ## Скрытие повторяющихся строк в CHANGELOG
 
-Вы можете настроить, должны ли скрываться повторяющиеся записи (строки с одинаковым содержимым) в генерируемом CHANGELOG. При включении этой функции только первое вхождение повторяющейся записи будет отображаться внутри каждой секции. Это повышает удобочитаемость CHANGELOG, уменьшая избыточность и делая его более лаконичным.
+Вы можете настроить, должны ли скрываться повторяющиеся записи (строки с одинаковым содержимым) в генерируемом
+CHANGELOG. При включении этой функции только первое вхождение повторяющейся записи будет отображаться внутри каждой
+секции. Это повышает удобочитаемость CHANGELOG, уменьшая избыточность и делая его более лаконичным.
 
-> **Примечание:** Повторяющиеся записи скрываются только в пределах одной и той же секции. Записи из разных секций не затрагиваются.
+> **Примечание:** Повторяющиеся записи скрываются только в пределах одной и той же секции. Записи из разных секций не
+> затрагиваются.
 
 Чтобы включить скрытие повторяющихся записей, используйте следующую конфигурацию:
 

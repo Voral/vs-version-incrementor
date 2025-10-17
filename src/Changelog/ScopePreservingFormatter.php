@@ -4,10 +4,12 @@ declare(strict_types=1);
 
 namespace Vasoft\VersionIncrement\Changelog;
 
+use Vasoft\VersionIncrement\Changelog\Interpreter\RegexpScopeInterpreter;
 use Vasoft\VersionIncrement\Commits\Commit;
 use Vasoft\VersionIncrement\Commits\CommitCollection;
 use Vasoft\VersionIncrement\Config;
 use Vasoft\VersionIncrement\Contract\ChangelogFormatterInterface;
+use Vasoft\VersionIncrement\Contract\ScopeInterpreterInterface;
 
 /**
  * It generates a changelog while preserving specific scopes passed to the constructor.
@@ -20,8 +22,8 @@ class ScopePreservingFormatter implements ChangelogFormatterInterface
     /**
      * Constructs a new ScopePreservingFormatter instance.
      *
-     * @param array $preservedScopes An optional array of scopes to preserve in the changelog.
-     *                               If empty, all scopes will be included.
+     * @param array<RegexpScopeInterpreter|string> $preservedScopes An optional array of scopes to preserve in the changelog.
+     *                                                              If empty, all scopes will be included.
      */
     public function __construct(private readonly array $preservedScopes = []) {}
 
@@ -59,16 +61,25 @@ class ScopePreservingFormatter implements ChangelogFormatterInterface
 
     private function getScopeForCommit(Commit $commit): string
     {
-        if (
-            '' === $commit->scope
-            || (!empty($this->preservedScopes) && !in_array($commit->scope, $this->preservedScopes, true))
-        ) {
+        if ('' === $commit->scope) {
             return '';
         }
-        $scopes = $this->config?->getScopes() ?? [];
-        $scope = $scopes[$commit->scope] ?? $commit->scope;
 
-        return sprintf('%s: ', $scope);
+        foreach ($this->preservedScopes as $scope) {
+            if ($scope instanceof ScopeInterpreterInterface) {
+                $result = $scope->interpret($commit->scope);
+                if (null !== $result) {
+                    return $result;
+                }
+            } elseif ($commit->scope === $scope) {
+                $scopes = $this->config?->getScopes() ?? [];
+                $scope = $scopes[$commit->scope] ?? $commit->scope;
+
+                return sprintf('%s: ', $scope);
+            }
+        }
+
+        return '';
     }
 
     public function setConfig(Config $config): void

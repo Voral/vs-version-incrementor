@@ -183,11 +183,11 @@ the `Vasoft\VersionIncrement\Changelog` namespace.
 
 #### How `ScopePreservingFormatter` Works:
 
-- The formatter accepts an array of scopes in its constructor.
+- The formatter accepts an array of scopes or scope interpreters in its constructor.
 - If the array of scopes is empty, *all scopes* will be preserved.
-- Otherwise, only the scopes specified in the array will be included.
+- Otherwise, only the scopes that match the specified patterns or interpreters will be included.
 
-Example Configuration:
+#### Basic Usage with Static Scopes:
 
 ```php
 use Vasoft\VersionIncrement\Changelog\ScopePreservingFormatter;
@@ -196,8 +196,123 @@ return (new \Vasoft\VersionIncrement\Config())
     ->setChangelogFormatter(new ScopePreservingFormatter(['dev', 'deprecated']));
 ```
 
-In this example, only comments with the `dev` and `deprecated` scopes will be preserved in `CHANGELOG.md`. All other
-scopes will be ignored.
+In this example, only comments with the dev and deprecated scopes will be preserved in CHANGELOG.md. All other scopes
+will be ignored.
+
+#### Advanced Usage with Dynamic Scope Interpretation:
+
+For more complex scenarios, you can use `RegexpScopeInterpreter` to dynamically transform scopes based on regular
+expressions:
+
+```php
+use Vasoft\VersionIncrement\Changelog\ScopePreservingFormatter;
+use Vasoft\VersionIncrement\Changelog\Interpreter\RegexpScopeInterpreter;
+
+return (new \Vasoft\VersionIncrement\Config())
+    ->setChangelogFormatter(new ScopePreservingFormatter([
+        new RegexpScopeInterpreter(
+            '#^task(\d+)$#', 
+            '[Task $1](https://tracker.company.com/task/$1): '
+        ),
+        new RegexpScopeInterpreter(
+            '#^JIRA-(\w+)-(\d+)$#', 
+            '[JIRA-$1-$2](https://jira.company.com/browse/JIRA-$1-$2): '
+        ),
+        'database', // Static scope for backward compatibility
+        'api'       // Static scope
+    ]));
+```
+
+How it works:
+
+- The formatter processes scopes in the order they are defined in the array
+- For each commit scope, it checks against all interpreters and static scopes
+- If a `RegexpScopeInterpreter` matches the scope pattern, it returns the transformed string
+- If a static string matches exactly, it uses the scope mapping from configuration
+- The first matching interpreter or scope wins
+
+Example transformations:
+
+- task123 → `[Task 123](https://tracker.company.com/task/123):`
+- JIRA-FEAT-456 → `[JIRA-FEAT-456](https://jira.company.com/browse/JIRA-FEAT-456):`
+- database → database: (if mapped in config) or Database: (with human-readable title)
+
+#### Mixed Usage with Static and Dynamic Scopes:
+
+You can combine both approaches for maximum flexibility:
+
+```php
+use Vasoft\VersionIncrement\Changelog\ScopePreservingFormatter;
+use Vasoft\VersionIncrement\Changelog\Interpreter\RegexpScopeInterpreter;
+
+return (new \Vasoft\VersionIncrement\Config())
+    ->setChangelogFormatter(new ScopePreservingFormatter([
+        // Dynamic interpreters for task tracking systems
+        new RegexpScopeInterpreter('#^task(\d+)$#', '[Task $1](https://tracker.com/task/$1): '),
+        new RegexpScopeInterpreter('#^issue-(\d+)$#', '[Issue $1](https://issues.com/issue/$1): '),
+        
+        // Static scopes for common modules
+        'database',
+        'api',
+        'ui'
+    ]))
+    ->addScope('database', 'Database')
+    ->addScope('api', 'API')
+    ->addScope('ui', 'User Interface');
+```
+
+This configuration provides both dynamic linking for issue trackers and clean human-readable titles for common scopes.
+
+#### Extending with Custom Scope Interpreters
+
+For maximum flexibility, you can create your own scope interpreters by implementing the
+`Vasoft\VersionIncrement\Contract\ScopeInterpreterInterface`. This allows you to implement complex logic beyond regular
+expressions, such as API calls, database lookups, or custom transformation rules.
+
+Example Custom Interpreter:
+
+```php
+use Vasoft\VersionIncrement\Contract\ScopeInterpreterInterface;
+
+class JiraScopeInterpreter implements ScopeInterpreterInterface
+{
+    public function __construct(private readonly string $jiraBaseUrl) {}
+    
+    public function interpret(string $scope): ?string
+    {
+        // Match JIRA ticket pattern (e.g., PROJ-123, FEAT-456)
+        if (preg_match('#^([A-Z]+)-(\d+)$#', $scope, $matches)) {
+            $project = $matches[1];
+            $ticketId = $matches[2];
+            $url = "{$this->jiraBaseUrl}/browse/{$project}-{$ticketId}";
+            return "[{$project}-{$ticketId}]({$url}): ";
+        }
+        
+        return null;
+    }
+}
+```
+
+Usage in Configuration:
+
+```php
+use Vasoft\VersionIncrement\Changelog\ScopePreservingFormatter;
+
+return (new \Vasoft\VersionIncrement\Config())
+    ->setChangelogFormatter(new ScopePreservingFormatter([
+        new JiraScopeInterpreter('https://company.atlassian.net'),
+    ]));
+```
+
+Benefits of Custom Interpreters:
+
+- Complex Logic: Handle multiple pattern variations in one interpreter
+- External Data: Integrate with external systems (APIs, databases)
+- Business Rules: Implement project-specific transformation rules
+- Reusability: Share interpreters across multiple projects
+- Testability: Each interpreter can be unit tested independently
+
+This approach provides unlimited extensibility for handling complex scope transformation requirements in your project.
 
 ### Configuring Human-Readable Titles for Scopes
 
