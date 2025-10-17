@@ -111,13 +111,21 @@ To simplify usage, you can add scripts to `composer.json`:
 ```json
 {
   "scripts": {
-    "vinc:major": "php ./vendor/bin/vs-version-increment major",
-    "vinc:minor": "php ./vendor/bin/vs-version-increment minor",
-    "vinc:patch": "php ./vendor/bin/vs-version-increment patch",
-    "vinc:auto": "php ./vendor/bin/vs-version-increment",
-    "vinc:list": "php ./vendor/bin/vs-version-increment --list",
-    "vinc:debug:auto": "php ./vendor/bin/vs-version-increment --debug"
-  }
+    "vi:major": "php ./vendor/bin/vs-version-increment major",
+    "vi:minor": "php ./vendor/bin/vs-version-increment minor",
+    "vi:patch": "php ./vendor/bin/vs-version-increment patch",
+    "vi:auto": "php ./vendor/bin/vs-version-increment",
+    "vi:list": "php ./vendor/bin/vs-version-increment --list",
+    "vi:debug:auto": "php ./vendor/bin/vs-version-increment --debug"
+  },
+  "scripts-descriptions": {
+    "vi:major": "Increment major version and update CHANGELOG.md",
+    "vi:minor": "Increment minor version and update CHANGELOG.md",
+    "vi:patch": "Increment patch version and update CHANGELOG.md",
+    "vi:auto": "Auto-detect version increment based on commit analysis",
+    "vi:list": "Display registered commit types and scopes",
+    "vi:debug:auto": "Preview auto-detected changes without applying them"
+  }  
 }
 ```
 

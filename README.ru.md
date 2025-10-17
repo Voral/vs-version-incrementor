@@ -115,13 +115,22 @@ composer require --dev voral/version-increment
 ```json
 {
   "scripts": {
-    "vinc:major": "php ./vendor/bin/vs-version-increment major",
-    "vinc:minor": "php ./vendor/bin/vs-version-increment minor",
-    "vinc:patch": "php ./vendor/bin/vs-version-increment patch",
-    "vinc:auto": "php ./vendor/bin/vs-version-increment",
-    "vinc:list": "php ./vendor/bin/vs-version-increment --list",
-    "vinc:debug:auto": "php ./vendor/bin/vs-version-increment --debug"
+    "vi:major": "php ./vendor/bin/vs-version-increment major",
+    "vi:minor": "php ./vendor/bin/vs-version-increment minor",
+    "vi:patch": "php ./vendor/bin/vs-version-increment patch",
+    "vi:auto": "php ./vendor/bin/vs-version-increment",
+    "vi:list": "php ./vendor/bin/vs-version-increment --list",
+    "vi:debug:auto": "php ./vendor/bin/vs-version-increment --debug"
+  },
+  "scripts-descriptions": {
+    "vi:major": "Инкремент мажорной версии и обновление CHANGELOG.md",
+    "vi:minor": "Инкремент минорной версии и обновление CHANGELOG.md",
+    "vi:patch": "Инкремент патч версии и обновление CHANGELOG.md",
+    "vi:auto": "Автоматическое определение версии для инкремента и обновление CHANGELOG.md",
+    "vi:list": "Список зарегистрированных типов коммитов и скоупов",
+    "vi:debug:auto": "Автоматическое определение версии для инкремента и обновление CHANGELOG.md без коммита"
   }
+
 }
 ```
 
