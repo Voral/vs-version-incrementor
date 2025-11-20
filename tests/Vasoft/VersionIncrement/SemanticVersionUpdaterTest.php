@@ -7,6 +7,7 @@ namespace Vasoft\VersionIncrement;
 use phpmock\phpunit\PHPMock;
 use PHPUnit\Framework\TestCase;
 use Vasoft\VersionIncrement\Changelog\Interpreter\RegexpScopeInterpreter;
+use Vasoft\VersionIncrement\Changelog\Interpreter\SinglePreservedScopeInterpreter;
 use Vasoft\VersionIncrement\Changelog\ScopePreservingFormatter;
 use Vasoft\VersionIncrement\Commits\Commit;
 use Vasoft\VersionIncrement\Contract\SectionRuleInterface;
@@ -915,8 +916,13 @@ final class SemanticVersionUpdaterTest extends TestCase
         $config = new Config();
         $config->setMajorTypes(['feat', 'doc']);
         $config->setChangelogFormatter(new ScopePreservingFormatter([
-            'dev',
-            'deprecated',
+            new SinglePreservedScopeInterpreter(
+                [
+                    'dev',
+                    'deprecated',
+                ],
+                $config,
+            ),
             new RegexpScopeInterpreter('#task(\d+)#', '[task](https://example.com/task/$1) '),
         ]));
         $config->setReleaseScope('');
