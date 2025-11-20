@@ -17,7 +17,7 @@ use Vasoft\VersionIncrement\Contract\ScopeInterpreterInterface;
  */
 class ScopePreservingFormatter implements ChangelogFormatterInterface
 {
-    private ?Config $config = null;
+    protected ?Config $config = null;
 
     /**
      * Constructs a new ScopePreservingFormatter instance.
@@ -50,7 +50,7 @@ class ScopePreservingFormatter implements ChangelogFormatterInterface
         foreach ($sections as $section) {
             $changelog .= sprintf("### %s\n", $section->title);
             foreach ($section->getCommits() as $commit) {
-                $scope = $this->getScopeForCommit($commit);
+                $scope = '' === $commit->scope ? '' : $this->getScopeForCommit($commit);
                 $changelog .= "- {$scope}{$commit->comment}\n";
             }
             $changelog .= "\n";
@@ -59,12 +59,8 @@ class ScopePreservingFormatter implements ChangelogFormatterInterface
         return $changelog;
     }
 
-    private function getScopeForCommit(Commit $commit): string
+    protected function getScopeForCommit(Commit $commit): string
     {
-        if ('' === $commit->scope) {
-            return '';
-        }
-
         foreach ($this->preservedScopes as $scope) {
             if ($scope instanceof ScopeInterpreterInterface) {
                 $result = $scope->interpret($commit->scope);
