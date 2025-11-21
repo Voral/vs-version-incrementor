@@ -102,7 +102,7 @@ class GitExecutor implements VcsExecutorInterface
         }
         $files = $this->runCommand($command);
         if (empty($files)) {
-            throw new VcsNoChangedFilesException($lastTag);
+            throw new VcsNoChangedFilesException($lastTag ?? '<initial commit>');
         }
         $collection = [];
         foreach ($files as $file) {

@@ -308,6 +308,25 @@ final class GitExecutorTest extends TestCase
         $executor->getFilesSinceTag('v1.3.0');
     }
 
+    public function testFilesSinceTagNoFilesWithoutTag(): void
+    {
+        $exec = $this->getFunctionMock(__NAMESPACE__, 'exec');
+        $exec
+            ->expects(self::exactly(1))
+            ->willReturnCallback(
+                static function (string $command, &$output = null, ?int &$returnCode = null): void {
+                    $returnCode = 0;
+                    $output = [];
+                },
+            );
+        $executor = new GitExecutor();
+        self::expectException(VcsNoChangedFilesException::class);
+        self::expectExceptionCode(110);
+        self::expectExceptionMessage('Failed to retrieve files since tag <initial commit>');
+
+        $executor->getFilesSinceTag(null);
+    }
+
     public function testGetCurrentBranch(): void
     {
         $commandOutput = [
