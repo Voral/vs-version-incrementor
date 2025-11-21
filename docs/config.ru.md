@@ -207,14 +207,18 @@ return (new \Vasoft\VersionIncrement\Config())
 
 #### Продвинутое использование с динамической интерпретацией скоупов:
 
-Для более сложных сценариев вы можете использовать `RegexpScopeInterpreter` для динамического преобразования скоупов на
-основе регулярных выражений:
+Для более сложных сценариев вы можете использовать `RegexpScopeInterpreter` или `SinglePreservedScopeInterpreter` для
+динамического преобразования скоупов на основе регулярных выражений:
 
 ```php
 use Vasoft\VersionIncrement\Changelog\ScopePreservingFormatter;
 use Vasoft\VersionIncrement\Changelog\Interpreter\RegexpScopeInterpreter;
+use Vasoft\VersionIncrement\Changelog\Interpreter\SinglePreservedScopeInterpreter;
 
-return (new \Vasoft\VersionIncrement\Config())
+$config = new \Vasoft\VersionIncrement\Config();
+
+return $config
+    ->addScope('dev', 'Development')
     ->setChangelogFormatter(new ScopePreservingFormatter([
         new RegexpScopeInterpreter(
             '#^task(\d+)$#', 
@@ -224,6 +228,9 @@ return (new \Vasoft\VersionIncrement\Config())
             '#^JIRA-(\w+)-(\d+)$#', 
             '[JIRA-$1-$2](https://jira.company.com/browse/JIRA-$1-$2): '
         ),
+        // Фильтрация и отображение конкретного скоупа 'dev'
+        // с форматированием и заменой на человеко-читаемое представление
+         new SinglePreservedScopeInterpreter(['dev'], $config, '{%s}'),
         'database', // Статический скоуп для обратной совместимости
         'api'       // Статический скоуп
     ]));
@@ -233,7 +240,8 @@ return (new \Vasoft\VersionIncrement\Config())
 
 - Форматтер обрабатывает скоупы в порядке их определения в массиве
 - Для каждого скоупа коммита проверяются все интерпретаторы и статические скоупы
-- Если RegexpScopeInterpreter соответствует шаблону скоупа, возвращается преобразованная строка
+- Если `RegexpScopeInterpreter` или `SinglePreservedScopeInterpreter` соответствует шаблону скоупа, возвращается
+  преобразованная строка
 - Если статическая строка точно совпадает, используется маппинг скоупов из конфигурации
 - Первый совпавший интерпретатор или скоуп побеждает
 
@@ -242,6 +250,7 @@ return (new \Vasoft\VersionIncrement\Config())
 - task123 → `[Task 123](https://tracker.company.com/task/123):`
 - JIRA-FEAT-456 → `[JIRA-FEAT-456](https://jira.company.com/browse/JIRA-FEAT-456):`
 - database → database: (если есть в конфиге) или Database: (с человеко-читаемым заголовком)
+- dev → {Development}
 
 #### Смешанное использование со статическими и динамическими скоупами:
 
@@ -322,7 +331,93 @@ return (new \Vasoft\VersionIncrement\Config())
 Этот подход обеспечивает неограниченную расширяемость для обработки сложных требований к преобразованию скоупов в вашем
 проекте.
 
-### Настройка человекочитаемых заголовков для скоупов
+### Использование форматера, сохраняющего несколько скоупов
+
+На базе `ScopePreservingFormatter` библиотека предоставляет `MultipleScopePreservingFormatter` для обработки сообщений
+коммитов, в которых поле скоупа содержит несколько значений, разделённых определённым символом (например,
+`feat(api|db|frontend): ...`). Этот форматтер позволяет точно настроить, какие из этих нескольких скоупов будут включены
+в `CHANGELOG.md`, и как они будут отформатированы в совокупности.
+
+#### Ключевые особенности `MultipleScopePreservingFormatter`:
+
+- **Обработка нескольких скоупов**: Разделяет строку скоупа коммита (например, `api|db|frontend`) с помощью
+  настраиваемого разделителя источника (по умолчанию `|`).
+- **Обработка каждого скоупа индивидуально**: Каждая отдельная часть скоупа обрабатывается относительно списка
+  сохраняемых скоупов (который может включать реализации `ScopeInterpreterInterface`, такие как
+  `SinglePreservedScopeInterpreter` или `RegexpScopeInterpreter`, либо строковые значения) с использованием той же
+  логики, что и `ScopePreservingFormatter`.
+- **Фильтрация скоупов**: Скоупы, не попадающие в список сохраняемых, отфильтровываются.
+- **Объединение**: Сохранённые и обработанные отдельные скоупы объединяются обратно с помощью настраиваемого разделителя
+  назначения (по умолчанию `|`).
+- **Общее форматирование**: К итоговой строке объединённых скоупов применяется общий шаблон, позволяющий управлять
+  префиксом/суффиксом, добавляемым ко всему блоку скоупов (например, `'%s: '` даст `api|db: `).
+- **Независимость от `outputTemplate` родителя**: В отличие от `ScopePreservingFormatter`, этот форматтер *не
+  использует* `outputTemplate` родительского класса. Форматирование управляется исключительно параметром
+  `overallTemplate`.
+
+#### Базовое использование:
+
+```php
+use Vasoft\VersionIncrement\Changelog\MultipleScopePreservingFormatter;
+
+return (new \Vasoft\VersionIncrement\Config())
+    ->setChangelogFormatter(new MultipleScopePreservingFormatter(['api', 'db']));
+```
+
+В этом примере, если коммит имеет скоуп `api|db|frontend`, в `CHANGELOG.md` будет сохранён только `api|db`. Скоуп
+`frontend` будет проигнорирован. Результат будет отформатирован с использованием шаблона по умолчанию `'%s '`, что даст
+`api|db ` перед описанием коммита.
+
+#### Продвинутое использование с интерпретаторами:
+
+Вы можете использовать интерпретаторы, такие как `SinglePreservedScopeInterpreter` или `RegexpScopeInterpreter`, внутри
+`MultipleScopePreservingFormatter`:
+
+```php
+use Vasoft\VersionIncrement\Changelog\MultipleScopePreservingFormatter;
+use Vasoft\VersionIncrement\Changelog\Interpreter\SinglePreservedScopeInterpreter;
+use Vasoft\VersionIncrement\Changelog\Interpreter\RegexpScopeInterpreter;
+
+$config = new \Vasoft\VersionIncrement\Config();
+$config->addScope('api', 'API Module')
+       ->addScope('db', 'Database Layer');
+
+return $config
+    ->setChangelogFormatter(new MultipleScopePreservingFormatter([
+        'api',
+        'db',
+        new RegexpScopeInterpreter('#^task(\d+)$#', '[Task $1]'),
+        new SinglePreservedScopeInterpreter(['dev'], $config, '{%s}'),
+    ]));
+```
+
+Если коммит имеет скоуп `api|task456|dev|unknown`, и `unknown` не в списке сохраняемых, результатом (с настройками по
+умолчанию) будет `API Module|[Task 456]|{dev}`.
+
+#### Настройка разделителей и шаблона:
+
+Вы можете настроить разделители и общий шаблон:
+
+```php
+use Vasoft\VersionIncrement\Changelog\MultipleScopePreservingFormatter;
+
+// Используем '#' как разделитель в коммите, ',' для объединения в changelog,
+// и добавляем двоеточие и пробел в конце
+$formatter = new MultipleScopePreservingFormatter(
+    preservedScopes: ['api', 'db'],
+    srcSeparator: '#',      // Разделитель в исходном скоупе коммита
+    dstSeparator: ',',      // Разделитель между скоупами в ченджлоге
+    overallTemplate: '%s: ' // Общий шаблон форматирования
+);
+
+return (new \Vasoft\VersionIncrement\Config())
+    ->setChangelogFormatter($formatter);
+```
+
+Если коммит `feat(api#db): ...`, результат будет `API Module,Database Layer: ...` (предполагая, что `addScope`
+использовалось для отображения).
+
+### Настройка человеко-читаемых заголовков для скоупов
 
 Вы можете настроить человекочитаемые заголовки для скоупов, которые будут использоваться в `CHANGELOG.md`. Это позволяет
 заменять технические названия скоупов на более понятные для пользователей описания.

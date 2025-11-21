@@ -201,14 +201,18 @@ will be ignored.
 
 #### Advanced Usage with Dynamic Scope Interpretation:
 
-For more complex scenarios, you can use `RegexpScopeInterpreter` to dynamically transform scopes based on regular
-expressions:
+For more complex scenarios, you can use `RegexpScopeInterpreter` or `SinglePreservedScopeInterpreter` to dynamically
+transform scopes based on regular expressions:
 
 ```php
 use Vasoft\VersionIncrement\Changelog\ScopePreservingFormatter;
 use Vasoft\VersionIncrement\Changelog\Interpreter\RegexpScopeInterpreter;
+use Vasoft\VersionIncrement\Changelog\Interpreter\SinglePreservedScopeInterpreter;
 
-return (new \Vasoft\VersionIncrement\Config())
+$config = new \Vasoft\VersionIncrement\Config();
+
+return $config
+    ->addScope('dev', 'Development')
     ->setChangelogFormatter(new ScopePreservingFormatter([
         new RegexpScopeInterpreter(
             '#^task(\d+)$#', 
@@ -218,6 +222,9 @@ return (new \Vasoft\VersionIncrement\Config())
             '#^JIRA-(\w+)-(\d+)$#', 
             '[JIRA-$1-$2](https://jira.company.com/browse/JIRA-$1-$2): '
         ),
+        // Filter and display the specific scope 'dev'
+        // with formatting and replacement by a human-readable representation
+        new SinglePreservedScopeInterpreter(['dev'], $config, '{%s}'),
         'database', // Static scope for backward compatibility
         'api'       // Static scope
     ]));
@@ -227,9 +234,11 @@ How it works:
 
 - The formatter processes scopes in the order they are defined in the array
 - For each commit scope, it checks against all interpreters and static scopes
-- If a `RegexpScopeInterpreter` matches the scope pattern, it returns the transformed string
+- If a `RegexpScopeInterpreter` or `SinglePreservedScopeInterpreter` matches the scope pattern, it returns the
+  transformed string
 - If a static string matches exactly, it uses the scope mapping from configuration
 - The first matching interpreter or scope wins
+- dev → {Development}
 
 Example transformations:
 
@@ -313,6 +322,90 @@ Benefits of Custom Interpreters:
 - Testability: Each interpreter can be unit tested independently
 
 This approach provides unlimited extensibility for handling complex scope transformation requirements in your project.
+
+### Using a Scope-Preserving Formatter for Multiple Scopes
+
+Building upon the `ScopePreservingFormatter`, the library provides `MultipleScopePreservingFormatter` for handling
+commit messages where the scope field contains multiple, delimiter-separated values (e.g.,
+`feat(api|db|frontend): ...`). This formatter allows for fine-grained control over which of these multiple scopes are
+included in the `CHANGELOG.md` and how they are formatted collectively.
+
+#### Key Features of `MultipleScopePreservingFormatter`:
+
+- **Multi-Scope Handling**: Splits the commit's scope string (e.g., `api|db|frontend`) using a configurable source
+  separator (default `|`).
+- **Individual Scope Processing**: Each individual scope part is processed against the list of preserved scopes (which
+  can include `ScopeInterpreterInterface` implementations like `SinglePreservedScopeInterpreter` or
+  `RegexpScopeInterpreter`, or literal strings) using the same logic as `ScopePreservingFormatter`.
+- **Scope Filtering**: Non-preserved individual scopes are filtered out.
+- **Re-joining**: The preserved and processed individual scopes are joined back together using a configurable
+  destination separator (default `|`).
+- **Overall Formatting**: An overall template is applied to the final joined string of scopes, allowing control over the
+  prefix/suffix added to the entire scope block (e.g., `'%s: '` results in `api|db: `).
+- **Independence from Parent's `outputTemplate`**: Unlike `ScopePreservingFormatter`, this formatter *does not use* the
+  parent class's `outputTemplate`. Formatting is controlled exclusively by the `overallTemplate` parameter.
+
+#### Basic Usage:
+
+```php
+use Vasoft\VersionIncrement\Changelog\MultipleScopePreservingFormatter;
+
+return (new \Vasoft\VersionIncrement\Config())
+    ->setChangelogFormatter(new MultipleScopePreservingFormatter(['api', 'db']));
+```
+
+In this example, if a commit has the scope `api|db|frontend`, only `api|db` will be preserved in the `CHANGELOG.md`. The
+`frontend` scope will be ignored. The result will be formatted using the default template `'%s '`, yielding `api|db `
+before the commit description.
+
+#### Advanced Usage with Interpreters:
+
+You can use interpreters like `SinglePreservedScopeInterpreter` or `RegexpScopeInterpreter` within
+`MultipleScopePreservingFormatter`:
+
+```php
+use Vasoft\VersionIncrement\Changelog\MultipleScopePreservingFormatter;
+use Vasoft\VersionIncrement\Changelog\Interpreter\SinglePreservedScopeInterpreter;
+use Vasoft\VersionIncrement\Changelog\Interpreter\RegexpScopeInterpreter;
+
+$config = new \Vasoft\VersionIncrement\Config();
+$config->addScope('api', 'API Module')
+       ->addScope('db', 'Database Layer');
+
+return $config
+    ->setChangelogFormatter(new MultipleScopePreservingFormatter([
+        'api',
+        'db',
+        new RegexpScopeInterpreter('#^task(\d+)$#', '[Task $1]'),
+        new SinglePreservedScopeInterpreter(['dev'], $config, '{%s}'),
+    ]));
+```
+
+If a commit has the scope `api|task456|dev|unknown`, and `unknown` is not in the preserved list, the result (with
+default settings) would be `API Module|[Task 456]|{dev}`.
+
+#### Configuring Separators and Template:
+
+You can customize the separators and the overall template:
+
+```php
+use Vasoft\VersionIncrement\Changelog\MultipleScopePreservingFormatter;
+
+// Use '#' as the separator in the commit, ',' for joining in the changelog,
+// and add a colon and a space at the end
+$formatter = new MultipleScopePreservingFormatter(
+    preservedScopes: ['api', 'db'],
+    srcSeparator: '#',      // Separator in the original commit scope
+    dstSeparator: ',',      // Separator between scopes in the changelog
+    overallTemplate: '%s: ' // Overall formatting template
+);
+
+return (new \Vasoft\VersionIncrement\Config())
+    ->setChangelogFormatter($formatter);
+```
+
+If the commit is `feat(api#db): ...`, the result would be `API Module,Database Layer: ...` (assuming `addScope` was used
+for the mapping).
 
 ### Configuring Human-Readable Titles for Scopes
 
