@@ -25,7 +25,7 @@ class ScopePreservingFormatter implements ChangelogFormatterInterface
      * @param array<RegexpScopeInterpreter|string> $preservedScopes An optional array of scopes to preserve in the changelog.
      *                                                              If empty, all scopes will be included.
      */
-    public function __construct(private readonly array $preservedScopes = []) {}
+    public function __construct(protected readonly array $preservedScopes = []) {}
 
     /**
      * Generates a changelog while preserving specified scopes.
