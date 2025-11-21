@@ -1,3 +1,12 @@
+# 3.2.0 (2025-11-21)
+
+### New features
+- Add MultipleScopePreservingFormatter for multi-scope commits
+- Add SinglePreservedScopeInterpreter for selective scope formatting
+
+### Fixes
+- Handle null tag in getFilesSinceTag error message
+
 # 3.1.0 (2025-10-17)
 
 ### New features
